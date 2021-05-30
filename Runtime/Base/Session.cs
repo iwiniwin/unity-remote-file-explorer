@@ -65,7 +65,7 @@ namespace URFS
             m_PackResetEvent.Set();
         }
 
-        internal virtual void Update(float dt)
+        public virtual void Update(float dt)
         {
             if(CurrentClient != null)
             {
@@ -105,7 +105,6 @@ namespace URFS
                     }
                     catch (Exception e)
                     {
-                        Debug.LogError(e.ToString());
                         if (Status != ConnectStatus.Disconnect)
                         {
                             Close();
@@ -166,14 +165,17 @@ namespace URFS
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError(e.ToString());
                     if (Status != ConnectStatus.Disconnect)
                     {
                         Close();
                     }
                     return;
                 }
-                if (readLength > 0)
+                if(readLength == 0)  // 主动断开
+                {
+                    Close();
+                }
+                else if (readLength > 0)
                 {
                     lock (m_ReceiveOctets)
                     {
@@ -214,7 +216,6 @@ namespace URFS
 
         public virtual void Close()
         {
-            UnityEngine.Debug.Log("close close iiiiii");
             Status = ConnectStatus.Disconnect;
 
             if (m_PackerQueue != null)

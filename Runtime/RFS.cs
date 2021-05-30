@@ -29,17 +29,5 @@ namespace URFS
                 return m_Server;
             }
         }
-
-        public void Update(float dt)
-        {
-            if(m_Client != null)
-            {
-                m_Client.Update(dt);
-            }
-            if(m_Server != null)
-            {
-                m_Server.Update(dt);
-            }
-        }
     }
 }

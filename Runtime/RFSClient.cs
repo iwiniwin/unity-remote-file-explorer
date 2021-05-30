@@ -18,10 +18,8 @@ namespace URFS
         {
             Status = ConnectStatus.Connecting;
             m_Client = new TcpClient(AddressFamily.InterNetwork);
-            UnityEngine.Debug.Log(host + " " + prot + "       kehuduan ");
             m_Client.BeginConnect(host, prot, (asyncResult) =>
             {
-                UnityEngine.Debug.Log(m_Client.Connected + "    gggg");
                 if (m_Client.Connected)
                 {
                     Status = ConnectStatus.Connected;
