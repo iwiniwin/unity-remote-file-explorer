@@ -24,6 +24,7 @@ namespace URFS
         private ConnectStatus m_Status = ConnectStatus.Disconnect;
 
         public event Action<ConnectStatus> OnConnectStatusChanged;
+        public event Action<MessageUnpacker> OnReceiveMessage;
 
         public ConnectStatus Status
         {
@@ -65,10 +66,25 @@ namespace URFS
             m_PackResetEvent.Set();
         }
 
-        public virtual void Update(float dt)
+        public void Update(float dt)
         {
-            if(CurrentClient != null)
+            if(m_UnpackerQueue != null && m_UnpackerQueue.Count > 0)
             {
+                MessageUnpacker unpacker;
+                m_UnpackerQueue.TryDequeue(out unpacker);
+                OnReceiveMessage(unpacker);
+            }
+        }
+
+        public void StartTransferThreads()
+        {
+            bool changed = m_Status != ConnectStatus.Connected;
+            m_Status = ConnectStatus.Connected;
+            StartSendThread();
+            StartReceiveThread();
+            if(changed)
+            {
+                OnConnectStatusChanged(m_Status);
             }
         }
 
@@ -171,6 +187,7 @@ namespace URFS
                     }
                     return;
                 }
+                Debug.Log(readLength + " read length");
                 if(readLength == 0)  // 主动断开
                 {
                     Close();

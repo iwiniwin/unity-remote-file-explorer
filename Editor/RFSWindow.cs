@@ -14,15 +14,11 @@ namespace URFS.Editor
             EditorWindow.GetWindow(typeof(RFSWindow));
         }
 
+        private RFSServer m_Server;
+
         private void Awake()
         {
-            Debug.Log("awake.........");
-            var server = RFS.Instance.Server;
-            if (server.Status == ConnectStatus.Disconnect)
-            {
-                server.OnConnectStatusChanged += OnConnectStatusChanged;
-                server.Start(m_Host, m_Port);
-            }
+            
         }
 
         public void OnConnectStatusChanged(ConnectStatus status)
@@ -41,13 +37,34 @@ namespace URFS.Editor
             }
         }
 
+        public void OnReceiveMessage(MessageUnpacker unpacker)
+        {
+            
+            QueryDirectoryInfo.Req req = new QueryDirectoryInfo.Req();
+            req.Unpack(unpacker);
+
+            Debug.Log(req.Directory + "  收到。。。。。。");
+
+            unpacker.Reset();
+            UnpackerPool.Instance.Release(unpacker);
+        }
+
         private void Update() 
         {
-            RFS.Instance.Update(0);
+            if(m_Server == null)
+            {
+                m_Server = RFS.Instance.Server;
+                if (m_Server.Status == ConnectStatus.Disconnect)
+                {
+                    m_Server.OnConnectStatusChanged += OnConnectStatusChanged;
+                    m_Server.OnReceiveMessage += OnReceiveMessage;
+                    m_Server.Start(m_Host, m_Port);
+                }
+            }
+            RFS.Instance.Server.Update(0);
         }
 
         private void OnDestroy() {
-            Debug.Log("on destroy.............");
             RFS.Instance.Server.Stop();
         }
     }

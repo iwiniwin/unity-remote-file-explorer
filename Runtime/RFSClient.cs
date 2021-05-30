@@ -22,9 +22,7 @@ namespace URFS
             {
                 if (m_Client.Connected)
                 {
-                    Status = ConnectStatus.Connected;
-                    StartSendThread();
-                    StartReceiveThread();
+                    StartTransferThreads();
                 }
                 else
                 {

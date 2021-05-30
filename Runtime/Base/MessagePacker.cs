@@ -31,8 +31,7 @@ namespace URFS
 
         public void End() 
         {
-            m_Header.Size = (UInt32)MessageHeader.Length;
-            m_Header.Size += (UInt32)m_Data.Length;
+            m_Header.Size = (UInt32)m_Data.Length;
             m_Data.Overwrite(m_Header.GetBytes(), 0);
         }
 

@@ -2,7 +2,7 @@ namespace URFS
 {
     public abstract class Message 
     {
-        public abstract void Unpack(MessageUnpacker unpacker);
-        public abstract void Pack(MessagePacker packer);
+        public abstract MessageUnpacker Unpack(MessageUnpacker unpacker);
+        public abstract MessagePacker Pack(MessagePacker packer);
     }
 }

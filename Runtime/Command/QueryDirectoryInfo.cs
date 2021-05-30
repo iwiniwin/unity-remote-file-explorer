@@ -8,24 +8,31 @@ namespace URFS
         {
             public string Directory;
             public CMD CMD;
+
+            public Req()
+            {
+            }
+
             public Req(string directory)
             {
                 Directory = directory;
             }
 
-            public override void Pack(MessagePacker packer)
+            public override MessagePacker Pack(MessagePacker packer)
             {
                 packer.Begin();
                 packer.WriteUInt(CMD.QueryDirectoryInfo.ToUInt());
                 packer.WriteString(Directory);
                 packer.End();
+                return packer;
             }
 
-            public override void Unpack(MessageUnpacker unpacker)
+            public override MessageUnpacker Unpack(MessageUnpacker unpacker)
             {
                 unpacker.ReadHeader();
                 this.CMD = (CMD)unpacker.ReadUInt();
                 this.Directory = unpacker.ReadString();
+                return unpacker;
             }
         }
 
@@ -42,7 +49,7 @@ namespace URFS
                 this.SubDirectories = subDirectories;
                 this.SubFiles = subFiles;
             }
-            public override void Pack(MessagePacker packer)
+            public override MessagePacker Pack(MessagePacker packer)
             {
                 packer.Begin();
                 packer.Header.Ack = this.Ack;
@@ -50,15 +57,17 @@ namespace URFS
                 packer.WriteStringArray(SubDirectories);
                 packer.WriteStringArray(SubFiles);
                 packer.End();
+                return packer;
             }
 
-            public override void Unpack(MessageUnpacker unpacker)
+            public override MessageUnpacker Unpack(MessageUnpacker unpacker)
             {
                 MessageHeader header = unpacker.ReadHeader();
                 this.Ack = header.Ack;
                 this.Exists = unpacker.ReadBool();
                 this.SubDirectories = unpacker.ReadStringArray();
                 this.SubFiles = unpacker.ReadStringArray();
+                return unpacker;
             }
         }
     }

@@ -37,9 +37,7 @@ namespace URFS
             Status = ConnectStatus.Connecting;
             m_Server.BeginAcceptTcpClient((asyncResult) => {
                 m_CurrentClient = m_Server.EndAcceptTcpClient(asyncResult);
-                Status = ConnectStatus.Connected;
-                StartSendThread();
-                StartReceiveThread();
+                StartTransferThreads();
             }, this);
         }
 
@@ -51,17 +49,20 @@ namespace URFS
                 m_CurrentClient.Close();
             }
             m_CurrentClient = null;
-
+            if(m_Server != null)
+            {
+                StartListen();
+            }
         }
 
         public void Stop()
         {
-            Close();
             if (m_Server != null)
             {
                 m_Server.Stop();
             }
             m_Server = null;
+            Close();
         }
     }
 }
