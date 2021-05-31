@@ -3,10 +3,9 @@ using System.Text;
 
 namespace URFS
 {
-    public class MessagePacker
+    public class Packer
     {
         public Octets m_Data = new Octets();
-        private MessageHeader m_Header = new MessageHeader();
 
         public Octets Data
         {
@@ -14,25 +13,6 @@ namespace URFS
             {
                 return m_Data;
             }
-        }
-
-        public MessageHeader Header 
-        {
-            get
-            {
-                return m_Header;
-            }
-        }
-
-        public void Begin()
-        {
-            m_Data.Push(m_Header.GetBytes());
-        }
-
-        public void End() 
-        {
-            m_Header.Size = (UInt32)m_Data.Length;
-            m_Data.Overwrite(m_Header.GetBytes(), 0);
         }
 
         public void WriteByte(byte b)
@@ -110,7 +90,6 @@ namespace URFS
 
         public void Reset() {
             m_Data.Clear();
-            m_Header.Reset();
         }
     }
 }

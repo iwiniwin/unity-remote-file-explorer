@@ -13,9 +13,9 @@ namespace URFS
         Disconnect,
     }
 
-    public class PackerPool : Singleton<Pool<MessagePacker>> { }
+    public class PackerPool : Singleton<Pool<Packer>> { }
 
-    public class UnpackerPool : Singleton<Pool<MessageUnpacker>> { }
+    public class UnpackerPool : Singleton<Pool<Unpacker>> { }
 
     public abstract class Session
     {
@@ -24,7 +24,7 @@ namespace URFS
         private ConnectStatus m_Status = ConnectStatus.Disconnect;
 
         public event Action<ConnectStatus> OnConnectStatusChanged;
-        public event Action<MessageUnpacker> OnReceiveMessage;
+        public event Action<Unpacker> OnReceiveMessage;
 
         public ConnectStatus Status
         {
@@ -34,7 +34,7 @@ namespace URFS
             }
             protected set
             {
-                if (m_Status != value)
+                if (m_Status != value && OnConnectStatusChanged != null)
                 {
                     OnConnectStatusChanged(value);
                 }
@@ -52,11 +52,11 @@ namespace URFS
         private Thread m_SendThread;
         private AutoResetEvent m_SendResetEvent;
 
-        private ConcurrentQueue<MessagePacker> m_PackerQueue;
+        private ConcurrentQueue<Packer> m_PackerQueue;
         private Thread m_PackThread;
         private AutoResetEvent m_PackResetEvent;
 
-        public void Send(MessagePacker packer)
+        public void Send(Packer packer)
         {
             if (m_PackerQueue == null)
             {
@@ -70,9 +70,12 @@ namespace URFS
         {
             if(m_UnpackerQueue != null && m_UnpackerQueue.Count > 0)
             {
-                MessageUnpacker unpacker;
+                Unpacker unpacker;
                 m_UnpackerQueue.TryDequeue(out unpacker);
-                OnReceiveMessage(unpacker);
+                if(OnReceiveMessage != null)
+                {
+                    OnReceiveMessage(unpacker);
+                }
             }
         }
 
@@ -82,7 +85,7 @@ namespace URFS
             m_Status = ConnectStatus.Connected;
             StartSendThread();
             StartReceiveThread();
-            if(changed)
+            if(changed && OnConnectStatusChanged != null)
             {
                 OnConnectStatusChanged(m_Status);
             }
@@ -96,7 +99,7 @@ namespace URFS
             m_SendThread = new Thread(SendThreadFunction);
             m_SendThread.Start();
 
-            m_PackerQueue = new ConcurrentQueue<MessagePacker>();
+            m_PackerQueue = new ConcurrentQueue<Packer>();
             m_PackResetEvent = new AutoResetEvent(false);
             m_PackThread = new Thread(PackThreadFunction);
             m_PackThread.Start();
@@ -135,7 +138,7 @@ namespace URFS
             while (Status == ConnectStatus.Connected)
             {
                 m_PackResetEvent.WaitOne();
-                MessagePacker packer;
+                Packer packer;
                 while (m_PackerQueue.TryDequeue(out packer))
                 {
                     lock (m_SendOctets)
@@ -153,7 +156,7 @@ namespace URFS
         private byte[] m_ReceiveBuffer;
         private Thread m_ReceiveThread;
 
-        private ConcurrentQueue<MessageUnpacker> m_UnpackerQueue;
+        private ConcurrentQueue<Unpacker> m_UnpackerQueue;
         private Thread m_UnpackThread;
         private AutoResetEvent m_UnpackResetEvent;
 
@@ -164,7 +167,7 @@ namespace URFS
             m_ReceiveThread = new Thread(ReceiveThreadFunction);
             m_ReceiveThread.Start();
 
-            m_UnpackerQueue = new ConcurrentQueue<MessageUnpacker>();
+            m_UnpackerQueue = new ConcurrentQueue<Unpacker>();
             m_UnpackResetEvent = new AutoResetEvent(false);
             m_UnpackThread = new Thread(UnpackThreadFunction);
             m_UnpackThread.Start();
@@ -224,7 +227,7 @@ namespace URFS
                     {
                         m_ReceiveOctets.Erase(0, messageLength, out receiveBytes);
                     }
-                    MessageUnpacker unpacker = UnpackerPool.Instance.Get();
+                    Unpacker unpacker = UnpackerPool.Instance.Get();
                     unpacker.Data.Push(receiveBytes);
                     m_UnpackerQueue.Enqueue(unpacker);
                 }
@@ -237,7 +240,7 @@ namespace URFS
 
             if (m_PackerQueue != null)
             {
-                MessagePacker packer;
+                Packer packer;
                 while (m_PackerQueue.TryDequeue(out packer))
                 {
                     packer.Reset();
@@ -247,7 +250,7 @@ namespace URFS
 
             if (m_UnpackerQueue != null)
             {
-                MessageUnpacker unpacker;
+                Unpacker unpacker;
                 while (m_UnpackerQueue.TryDequeue(out unpacker))
                 {
                     unpacker.Reset();

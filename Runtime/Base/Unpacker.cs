@@ -3,7 +3,7 @@ using System.Text;
 
 namespace URFS
 {
-    public class MessageUnpacker
+    public class Unpacker
     {
         public Octets m_Data = new Octets();
 

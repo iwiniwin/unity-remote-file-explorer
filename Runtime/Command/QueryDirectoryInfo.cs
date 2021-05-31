@@ -18,16 +18,16 @@ namespace URFS
                 Directory = directory;
             }
 
-            public override MessagePacker Pack(MessagePacker packer)
+            public override Packer Pack(Packer packer)
             {
-                packer.Begin();
+                BeginPack(packer);
                 packer.WriteUInt(CMD.QueryDirectoryInfo.ToUInt());
                 packer.WriteString(Directory);
-                packer.End();
+                EndPack(packer);
                 return packer;
             }
 
-            public override MessageUnpacker Unpack(MessageUnpacker unpacker)
+            public override Unpacker Unpack(Unpacker unpacker)
             {
                 unpacker.ReadHeader();
                 this.CMD = (CMD)unpacker.ReadUInt();
@@ -44,23 +44,23 @@ namespace URFS
             public string[] SubFiles;
             public Rsp(UInt32 ack, bool exists, string[] subDirectories, string[] subFiles)
             {
-                this.Ack = ack; 
+                Header.Ack = ack; 
                 this.Exists = exists;
                 this.SubDirectories = subDirectories;
                 this.SubFiles = subFiles;
             }
-            public override MessagePacker Pack(MessagePacker packer)
+            public override Packer Pack(Packer packer)
             {
-                packer.Begin();
-                packer.Header.Ack = this.Ack;
+                BeginPack(packer);
+                packer.WriteUInt(CMD.QueryDirectoryInfo.ToUInt());
                 packer.WriteBool(Exists);
                 packer.WriteStringArray(SubDirectories);
                 packer.WriteStringArray(SubFiles);
-                packer.End();
+                EndPack(packer);
                 return packer;
             }
 
-            public override MessageUnpacker Unpack(MessageUnpacker unpacker)
+            public override Unpacker Unpack(Unpacker unpacker)
             {
                 MessageHeader header = unpacker.ReadHeader();
                 this.Ack = header.Ack;
