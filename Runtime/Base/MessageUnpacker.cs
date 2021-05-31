@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 
 namespace URFS
 {
@@ -132,7 +133,7 @@ namespace URFS
         public string InternalReadString()
         {
             Int32 length = InternalReadInt();
-            string str = BitConverter.ToString(m_Data.Buffer, m_Pos, length);
+            string str = Encoding.UTF8.GetString(m_Data.Buffer, m_Pos, length);
             m_Pos += length;
             return str;
         }
