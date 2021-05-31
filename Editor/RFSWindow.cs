@@ -18,7 +18,7 @@ namespace URFS.Editor
 
         private void Awake()
         {
-            
+
         }
 
         public void OnConnectStatusChanged(ConnectStatus status)
@@ -27,6 +27,12 @@ namespace URFS.Editor
             {
                 case ConnectStatus.Connected:
                     Debug.Log("服务器 已连接。。。。。。");
+                    QueryDirectoryInfo.Req req = new QueryDirectoryInfo.Req
+                    {
+                        Directory = "E:/UnityProject/LastBattle/Assets/Scripts/Game/Message",
+                    };
+                    Debug.Log("auto senddd ");
+                    RFS.Instance.Server.Send(req.Pack(PackerPool.Instance.Get()));
                     break;
                 case ConnectStatus.Connecting:
                     Debug.Log("服务器 正在连接。。。。。。");
@@ -37,21 +43,9 @@ namespace URFS.Editor
             }
         }
 
-        public void OnReceiveMessage(MessageUnpacker unpacker)
+        private void Update()
         {
-            
-            QueryDirectoryInfo.Req req = new QueryDirectoryInfo.Req();
-            req.Unpack(unpacker);
-
-            Debug.Log(req.Directory + "  收到。。。。。。");
-
-            unpacker.Reset();
-            UnpackerPool.Instance.Release(unpacker);
-        }
-
-        private void Update() 
-        {
-            if(m_Server == null)
+            if (m_Server == null)
             {
                 m_Server = RFS.Instance.Server;
                 if (m_Server.Status == ConnectStatus.Disconnect)
@@ -64,7 +58,18 @@ namespace URFS.Editor
             RFS.Instance.Server.Update(0);
         }
 
-        private void OnDestroy() {
+        public void OnReceiveMessage(Unpacker unpacker)
+        {
+
+            URFS.CommandHandler.Handle(unpacker);
+            // if (rspPacker != null)
+            // {
+            //     RFS.Instance.Client.Send(rspPacker);
+            // }
+        }
+
+        private void OnDestroy()
+        {
             RFS.Instance.Server.Stop();
         }
     }

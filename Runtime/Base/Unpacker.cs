@@ -17,13 +17,6 @@ namespace URFS
             }
         }
 
-        public MessageHeader ReadHeader()
-        {
-            MessageHeader header = MessageHeader.Create(m_Data.Buffer);
-            m_Pos += MessageHeader.Length;
-            return header;
-        }
-
         public byte ReadByte()
         {
             ReadDataTypeFlag();
@@ -116,14 +109,14 @@ namespace URFS
             return b;
         }
 
-        private Int32 InternalReadInt()
+        public Int32 InternalReadInt()
         {
             Int32 i = BitConverter.ToInt32(m_Data.Buffer, m_Pos);
             m_Pos += sizeof(Int32);
             return i;
         }
 
-        private UInt32 InternalReadUInt()
+        public UInt32 InternalReadUInt()
         {
             UInt32 i = BitConverter.ToUInt32(m_Data.Buffer, m_Pos);
             m_Pos += sizeof(UInt32);
@@ -138,7 +131,7 @@ namespace URFS
             return str;
         }
 
-        private void ReadDataTypeFlag()
+        public void ReadDataTypeFlag()
         {
             ++m_Pos;
         }

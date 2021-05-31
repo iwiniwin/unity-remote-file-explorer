@@ -24,17 +24,9 @@ namespace URFS
                 return sizeof(UInt32) * 3;
             }
         }
-
-        public static MessageHeader Create(byte[] data)
+        
+        public static MessageHeader Create(UInt32 size, UInt32 seq, UInt32 ack)
         {
-            return Create(data, 0);
-        }
-
-        public static MessageHeader Create(byte[] data, int pos)
-        {
-            UInt32 size = BitConverter.ToUInt32(data, pos);
-            UInt32 seq = BitConverter.ToUInt32(data, pos + sizeof(UInt32));
-            UInt32 ack = BitConverter.ToUInt32(data, pos + sizeof(UInt32) * 2);
             return new MessageHeader(size, seq, ack);
         }
 

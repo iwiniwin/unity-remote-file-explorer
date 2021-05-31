@@ -2,7 +2,7 @@ namespace URFS
 {
     public enum CMD : uint
     {
-        QueryDirectoryInfo,
+        QueryDirectoryInfo = 1,
     }
 
     public static class CMDExtend

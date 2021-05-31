@@ -2,15 +2,16 @@ using System;
 
 namespace URFS
 {
-    public abstract class Message 
+    public abstract class Message
     {
-        public MessageHeader Header = new MessageHeader();
+        public MessageHeader Header;
         public abstract Unpacker Unpack(Unpacker unpacker);
         public abstract Packer Pack(Packer packer);
 
         public void BeginPack(Packer packer)
         {
-             packer.Data.Push(Header.GetBytes());
+            Header = new MessageHeader();
+            packer.Data.Push(Header.GetBytes());
         }
 
         public void EndPack(Packer packer)
@@ -18,5 +19,14 @@ namespace URFS
             Header.Size = (UInt32)packer.Data.Length;
             packer.Data.Overwrite(Header.GetBytes(), 0);
         }
+
+        public static MessageHeader UnpackHeader(Unpacker unpacker)
+        {
+            UInt32 size = unpacker.InternalReadUInt();
+            UInt32 seq = unpacker.InternalReadUInt();
+            UInt32 ack = unpacker.InternalReadUInt();
+            return MessageHeader.Create(size, seq, ack);
+        }
+
     }
 }

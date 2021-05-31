@@ -84,6 +84,7 @@ namespace URFS
             m_Data.Push(BitConverter.GetBytes(data.Length));
             for (int i = 0; i < data.Length; i++)
             {
+                m_Data.Push(BitConverter.GetBytes(data[i].Length));
                 m_Data.Push(Encoding.UTF8.GetBytes(data[i]));
             }
         }
