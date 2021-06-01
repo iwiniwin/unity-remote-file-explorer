@@ -8,19 +8,23 @@ namespace URFS
         {
             public string Directory;
 
-            public override Packer Pack(Packer packer)
+            public override Package Pack()
             {
-                BeginPack(packer);
-                packer.WriteUInt(CMD.QueryDirectoryInfo.ToUInt());
-                packer.WriteString(Directory);
-                EndPack(packer);
-                return packer;
+                Package package = new Package();
+                package.Head = new PackageHead();
+                package.Body = new Octets();
+                Packer.Bind(package.Body);
+                Packer.WriteString(Directory);
+                package.Head.Size = (uint)(package.Body.Length + PackageHead.Length);
+                Packer.Unbind();
+                return package;
             }
 
-            public override Unpacker Unpack(Unpacker unpacker)
+            public override void Unpack(Package package)
             {
-                this.Directory = unpacker.ReadString();
-                return unpacker;
+                Unpacker.Bind(package.Body);
+                this.Directory = Unpacker.ReadString();
+                Unpacker.Unbind();
             }
         }
 
@@ -31,24 +35,28 @@ namespace URFS
             public string[] SubDirectories;
             public string[] SubFiles;
 
-            public override Packer Pack(Packer packer)
+            public override Package Pack()
             {
-                BeginPack(packer);
-                this.Header.Ack = this.Ack;
-                packer.WriteUInt(CMD.QueryDirectoryInfo.ToUInt());
-                packer.WriteBool(Exists);
-                packer.WriteStringArray(SubDirectories);
-                packer.WriteStringArray(SubFiles);
-                EndPack(packer);
-                return packer;
+                Package package = new Package();
+                package.Head = new PackageHead();
+                package.Head.Ack = this.Ack;
+                package.Body = new Octets();
+                Packer.Bind(package.Body);
+                Packer.WriteBool(Exists);
+                Packer.WriteStringArray(SubDirectories);
+                Packer.WriteStringArray(SubFiles);
+                package.Head.Size = (uint)(package.Body.Length + PackageHead.Length);
+                Packer.Unbind();
+                return package;
             }
 
-            public override Unpacker Unpack(Unpacker unpacker)
+            public override void Unpack(Package package)
             {
-                this.Exists = unpacker.ReadBool();
-                this.SubDirectories = unpacker.ReadStringArray();
-                this.SubFiles = unpacker.ReadStringArray();
-                return unpacker;
+                Unpacker.Bind(package.Body);
+                this.Exists = Unpacker.ReadBool();
+                this.SubDirectories = Unpacker.ReadStringArray();
+                this.SubFiles = Unpacker.ReadStringArray();
+                Unpacker.Unbind();
             }
         }
     }

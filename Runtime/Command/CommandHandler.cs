@@ -6,68 +6,56 @@ namespace URFS
     public class CommandHandler
     {
         private static string[] emptyStringArray = new string[]{};
-        public static Packer Handle(Unpacker unpacker)
+
+        public static Package Handle(Package package)
         {
-            MessageHeader header = Message.UnpackHeader(unpacker);
-            CMD cmd = GetCMD(unpacker);
-            if(header.Ack == 0)
+            if(package.Head.Ack == 0)
             {
-                return HandleRequest(header, cmd, unpacker);
+                return HandleRequest(package);
             }
             else
             {
-                HandleResponse(header, cmd, unpacker);
-                return null;
+                HandleResponse(package);
             }
+            return null;
         }
 
-        public static Packer HandleRequest(MessageHeader header, CMD cmd, Unpacker unpacker)
+        public static Package HandleRequest(Package package)
         {
-            Packer packer = null;
+            Package response = null;
+            CMD cmd = (CMD)package.Head.Type;
             switch(cmd)
             {
                 case CMD.QueryDirectoryInfo:
                     QueryDirectoryInfo.Req req = new QueryDirectoryInfo.Req();
-                    req.Unpack(unpacker);
+                    req.Unpack(package);
 
                     bool exists = Directory.Exists(req.Directory);
                     QueryDirectoryInfo.Rsp rsp = new QueryDirectoryInfo.Rsp{
-                        Ack = header.Seq,
+                        Ack = package.Head.Seq,
                         Exists = exists,
                         SubDirectories = exists ? Directory.GetDirectories(req.Directory) : emptyStringArray,
                         SubFiles = exists ? Directory.GetFiles(req.Directory) : emptyStringArray,
                     };
-                    // packer = rsp.Pack(PackerPool.Instance.Get());
-                    packer = rsp.Pack(new Packer());
-                    DebugEx.Log(packer.Data.Length + "      len");
+                    response = rsp.Pack();
                     break;
             }
-            unpacker.Reset();
-            UnpackerPool.Instance.Release(unpacker);
-            return packer;
+            return response;
         }
 
-        public static void HandleResponse(MessageHeader header, CMD cmd, Unpacker unpacker)
+        public static void HandleResponse(Package package)
         {
+            CMD cmd = (CMD)package.Head.Type;
             switch(cmd)
             {
                 case CMD.QueryDirectoryInfo:
                     QueryDirectoryInfo.Rsp rsp = new QueryDirectoryInfo.Rsp();
-                    rsp.Unpack(unpacker);
-
-                    Output.Dump(rsp, "ffffffffffff");
-                    Output.Dump(rsp.Exists, "vvvvvvv1");
-                    Output.Dump(rsp.SubDirectories, "vvvvvvv2");
-                    Output.Dump(rsp.SubFiles, "vvvvvvv3");
+                    rsp.Unpack(package);
+                    Output.Dump(rsp.Exists);
+                    Output.Dump(rsp.SubDirectories);
+                    Output.Dump(rsp.SubFiles);
                     break;
             }
-            unpacker.Reset();
-            UnpackerPool.Instance.Release(unpacker);
-        }
-
-        public static CMD GetCMD(Unpacker unpacker)
-        {
-            return (CMD)unpacker.ReadUInt();
         }
     }
 }

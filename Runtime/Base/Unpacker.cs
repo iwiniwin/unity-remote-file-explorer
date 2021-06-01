@@ -5,140 +5,114 @@ namespace URFS
 {
     public class Unpacker
     {
-        public Octets m_Data = new Octets();
+        private static int m_Pos = 0;
 
-        private int m_Pos = 0;
+        private static byte[] m_Data;
 
-        public Octets Data
+        private Unpacker() {}
+
+        public static void Bind(Octets octets)
         {
-            get
-            {
-                return m_Data;
-            }
+            Bind(octets.Buffer, 0);
         }
 
-        public byte ReadByte()
+        public static void Bind(byte[] data)
         {
-            ReadDataTypeFlag();
-            return InternalReadByte();
+            m_Data = data;
+            m_Pos = 0;
         }
 
-        public bool ReadBool()
+        public static void Bind(Octets octets, int pos)
         {
-            ReadDataTypeFlag();
-            return InternalReadBool();
+            Bind(octets.Buffer, pos);
         }
 
-        public Int32 ReadInt()
+        public static void Bind(byte[] data, int pos)
         {
-            ReadDataTypeFlag();
-            return InternalReadInt();
+            m_Data = data;
+            m_Pos = pos;
         }
 
-        public UInt32 ReadUInt()
+        public static void Unbind()
         {
-            ReadDataTypeFlag();
-            return InternalReadUInt();
+            m_Data = null;
+            m_Pos = 0;
         }
 
-        public string ReadString()
+        public static byte ReadByte()
         {
-            ReadDataTypeFlag();
-            return InternalReadString();
+            return m_Data[m_Pos++];
         }
 
-        public byte[] ReadByteArray()
+        public static bool ReadBool()
         {
-            ReadDataTypeFlag();
-            ReadDataTypeFlag();
-            Int32 length = InternalReadInt();
-            byte[] data = new byte[length];
-            Array.Copy(m_Data.Buffer, m_Pos, data, 0, length);
-            m_Pos += length;
-            return data;
-        }
-
-        public Int32[] ReadIntArray()
-        {
-            ReadDataTypeFlag();
-            ReadDataTypeFlag();
-            Int32 length = InternalReadInt();
-            Int32[] data = new Int32[length];
-            for (int i = 0; i < length; i++)
-            {
-                data[i] = InternalReadInt();
-            }
-            return data;
-        }
-
-        public UInt32[] ReadUIntArray()
-        {
-            ReadDataTypeFlag();
-            ReadDataTypeFlag();
-            Int32 length = InternalReadInt();
-            UInt32[] data = new UInt32[length];
-            for (int i = 0; i < length; i++)
-            {
-                data[i] = InternalReadUInt();
-            }
-            return data;
-        }
-
-        public string[] ReadStringArray()
-        {
-            ReadDataTypeFlag();
-            ReadDataTypeFlag();
-            Int32 length = InternalReadInt();
-            string[] data = new string[length];
-            for (int i = 0; i < length; i++)
-            {
-                data[i] = InternalReadString();
-            }
-            return data;
-        }
-
-        public byte InternalReadByte()
-        {
-            return m_Data.Buffer[m_Pos++];
-        }
-
-        public bool InternalReadBool()
-        {
-            bool b = BitConverter.ToBoolean(m_Data.Buffer, m_Pos);
+            bool b = BitConverter.ToBoolean(m_Data, m_Pos);
             m_Pos += sizeof(bool);
             return b;
         }
 
-        public Int32 InternalReadInt()
+        public static Int32 ReadInt()
         {
-            Int32 i = BitConverter.ToInt32(m_Data.Buffer, m_Pos);
+            Int32 i = BitConverter.ToInt32(m_Data, m_Pos);
             m_Pos += sizeof(Int32);
             return i;
         }
 
-        public UInt32 InternalReadUInt()
+        public static UInt32 ReadUInt()
         {
-            UInt32 i = BitConverter.ToUInt32(m_Data.Buffer, m_Pos);
+            UInt32 i = BitConverter.ToUInt32(m_Data, m_Pos);
             m_Pos += sizeof(UInt32);
             return i;
         }
 
-        public string InternalReadString()
+        public static string ReadString()
         {
-            Int32 length = InternalReadInt();
-            string str = Encoding.UTF8.GetString(m_Data.Buffer, m_Pos, length);
+            Int32 length = ReadInt();
+            string str = Encoding.UTF8.GetString(m_Data, m_Pos, length);
             m_Pos += length;
             return str;
         }
 
-        public void ReadDataTypeFlag()
+        public static byte[] ReadByteArray()
         {
-            ++m_Pos;
+            Int32 length = ReadInt();
+            byte[] data = new byte[length];
+            Array.Copy(m_Data, m_Pos, data, 0, length);
+            m_Pos += length;
+            return data;
         }
 
-        public void Reset() {
-            m_Pos = 0;
-            m_Data.Clear();
+        public static Int32[] ReadIntArray()
+        {
+            Int32 length = ReadInt();
+            Int32[] data = new Int32[length];
+            for (int i = 0; i < length; i++)
+            {
+                data[i] = ReadInt();
+            }
+            return data;
+        }
+
+        public static UInt32[] ReadUIntArray()
+        {
+            Int32 length = ReadInt();
+            UInt32[] data = new UInt32[length];
+            for (int i = 0; i < length; i++)
+            {
+                data[i] = ReadUInt();
+            }
+            return data;
+        }
+
+        public static string[] ReadStringArray()
+        {
+            Int32 length = ReadInt();
+            string[] data = new string[length];
+            for (int i = 0; i < length; i++)
+            {
+                data[i] = ReadString();
+            }
+            return data;
         }
     }
 }

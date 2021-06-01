@@ -5,60 +5,72 @@ namespace URFS
 {
     public class Packer
     {
-        public Octets m_Data = new Octets();
+        private static Octets m_Data;
 
-        public Octets Data
+        private static Octets m_DefaultData = new Octets();
+
+        private Packer() {}
+
+        public static void Bind()
         {
-            get
-            {
-                return m_Data;
-            }
+            m_DefaultData.Clear();
+            m_Data = m_DefaultData;
         }
 
-        public void WriteByte(byte b)
+        public static void Bind(Octets octets)
         {
-            m_Data.Push(DataType.Byte.ToByte());
+            m_Data = octets;
+        }
+
+        public static void Unbind()
+        {
+            m_Data = null;
+        }
+
+        public static byte[] GetBuffer()
+        {
+            if(m_Data != null)
+            {
+                return m_Data.Buffer;
+            }
+            return null;
+        }
+
+        public static void WriteByte(byte b)
+        {
             m_Data.Push(b);
         }
 
-        public void WriteBool(bool b) 
+        public static void WriteBool(bool b) 
         {
-            m_Data.Push(DataType.Bool.ToByte());
             m_Data.Push(BitConverter.GetBytes(b));
         }
 
-        public void WriteInt(Int32 i)
+        public static void WriteInt(Int32 i)
         {
-            m_Data.Push(DataType.Int.ToByte());
             m_Data.Push(BitConverter.GetBytes(i));
         }
 
-        public void WriteUInt(UInt32 i)
+        public static void WriteUInt(UInt32 i)
         {
-            m_Data.Push(DataType.UInt.ToByte());
             m_Data.Push(BitConverter.GetBytes(i));
         }
 
-        public void WriteString(string str)
+        public static void WriteString(string str)
         {
             byte[] data = Encoding.UTF8.GetBytes(str);
-            m_Data.Push(DataType.String.ToByte());
             m_Data.Push(BitConverter.GetBytes(data.Length));
             m_Data.Push(data);
         }
 
-        public void WriteByteArray(byte[] data)
+        public static void WriteByteArray(byte[] data)
         {
-            m_Data.Push(DataType.Array.ToByte());
-            m_Data.Push(DataType.Byte.ToByte());
             m_Data.Push(BitConverter.GetBytes(data.Length));
             m_Data.Push(data);
         }
 
-        public void WriteIntArray(Int32[] data)
+        public static void WriteIntArray(Int32[] data)
         {
-            m_Data.Push(DataType.Array.ToByte());
-            m_Data.Push(DataType.Int.ToByte());
             m_Data.Push(BitConverter.GetBytes(data.Length));
             for (int i = 0; i < data.Length; i++)
             {
@@ -66,10 +78,8 @@ namespace URFS
             }
         }
 
-        public void WriteUIntArray(UInt32[] data)
+        public static void WriteUIntArray(UInt32[] data)
         {
-            m_Data.Push(DataType.Array.ToByte());
-            m_Data.Push(DataType.UInt.ToByte());
             m_Data.Push(BitConverter.GetBytes(data.Length));
             for (int i = 0; i < data.Length; i++)
             {
@@ -77,20 +87,14 @@ namespace URFS
             }
         }
 
-        public void WriteStringArray(string[] data)
+        public static void WriteStringArray(string[] data)
         {
-            m_Data.Push(DataType.Array.ToByte());
-            m_Data.Push(DataType.String.ToByte());
             m_Data.Push(BitConverter.GetBytes(data.Length));
             for (int i = 0; i < data.Length; i++)
             {
                 m_Data.Push(BitConverter.GetBytes(data[i].Length));
                 m_Data.Push(Encoding.UTF8.GetBytes(data[i]));
             }
-        }
-
-        public void Reset() {
-            m_Data.Clear();
         }
     }
 }

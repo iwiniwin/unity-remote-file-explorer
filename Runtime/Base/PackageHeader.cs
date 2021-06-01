@@ -2,7 +2,7 @@ using System;
 
 namespace URFS
 {
-    public class MessageHeader
+    public class PackageHeader
     {
         private static UInt32 uniqueSeq = 0;
         public UInt32 Size;
@@ -25,23 +25,23 @@ namespace URFS
             }
         }
         
-        public static MessageHeader Create(UInt32 size, UInt32 seq, UInt32 ack)
+        public static PackageHeader Create(UInt32 size, UInt32 seq, UInt32 ack)
         {
-            return new MessageHeader(size, seq, ack);
+            return new PackageHeader(size, seq, ack);
         }
 
-        private MessageHeader(UInt32 size, UInt32 seq, UInt32 ack)
+        private PackageHeader(UInt32 size, UInt32 seq, UInt32 ack)
         {
             this.Size = size;
             this.m_Seq = seq;
             this.Ack = ack;
         }
 
-        public MessageHeader() : this(0){}
+        public PackageHeader() : this(0){}
 
-        public MessageHeader(UInt32 size) : this(size, 0) {}
+        public PackageHeader(UInt32 size) : this(size, 0) {}
 
-        public MessageHeader(UInt32 size, UInt32 ack)
+        public PackageHeader(UInt32 size, UInt32 ack)
         {
             this.Size = size;
             this.m_Seq = ++ uniqueSeq;

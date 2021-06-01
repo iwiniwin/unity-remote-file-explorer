@@ -28,7 +28,7 @@ namespace URFS
             }
         }
 
-        public T Get()
+        public virtual T Get()
         {
             T element;
             if(m_Stack.Count == 0)
@@ -42,7 +42,7 @@ namespace URFS
             return element;
         }
 
-        public void Release(T element)
+        public virtual void Release(T element)
         {
             // 避免重复回收相同元素
             if(m_Stack.Count > 0 && ReferenceEquals(m_Stack.Peek(), element))
