@@ -140,12 +140,13 @@ namespace URFS
                     lock (m_SendOctets)
                     {
                         Packer.Bind();
+                        Packer.WriteUInt(package.Head.Size);
                         Packer.WriteUInt(package.Head.Seq);
-                        Packer.WriteUInt(package.Head.Seq);
-                        Packer.WriteUInt(package.Head.Seq);
-                        Packer.WriteUInt(package.Head.Seq);
+                        Packer.WriteUInt(package.Head.Ack);
+                        Packer.WriteUInt(package.Head.Type);
                         m_SendOctets.Push(Packer.GetBuffer(), PackageHead.Length);
                         Packer.Unbind();
+                        m_SendOctets.Push(package.Body.Buffer);
                         m_SendResetEvent.Set();
                     }
                     PackageManager.Instance.Release(package);

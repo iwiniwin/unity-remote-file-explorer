@@ -32,7 +32,7 @@ namespace URFS.Editor
                         Directory = "E:/UnityProject/LastBattle/Assets/Scripts/Game/Message",
                     };
                     Debug.Log("auto senddd ");
-                    RFS.Instance.Server.Send(req.Pack(PackerPool.Instance.Get()));
+                    RFS.Instance.Server.Send(req.Pack());
                     break;
                 case ConnectStatus.Connecting:
                     Debug.Log("服务器 正在连接。。。。。。");
@@ -51,17 +51,17 @@ namespace URFS.Editor
                 if (m_Server.Status == ConnectStatus.Disconnect)
                 {
                     m_Server.OnConnectStatusChanged += OnConnectStatusChanged;
-                    m_Server.OnReceiveMessage += OnReceiveMessage;
+                    m_Server.OnReceivePackage += OnReceivePackage;
                     m_Server.Start(m_Host, m_Port);
                 }
             }
             RFS.Instance.Server.Update(0);
         }
 
-        public void OnReceiveMessage(Unpacker unpacker)
+        public void OnReceivePackage(Package package)
         {
 
-            URFS.CommandHandler.Handle(unpacker);
+            URFS.CommandHandler.Handle(package);
             // if (rspPacker != null)
             // {
             //     RFS.Instance.Client.Send(rspPacker);

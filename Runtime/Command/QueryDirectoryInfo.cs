@@ -12,6 +12,7 @@ namespace URFS
             {
                 Package package = new Package();
                 package.Head = new PackageHead();
+                package.Head.Type = CMD.QueryDirectoryInfo.ToUInt();
                 package.Body = new Octets();
                 Packer.Bind(package.Body);
                 Packer.WriteString(Directory);
@@ -40,6 +41,7 @@ namespace URFS
                 Package package = new Package();
                 package.Head = new PackageHead();
                 package.Head.Ack = this.Ack;
+                package.Head.Type = CMD.QueryDirectoryInfo.ToUInt();
                 package.Body = new Octets();
                 Packer.Bind(package.Body);
                 Packer.WriteBool(Exists);
