@@ -2,6 +2,7 @@ using System.Net.Sockets;
 using System.Net;
 using System.Threading;
 using System;
+using System.Collections.Generic;
 
 namespace URFS
 {
@@ -12,7 +13,7 @@ namespace URFS
         public TcpListener m_Server;
         private TcpClient m_CurrentClient;
 
-        public event Action<Package> OnReceivePackage;
+        private Dictionary<UInt32, SendHandle> m_HandleDict = new Dictionary<uint, SendHandle>();
 
         public override TcpClient CurrentClient
         {
@@ -43,11 +44,25 @@ namespace URFS
             }, this);
         }
 
+        public new SendHandle Send(Package package)
+        {
+            base.Send(package);
+            SendHandle handle = new SendHandle();
+            handle.Finished = false;
+            m_HandleDict.Add(package.Head.Seq, handle);
+            return handle;
+        }
+
         public override void Receive(Package package)
         {
-            if(OnReceivePackage != null)
+            // RFS服务端只处理请求包的响应包
+            UInt32 ack = package.Head.Ack;
+            if(m_HandleDict.ContainsKey(ack))
             {
-                OnReceivePackage(package);
+                m_HandleDict[ack].Finished = true;
+                m_HandleDict[ack].Rsp = package;
+                m_HandleDict[ack].Msg = "success";
+                m_HandleDict.Remove(ack);
             }
         }
 
@@ -74,5 +89,17 @@ namespace URFS
             m_Server = null;
             Close();
         }
+    }
+
+
+    public class SendHandle : ICoroutineYield
+    {
+        public bool Finished = false;
+        public bool IsDone()
+        {
+            return Finished;
+        }
+        public string Msg;
+        public Package Rsp;
     }
 }

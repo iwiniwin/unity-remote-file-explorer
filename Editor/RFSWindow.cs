@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEditor;
+using System.Collections;
 
 namespace URFS.Editor
 {
@@ -27,12 +28,7 @@ namespace URFS.Editor
             {
                 case ConnectStatus.Connected:
                     Debug.Log("服务器 已连接。。。。。。");
-                    QueryDirectoryInfo.Req req = new QueryDirectoryInfo.Req
-                    {
-                        Directory = "E:/UnityProject/LastBattle/Assets/Scripts/Game/Message",
-                    };
-                    Debug.Log("auto senddd ");
-                    RFS.Instance.Server.Send(req.Pack());
+                    Coroutines.Start(SendRequest());
                     break;
                 case ConnectStatus.Connecting:
                     Debug.Log("服务器 正在连接。。。。。。");
@@ -43,28 +39,34 @@ namespace URFS.Editor
             }
         }
 
+        public IEnumerator SendRequest()
+        {
+            QueryDirectoryInfo.Req req = new QueryDirectoryInfo.Req
+            {
+                Directory = "E:/UnityProject/LastBattle/Assets/Scripts/Game/Message",
+            };
+            Debug.Log("auto senddd ");
+            SendHandle handle = RFS.Instance.Server.Send(req.Pack());
+            yield return handle;
+            QueryDirectoryInfo.Rsp rsp = new QueryDirectoryInfo.Rsp();
+            rsp.Unpack(handle.Rsp);
+            UDK.Output.Dump(rsp.Exists);
+            UDK.Output.Dump(rsp.SubDirectories);
+            UDK.Output.Dump(rsp.SubFiles);
+        }
+
         private void Update()
         {
+            Coroutines.Update();
             if (m_Server == null)
             {
                 m_Server = RFS.Instance.Server;
                 if (m_Server.Status == ConnectStatus.Disconnect)
                 {
                     m_Server.OnConnectStatusChanged += OnConnectStatusChanged;
-                    m_Server.OnReceivePackage += OnReceivePackage;
                     m_Server.Start(m_Host, m_Port);
                 }
             }
-        }
-
-        public void OnReceivePackage(Package package)
-        {
-
-            URFS.CommandHandler.Handle(package);
-            // if (rspPacker != null)
-            // {
-            //     RFS.Instance.Client.Send(rspPacker);
-            // }
         }
 
         private void OnDestroy()

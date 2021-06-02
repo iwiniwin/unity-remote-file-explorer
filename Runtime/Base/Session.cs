@@ -201,7 +201,6 @@ namespace URFS
                     {
                         break;
                     }
-                    Debug.Log(packageLength + "           vvv   " + m_ReceiveOctets.Length);
                     Octets receiveOctets;
                     lock (m_ReceiveOctets)
                     {

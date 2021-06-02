@@ -7,15 +7,7 @@ namespace URFS
     {
         private static Octets m_Data;
 
-        private static Octets m_DefaultData = new Octets();
-
         private Packer() {}
-
-        public static void Bind()
-        {
-            m_DefaultData.Clear();
-            m_Data = m_DefaultData;
-        }
 
         public static void Bind(Octets octets)
         {
