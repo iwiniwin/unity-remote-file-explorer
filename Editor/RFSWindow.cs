@@ -55,7 +55,6 @@ namespace URFS.Editor
                     m_Server.Start(m_Host, m_Port);
                 }
             }
-            RFS.Instance.Server.Update(0);
         }
 
         public void OnReceivePackage(Package package)

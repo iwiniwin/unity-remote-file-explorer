@@ -12,6 +12,8 @@ namespace URFS
         public TcpListener m_Server;
         private TcpClient m_CurrentClient;
 
+        public event Action<Package> OnReceivePackage;
+
         public override TcpClient CurrentClient
         {
             get
@@ -39,6 +41,14 @@ namespace URFS
                 m_CurrentClient = m_Server.EndAcceptTcpClient(asyncResult);
                 StartTransferThreads();
             }, this);
+        }
+
+        public override void Receive(Package package)
+        {
+            if(OnReceivePackage != null)
+            {
+                OnReceivePackage(package);
+            }
         }
 
         public override void Close()

@@ -5,15 +5,37 @@ namespace URFS
     public class Package
     {
         public PackageHead Head;
-        public Octets Body = new Octets();
+        public Octets Body;
 
-        public void Reset() 
+        // public void Reset() 
+        // {
+        //     if(Head != null)
+        //     {
+        //         Head.Reset();
+        //     }
+        //     Body.Clear();
+        // }
+
+        public virtual Octets Export()
         {
-            if(Head != null)
-            {
-                Head.Reset();
-            }
-            Body.Clear();
+            Octets octets = new Octets((int)Head.Size);
+            Packer.Bind(octets);
+            Packer.WriteUInt(Head.Size);
+            Packer.WriteUInt(Head.Seq);
+            Packer.WriteUInt(Head.Ack);
+            Packer.WriteUInt(Head.Type);
+            Packer.Unbind();
+            octets.Push(Body);
+            return octets;
+        }
+
+        public virtual void Import(Octets octets)
+        {
+            Unpacker.Bind(octets);
+            Head = PackageHead.Create(Unpacker.ReadUInt(), Unpacker.ReadUInt(), Unpacker.ReadUInt(), Unpacker.ReadUInt());
+            Unpacker.Unbind();
+            Body = new Octets();
+            Body.Push(octets.Buffer, PackageHead.Length, octets.Length - PackageHead.Length);
         }
     }
 
@@ -65,24 +87,23 @@ namespace URFS
             this.Ack = ack;
         }
 
-        public void Reset()
-        {
-            this.Size = 0;
-            this.m_Seq = ++ uniqueSeq;
-            this.Ack = 0;
-            this.Type = 0;
-        }
+        // public void Reset()
+        // {
+        //     this.Size = 0;
+        //     this.m_Seq = ++ uniqueSeq;
+        //     this.Ack = 0;
+        //     this.Type = 0;
+        // }
     }
 
-    public class PackagePool : Pool<Package>
-    {
-        public override Package Get()
-        {
-            Package package = base.Get();
-            package.Reset();
-            return package;
-        }
-    }
+    // public class PackagePool : Pool<Package>
+    // {
+    //     public override Package Get()
+    //     {
+    //         Package package = base.Get();
+    //         return package;
+    //     }
+    // }
 
-    public class PackageManager : Singleton<PackagePool> { }
+    // public class PackageManager : Singleton<PackagePool> { }
 }

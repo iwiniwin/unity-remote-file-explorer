@@ -46,6 +46,15 @@ namespace URFS
             m_Buffer = new byte[capacity];
         }
 
+        public Octets(int capacity, int length)
+        {
+            if(length < capacity)
+                length = capacity;
+            m_Length = length;
+            m_Capacity = capacity;
+            m_Buffer = new byte[capacity];
+        }
+
         public Octets(byte[] data, int length)
         {
             m_Length = length;
@@ -67,6 +76,11 @@ namespace URFS
             m_Length = o.m_Length;
             m_Capacity = o.m_Capacity;
             m_Buffer = o.m_Buffer;
+        }
+
+        public void Push(Octets o)
+        {
+            Push(o.Buffer, 0, o.Length);
         }
 
         public void Push(byte data)
@@ -136,10 +150,10 @@ namespace URFS
             m_Length -= length;
         }
 
-        public void Erase(int pos, int length, out byte[] eraseBytes)
+        public void Erase(int pos, int length, out Octets eraseOctets)
         {
-            eraseBytes = new byte[length];
-            Array.Copy(m_Buffer, pos, eraseBytes, 0, length);
+            eraseOctets = new Octets(length, length);
+            Array.Copy(m_Buffer, pos, eraseOctets.Buffer, 0, length);
             Array.Copy(m_Buffer, pos + length, m_Buffer, pos, m_Length - length - pos);
             m_Length -= length;
         }

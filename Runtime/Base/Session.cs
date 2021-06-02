@@ -20,7 +20,6 @@ namespace URFS
         private ConnectStatus m_Status = ConnectStatus.Disconnect;
 
         public event Action<ConnectStatus> OnConnectStatusChanged;
-        public event Action<Package> OnReceivePackage;
 
         public ConnectStatus Status
         {
@@ -52,7 +51,7 @@ namespace URFS
         private Thread m_PackThread;
         private AutoResetEvent m_PackResetEvent;
 
-        public void Send(Package package)
+        public virtual void Send(Package package)
         {
             if (m_SendQueue == null)
             {
@@ -60,19 +59,6 @@ namespace URFS
             }
             m_SendQueue.Enqueue(package);
             m_PackResetEvent.Set();
-        }
-
-        public void Update(float dt)
-        {
-            if(m_ReceiveQueue != null && m_ReceiveQueue.Count > 0)
-            {
-                Package package;
-                m_ReceiveQueue.TryDequeue(out package);
-                if(OnReceivePackage != null)
-                {
-                    OnReceivePackage(package);
-                }
-            }
         }
 
         public void StartTransferThreads()
@@ -108,15 +94,15 @@ namespace URFS
                 m_SendResetEvent.WaitOne();
                 while (m_SendOctets.Length > 0)
                 {
-                    byte[] sendBytes;
+                    Octets sendOctets;
                     lock (m_SendOctets)
                     {
                         int length = Math.Min(m_SendOctets.Length, m_SendBuffer.Length);
-                        m_SendOctets.Erase(0, length, out sendBytes);
+                        m_SendOctets.Erase(0, length, out sendOctets);
                     }
                     try
                     {
-                        CurrentClient.GetStream().Write(sendBytes, 0, sendBytes.Length);
+                        CurrentClient.GetStream().Write(sendOctets.Buffer, 0, sendOctets.Length);
                     }
                     catch (Exception e)
                     {
@@ -139,17 +125,9 @@ namespace URFS
                 {
                     lock (m_SendOctets)
                     {
-                        Packer.Bind();
-                        Packer.WriteUInt(package.Head.Size);
-                        Packer.WriteUInt(package.Head.Seq);
-                        Packer.WriteUInt(package.Head.Ack);
-                        Packer.WriteUInt(package.Head.Type);
-                        m_SendOctets.Push(Packer.GetBuffer(), PackageHead.Length);
-                        Packer.Unbind();
-                        m_SendOctets.Push(package.Body.Buffer);
+                        m_SendOctets.Push(package.Export());
                         m_SendResetEvent.Set();
                     }
-                    PackageManager.Instance.Release(package);
                 }
             }
         }
@@ -169,7 +147,6 @@ namespace URFS
             m_ReceiveThread = new Thread(ReceiveThreadFunction);
             m_ReceiveThread.Start();
 
-            m_ReceiveQueue = new ConcurrentQueue<Package>();
             m_UnpackResetEvent = new AutoResetEvent(false);
             m_UnpackThread = new Thread(UnpackThreadFunction);
             m_UnpackThread.Start();
@@ -224,42 +201,49 @@ namespace URFS
                     {
                         break;
                     }
-                    byte[] receiveBytes;
+                    Debug.Log(packageLength + "           vvv   " + m_ReceiveOctets.Length);
+                    Octets receiveOctets;
                     lock (m_ReceiveOctets)
                     {
-                        m_ReceiveOctets.Erase(0, packageLength, out receiveBytes);
+                        m_ReceiveOctets.Erase(0, packageLength, out receiveOctets);
                     }
-                    Package package = PackageManager.Instance.Get();
-                    Unpacker.Bind(receiveBytes);
-                    package.Head = PackageHead.Create(Unpacker.ReadUInt(), Unpacker.ReadUInt(), Unpacker.ReadUInt(), Unpacker.ReadUInt());
-                    Unpacker.Unbind();
-                    package.Body.Push(receiveBytes, PackageHead.Length, packageLength - PackageHead.Length);
-                    m_ReceiveQueue.Enqueue(package);
+                    Package package = new Package();
+                    package.Import(receiveOctets);
+                    Receive(package);
                 }
             }
+        }
+
+        public virtual void Receive(Package package)
+        {
+            if(m_ReceiveQueue == null)
+            {
+                m_ReceiveQueue = new ConcurrentQueue<Package>();
+            }
+            m_ReceiveQueue.Enqueue(package);
         }
 
         public virtual void Close()
         {
             Status = ConnectStatus.Disconnect;
 
-            if (m_SendQueue != null)
-            {
-                Package package;
-                while (m_SendQueue.TryDequeue(out package))
-                {
-                    PackageManager.Instance.Release(package);
-                }
-            }
+            // if (m_SendQueue != null)
+            // {
+            //     Package package;
+            //     while (m_SendQueue.TryDequeue(out package))
+            //     {
+            //         PackageManager.Instance.Release(package);
+            //     }
+            // }
 
-            if (m_ReceiveQueue != null)
-            {
-                Package package;
-                while (m_ReceiveQueue.TryDequeue(out package))
-                {
-                    PackageManager.Instance.Release(package);
-                }
-            }
+            // if (m_ReceiveQueue != null)
+            // {
+            //     Package package;
+            //     while (m_ReceiveQueue.TryDequeue(out package))
+            //     {
+            //         PackageManager.Instance.Release(package);
+            //     }
+            // }
         }
     }
 }

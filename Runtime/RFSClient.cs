@@ -1,3 +1,4 @@
+using System;
 using System.Net.Sockets;
 
 namespace URFS
@@ -5,6 +6,8 @@ namespace URFS
     public class RFSClient : Session
     {
         private TcpClient m_Client;
+
+        public event Action<Package> OnReceivePackage;
 
         public override TcpClient CurrentClient
         {
@@ -30,6 +33,14 @@ namespace URFS
                 }
                 m_Client.EndConnect(asyncResult);
             }, this);
+        }
+
+        public override void Receive(Package package)
+        {
+            if(OnReceivePackage != null)
+            {
+                OnReceivePackage(package);
+            }
         }
 
         public override void Close()
