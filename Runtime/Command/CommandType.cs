@@ -1,13 +1,13 @@
 namespace URFS
 {
-    public enum CMD : uint
+    public enum CommandType : uint
     {
         QueryDirectoryInfo = 1,
     }
 
-    public static class CMDExtend
+    public static class CommandTypeExtend
     {
-        public static uint ToUInt(this CMD t)
+        public static uint ToUInt(this CommandType t)
         {
             return (uint)t.GetHashCode();
         }

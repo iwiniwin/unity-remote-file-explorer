@@ -23,10 +23,10 @@ namespace URFS
         public static Package HandleRequest(Package package)
         {
             Package response = null;
-            CMD cmd = (CMD)package.Head.Type;
+            CommandType cmd = (CommandType)package.Head.Type;
             switch(cmd)
             {
-                case CMD.QueryDirectoryInfo:
+                case CommandType.QueryDirectoryInfo:
                     QueryDirectoryInfo.Req req = new QueryDirectoryInfo.Req();
                     req.Unpack(package);
 
@@ -45,10 +45,10 @@ namespace URFS
 
         public static void HandleResponse(Package package)
         {
-            CMD cmd = (CMD)package.Head.Type;
+            CommandType cmd = (CommandType)package.Head.Type;
             switch(cmd)
             {
-                case CMD.QueryDirectoryInfo:
+                case CommandType.QueryDirectoryInfo:
                     QueryDirectoryInfo.Rsp rsp = new QueryDirectoryInfo.Rsp();
                     rsp.Unpack(package);
                     Output.Dump(rsp.Exists);

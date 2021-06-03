@@ -159,7 +159,6 @@ namespace URFS
             }
             else if(current is ICoroutineYield)
             {
-                Debug.Log("rrrrrrrrrrrrrrrrr");
                 coroutine.CurrentYield = (ICoroutineYield)current;
             }
             else
