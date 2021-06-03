@@ -37,7 +37,7 @@ namespace URFS
 
         public override void Receive(Package package)
         {
-            if(OnReceivePackage != null)
+            if (OnReceivePackage != null)
             {
                 OnReceivePackage(package);
             }
@@ -46,7 +46,7 @@ namespace URFS
         public override void Close()
         {
             base.Close();
-            if(m_Client != null)
+            if (m_Client != null)
             {
                 m_Client.Close();
             }
@@ -54,5 +54,5 @@ namespace URFS
         }
     }
 
-    
+
 }

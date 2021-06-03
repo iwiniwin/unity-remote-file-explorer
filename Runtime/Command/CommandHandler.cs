@@ -1,5 +1,4 @@
 using System.IO;
-using UDK;
 
 namespace URFS
 {
@@ -51,9 +50,9 @@ namespace URFS
                 case CommandType.QueryDirectoryInfo:
                     QueryDirectoryInfo.Rsp rsp = new QueryDirectoryInfo.Rsp();
                     rsp.Unpack(package);
-                    Output.Dump(rsp.Exists);
-                    Output.Dump(rsp.SubDirectories);
-                    Output.Dump(rsp.SubFiles);
+                    // Output.Dump(rsp.Exists);
+                    // Output.Dump(rsp.SubDirectories);
+                    // Output.Dump(rsp.SubFiles);
                     break;
             }
         }

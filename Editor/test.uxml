@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="UnityEngine.UIElements"
+    xsi:noNamespaceSchemaLocation="../UIElementsSchema/UIElements.xsd"
+    xsi:schemaLocation="UnityEngine.UIElements ../UIElementsSchema/UnityEngine.UIElements.xsd">
+
+    <Label text="Select something to remove from your suitcase:"/>
+    <Box>
+        <Toggle name="boots" label="Boots" value="false" />
+        <Toggle name="helmet" label="Helmet" value="false" />
+        <Toggle name="cloak" label="Cloak of invisibility" value="false"/>
+    </Box>
+    <Box>
+        <Button name="cancel" text="Cancel" />
+        <Button name="ok" text="OK" />
+    </Box>
+</UXML>
