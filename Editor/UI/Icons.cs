@@ -6,8 +6,8 @@ namespace URFS.Editor.UI
 {   
     internal static class Icons
     {
-        public const string IconFolder = "Packages/com.unity.memoryprofiler/Package Resources/Icons/";
-        public static Texture2D RemoteFileExplorerTabIcon { get { return LoadIcon(IconFolder + "Memory Profiler.png"); } }
+        public const string IconFolder = "Packages/com.iwin.remotefileexplorer/Resources/Icons/";
+        public static Texture2D RemoteFileExplorerTabIcon { get { return LoadIcon(IconFolder + "RemoteFileExplorer.png"); } }
 
         static Texture2D LoadIcon(string resourcePath, bool autoScale = false)
         {

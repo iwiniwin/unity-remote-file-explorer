@@ -49,15 +49,28 @@ namespace URFS.Editor
                 }
             }
         }
+
+        bool m_WindowInitialized = false;
         static GUIContent s_Title = new GUIContent("Remote File Explorer");
 
         private static string m_Host = "192.168.1.6";
         private static int m_Port = 8999;
 
+        const string k_PackageResourcesPath = "Packages/com.iwin.remotefileexplorer/Resources/";
+        const string k_UxmlFilesPath = k_PackageResourcesPath + "UXML/";
+        const string k_WindowUxmlPath = k_UxmlFilesPath + "RemoteFileExplorer.uxml";
+        const string k_StyleSheetsPath = k_PackageResourcesPath + "StyleSheets/";
+        const string k_WindowCommonStyleSheetPath = k_StyleSheetsPath + "RemoteFileExplorer_style.uss";
+        const string k_WindowLightStyleSheetPath = k_StyleSheetsPath + "RemoteFileExplorer_style_light.uss";
+        const string k_WindowDarkStyleSheetPath = k_StyleSheetsPath + "RemoteFileExplorer_style_dark.uss";
+        const string k_WindowNewThemingStyleSheetPath = k_StyleSheetsPath + "RemoteFileExplorer_style_newTheming.uss";
+
+        VisualElement m_AttachToPlayerDropdownHolder;
+        VisualElement m_LeftPanel;
+
         [MenuItem("Window/Remote File Explorer")]
         public static void ShowWindow()
         {
-            Debug.Log(Content.Title.text);
             GetWindow<RemoteFileExplorer>(Content.Title.text);
         }
 
@@ -66,11 +79,63 @@ namespace URFS.Editor
             Debug.Log("服务器 vvvvvvvvvvvv");
         }
 
+        void OnGUI() 
+        {
+            if(m_WindowInitialized)
+                return;
+            Init();
+        }
+
+        void Init() 
+        {
+            m_WindowInitialized = true;
+            titleContent = Content.Title;
+        }
+
         private RFSServer m_Server;
 
         private void Awake()
         {
+            var root = this.rootVisualElement;
+            root.styleSheets.Add(AssetDatabase.LoadAssetAtPath<StyleSheet>(k_WindowCommonStyleSheetPath));
+            if(EditorGUIUtility.isProSkin)
+            {
+                root.styleSheets.Add(AssetDatabase.LoadAssetAtPath<StyleSheet>(k_WindowDarkStyleSheetPath));
+            }
+            else
+            {
+                root.styleSheets.Add(AssetDatabase.LoadAssetAtPath<StyleSheet>(k_WindowLightStyleSheetPath));
+            }
+            root.styleSheets.Add(AssetDatabase.LoadAssetAtPath<StyleSheet>(k_WindowNewThemingStyleSheetPath));
+            var windowTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(k_WindowUxmlPath);
+            windowTree.CloneTree(root);
 
+            // m_AttachToPlayerDropdownHolder = root.Q("attachToPlayerMenuPlaceholder");
+            // m_AttachToPlayerDropdownHolder.Add(new IMGUIContainer(DrawAttachToPlayerDropdown) {name = "attachToPlayerMenu"});
+
+
+            // m_LeftPanel = root.Q("sidebar");
+        }
+
+        void DrawAttachToPlayerDropdown()
+        {
+            // if(float.IsNaN(m_LeftPanel.layout.width) || m_lef)
+            float width = m_LeftPanel.layout.width;
+            // if(Content.atta)
+            m_AttachToPlayerDropdownHolder.style.minWidth = 100;
+            m_AttachToPlayerDropdownHolder.style.maxWidth = 200;
+            var rect = GUILayoutUtility.GetRect(width, 100);
+
+            rect.x--;
+            // PlayerConnection
+            var style = EditorStyles.toolbarDropDown;
+            if(!UnityEditor.EditorGUI.DropdownButton(rect, EditorGUIUtility.TrTextContent("Editor", "Target selection"), FocusType.Passive, style))
+            {
+                return;
+            }
+            GenericMenu menu = new GenericMenu();
+            menu.AddItem(new GUIContent("vvv"), false, null);
+            menu.DropDown(rect);
         }
 
         public void OnConnectStatusChanged(ConnectStatus status)
