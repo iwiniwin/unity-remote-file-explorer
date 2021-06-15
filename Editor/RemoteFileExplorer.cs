@@ -38,21 +38,7 @@ namespace URFS.Editor
     public class RemoteFileExplorer : EditorWindow
     {
 
-        static class Content
-        {
-            public static GUIContent Title
-            {
-                get
-                {
-                    s_Title.image = Icons.RemoteFileExplorerTabIcon;
-                    return s_Title;
-                }
-            }
-        }
-
         bool m_WindowInitialized = false;
-        static GUIContent s_Title = new GUIContent("Remote File Explorer");
-
         private static string m_Host = "192.168.1.6";
         private static int m_Port = 8999;
 
@@ -71,7 +57,7 @@ namespace URFS.Editor
         [MenuItem("Window/Remote File Explorer")]
         public static void ShowWindow()
         {
-            GetWindow<RemoteFileExplorer>(Content.Title.text);
+            GetWindow<RemoteFileExplorer>();
         }
 
         void OnEnable()
@@ -89,7 +75,7 @@ namespace URFS.Editor
         void Init() 
         {
             m_WindowInitialized = true;
-            titleContent = Content.Title;
+            titleContent = EditorGUIUtility.TrTextContentWithIcon("Remote File Explorer", "Project");
         }
 
         private RFSServer m_Server;
