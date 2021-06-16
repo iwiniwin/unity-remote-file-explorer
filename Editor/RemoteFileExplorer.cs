@@ -10,37 +10,6 @@ namespace URFS.Editor
 {
     public class RemoteFileExplorer : EditorWindow
     {
-
-        class PopupExample : PopupWindowContent
-        {
-            bool toggle1 = true;
-            bool toggle2 = true;
-            bool toggle3 = true;
-
-            public override Vector2 GetWindowSize()
-            {
-                return new Vector2(200, 150);
-            }
-
-            public override void OnGUI(Rect rect)
-            {
-                GUILayout.Label("Popup Options Example", EditorStyles.boldLabel);
-                toggle1 = EditorGUILayout.Toggle("Toggle 1", toggle1);
-                toggle2 = EditorGUILayout.Toggle("Toggle 2", toggle2);
-                toggle3 = EditorGUILayout.Toggle("Toggle 3", toggle3);
-            }
-
-            public override void OnOpen()
-            {
-                Debug.Log("Popup opened: " + this);
-            }
-
-            public override void OnClose()
-            {
-                Debug.Log("Popup closed: " + this);
-            }
-        }
-
         bool m_WindowInitialized = false;
         private static string m_Host = "192.168.1.6";
         private static int m_Port = 8999;
@@ -69,12 +38,6 @@ namespace URFS.Editor
         {
             if (!m_WindowInitialized)
                 Init();
-            
-
-            if(m_StatsToggle.value)
-            {
-                PopupWindow.Show(GetRect(m_StatsToggle), new PopupExample());
-            }
         }
 
         void Init()
@@ -105,13 +68,21 @@ namespace URFS.Editor
             windowTree.CloneTree(root);
 
             m_StatsToggle = root.Q<ToolbarToggle>("statsToggle");
-            // m_StatsToggle.RegisterValueChangedCallback(e =>
-            // {
-            //     // EditorGUILayout.Dropdowntogg
-            //     // Debug.Log(e.newValue);
-            //     PopupWindow.Show(GetRect(toggle), new PopupExample());
-
-            // });
+            // Color color;
+            //  ColorUtility.TryParseHtmlString("#00ff00", out color);
+            // m_StatsToggle.style.
+            var statsPanel = root.Q<Box>("statsPanel");
+            m_StatsToggle.RegisterValueChangedCallback(e =>
+            {
+                if(e.newValue)
+                {
+                    statsPanel.style.display = DisplayStyle.Flex;
+                }
+                else
+                {
+                    statsPanel.style.display = DisplayStyle.None;
+                }
+            });
 
             var menu = root.Q<ToolbarMenu>("goToMenu");
             menu.style.borderLeftWidth = 0;
