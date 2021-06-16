@@ -4,12 +4,42 @@ using System.Collections;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
 using URFS.Editor.UI;
-using PopupWindow = UnityEngine.UIElements.PopupWindow;
+using PopupWindow = UnityEditor.PopupWindow;
 
 namespace URFS.Editor
-{   
+{
     public class RemoteFileExplorer : EditorWindow
     {
+
+        class PopupExample : PopupWindowContent
+        {
+            bool toggle1 = true;
+            bool toggle2 = true;
+            bool toggle3 = true;
+
+            public override Vector2 GetWindowSize()
+            {
+                return new Vector2(200, 150);
+            }
+
+            public override void OnGUI(Rect rect)
+            {
+                GUILayout.Label("Popup Options Example", EditorStyles.boldLabel);
+                toggle1 = EditorGUILayout.Toggle("Toggle 1", toggle1);
+                toggle2 = EditorGUILayout.Toggle("Toggle 2", toggle2);
+                toggle3 = EditorGUILayout.Toggle("Toggle 3", toggle3);
+            }
+
+            public override void OnOpen()
+            {
+                Debug.Log("Popup opened: " + this);
+            }
+
+            public override void OnClose()
+            {
+                Debug.Log("Popup closed: " + this);
+            }
+        }
 
         bool m_WindowInitialized = false;
         private static string m_Host = "192.168.1.6";
@@ -24,9 +54,6 @@ namespace URFS.Editor
         const string k_WindowDarkStyleSheetPath = k_StyleSheetsPath + "RemoteFileExplorer_style_dark.uss";
         const string k_WindowNewThemingStyleSheetPath = k_StyleSheetsPath + "RemoteFileExplorer_style_newTheming.uss";
 
-        VisualElement m_AttachToPlayerDropdownHolder;
-        VisualElement m_LeftPanel;
-
         [MenuItem("Window/Remote File Explorer")]
         public static void ShowWindow()
         {
@@ -38,14 +65,19 @@ namespace URFS.Editor
             Debug.Log("服务器 vvvvvvvvvvvv");
         }
 
-        void OnGUI() 
+        void OnGUI()
         {
-            if(m_WindowInitialized)
-                return;
-            Init();
+            if (!m_WindowInitialized)
+                Init();
+            
+
+            if(m_StatsToggle.value)
+            {
+                PopupWindow.Show(GetRect(m_StatsToggle), new PopupExample());
+            }
         }
 
-        void Init() 
+        void Init()
         {
             m_WindowInitialized = true;
             titleContent = EditorGUIUtility.TrTextContentWithIcon("Remote File Explorer", "Project");
@@ -54,12 +86,13 @@ namespace URFS.Editor
         private RFSServer m_Server;
 
         IMGUIContainer m_BreadCrumbsContainer;
+        ToolbarToggle m_StatsToggle;
 
         private void Awake()
         {
             var root = this.rootVisualElement;
             root.styleSheets.Add(AssetDatabase.LoadAssetAtPath<StyleSheet>(k_WindowCommonStyleSheetPath));
-            if(EditorGUIUtility.isProSkin)
+            if (EditorGUIUtility.isProSkin)
             {
                 root.styleSheets.Add(AssetDatabase.LoadAssetAtPath<StyleSheet>(k_WindowDarkStyleSheetPath));
             }
@@ -70,19 +103,32 @@ namespace URFS.Editor
             root.styleSheets.Add(AssetDatabase.LoadAssetAtPath<StyleSheet>(k_WindowNewThemingStyleSheetPath));
             var windowTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(k_WindowUxmlPath);
             windowTree.CloneTree(root);
-            
-            var menu = root.Q<ToolbarMenu>("GoToMenu");
+
+            m_StatsToggle = root.Q<ToolbarToggle>("statsToggle");
+            // m_StatsToggle.RegisterValueChangedCallback(e =>
+            // {
+            //     // EditorGUILayout.Dropdowntogg
+            //     // Debug.Log(e.newValue);
+            //     PopupWindow.Show(GetRect(toggle), new PopupExample());
+
+            // });
+
+            var menu = root.Q<ToolbarMenu>("goToMenu");
             menu.style.borderLeftWidth = 0;
-            menu.RegisterCallback<MouseUpEvent>((MouseUpEvent e) => {
+            menu.RegisterCallback<MouseUpEvent>((MouseUpEvent e) =>
+            {
                 var m = new GenericMenu();
-                m.AddItem(new GUIContent("1111"), true, () => {
+                m.AddItem(new GUIContent("1111"), true, () =>
+                {
 
                 });
-                m.AddItem(new GUIContent("2222"), false, () => {
-                    
+                m.AddItem(new GUIContent("2222"), false, () =>
+                {
+
                 });
-                m.AddItem(new GUIContent("3333"), false, () => {
-                    
+                m.AddItem(new GUIContent("3333"), false, () =>
+                {
+
                 });
                 m.DropDown(GetRect(menu));
             });
@@ -97,7 +143,8 @@ namespace URFS.Editor
             var breadCrumbRoot = root.Q<VisualElement>("breadCrumbRoot");
             var breadCrumbView = root.Q<VisualElement>("breadCrumbView");
             m_BreadCrumbsContainer = root.Q<IMGUIContainer>("breadCrumbContainer");
-            breadCrumbRoot.RegisterCallback<MouseUpEvent>((MouseUpEvent e) => {
+            breadCrumbRoot.RegisterCallback<MouseUpEvent>((MouseUpEvent e) =>
+            {
                 breadCrumbEdit.style.display = DisplayStyle.Flex;
                 breadCrumbEdit.value = "this/sflsf/ddd/dddd";
                 var l = breadCrumbEdit.Q<VisualElement>("unity-text-input");
@@ -106,7 +153,8 @@ namespace URFS.Editor
 
                 breadCrumbView.style.display = DisplayStyle.None;
             });
-            breadCrumbEdit.RegisterCallback<FocusOutEvent>((FocusOutEvent e) => {
+            breadCrumbEdit.RegisterCallback<FocusOutEvent>((FocusOutEvent e) =>
+            {
                 breadCrumbEdit.style.display = DisplayStyle.None;
                 breadCrumbView.style.display = DisplayStyle.Flex;
             });
@@ -119,27 +167,27 @@ namespace URFS.Editor
             Rect rect = new Rect(m_BreadCrumbsContainer.contentRect);
             string text = "Assets";
             bool last = false;
-           
+
             GUIContent content = new GUIContent(text);
             GUIStyle style = last ? EditorStyles.boldLabel : EditorStyles.label;
             Vector2 size = style.CalcSize(content);
             rect.y -= 1;
             rect.width = size.x;
 
-            if(GUI.Button(rect, content, style))
+            if (GUI.Button(rect, content, style))
             {
-                
+
             }
 
             rect.y += 1;
-            
+
             rect.x += size.x;
             GUIStyle separatorStyle = "ArrowNavigationRight";
 
             Rect buttonRect = new Rect(rect.x, rect.y + (rect.height - separatorStyle.fixedHeight) / 2, separatorStyle.fixedWidth, separatorStyle.fixedHeight);
-            if(GUI.Button(buttonRect, GUIContent.none, separatorStyle))
+            if (GUI.Button(buttonRect, GUIContent.none, separatorStyle))
             {
-                
+
             }
         }
 
