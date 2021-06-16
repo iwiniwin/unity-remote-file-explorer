@@ -4,38 +4,10 @@ using System.Collections;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
 using URFS.Editor.UI;
+using PopupWindow = UnityEngine.UIElements.PopupWindow;
 
 namespace URFS.Editor
 {   
-    // class Styles
-    //     {
-    //         public GUIStyle bottomBarBg = "ProjectBrowserBottomBarBg";
-    //         public GUIStyle topBarBg = "ProjectBrowserTopBarBg";
-    //         public GUIStyle selectedPathLabel = "Label";
-    //         public GUIStyle exposablePopup = GetStyle("ExposablePopupMenu");
-    //         public GUIStyle exposablePopupItem = GetStyle("ExposablePopupItem");
-    //         public GUIStyle lockButton = "IN LockButton";
-    //         public GUIStyle separator = "ArrowNavigationRight";
-
-    //         public GUIContent m_FilterByLabel = EditorGUIUtility.TrIconContent("FilterByLabel", "Search by Label");
-    //         public GUIContent m_FilterByType = EditorGUIUtility.TrIconContent("FilterByType", "Search by Type");
-    //         public GUIContent m_CreateDropdownContent = EditorGUIUtility.IconContent("CreateAddNew");
-    //         public GUIContent m_SaveFilterContent = EditorGUIUtility.TrIconContent("Favorite", "Save search");
-    //         public GUIContent m_PackagesVisibilityContent = EditorGUIUtility.TrIconContent("SceneViewVisibility", "Number of hidden packages, click to toggle hidden packages visibility");
-    //         public GUIContent m_EmptyFolderText = EditorGUIUtility.TrTextContent("This folder is empty");
-    //         public GUIContent m_SearchIn = EditorGUIUtility.TrTextContent("Search:");
-
-    //         public Styles()
-    //         {
-    //             selectedPathLabel.alignment = TextAnchor.MiddleLeft;
-    //         }
-
-    //         static GUIStyle GetStyle(string styleName)
-    //         {
-    //             return styleName; // Implicit construction of GUIStyle
-    //         }
-    //     }
-
     public class RemoteFileExplorer : EditorWindow
     {
 
@@ -99,18 +71,32 @@ namespace URFS.Editor
             var windowTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(k_WindowUxmlPath);
             windowTree.CloneTree(root);
             
-
-            var menu = root.Query<ToolbarMenu>("GoToMenu").First();
+            var menu = root.Q<ToolbarMenu>("GoToMenu");
             menu.style.borderLeftWidth = 0;
+            menu.RegisterCallback<MouseUpEvent>((MouseUpEvent e) => {
+                var m = new GenericMenu();
+                m.AddItem(new GUIContent("1111"), true, () => {
 
-            var backwardsBtn = root.Query<ToolbarButton>("backwardsInHistoryButton").First();
-            var forwardsBtn = root.Query<ToolbarButton>("forwardsInHistoryButton").First();
+                });
+                m.AddItem(new GUIContent("2222"), false, () => {
+                    
+                });
+                m.AddItem(new GUIContent("3333"), false, () => {
+                    
+                });
+                m.DropDown(GetRect(menu));
+            });
+
+            var captureButton = root.Q<Button>("snapshot-control-area__capture-button");
+
+            var backwardsBtn = root.Q<ToolbarButton>("backwardsInHistoryButton");
+            var forwardsBtn = root.Q<ToolbarButton>("forwardsInHistoryButton");
             forwardsBtn.style.borderLeftWidth = 0;
 
-            var breadCrumbEdit = root.Query<TextField>("breadCrumbEdit").First();
-            var breadCrumbRoot = root.Query<VisualElement>("breadCrumbRoot").First();
-            var breadCrumbView = root.Query<VisualElement>("breadCrumbView").First();
-            m_BreadCrumbsContainer = root.Query<IMGUIContainer>("breadCrumbContainer").First();
+            var breadCrumbEdit = root.Q<TextField>("breadCrumbEdit");
+            var breadCrumbRoot = root.Q<VisualElement>("breadCrumbRoot");
+            var breadCrumbView = root.Q<VisualElement>("breadCrumbView");
+            m_BreadCrumbsContainer = root.Q<IMGUIContainer>("breadCrumbContainer");
             breadCrumbRoot.RegisterCallback<MouseUpEvent>((MouseUpEvent e) => {
                 breadCrumbEdit.style.display = DisplayStyle.Flex;
                 breadCrumbEdit.value = "this/sflsf/ddd/dddd";
@@ -155,6 +141,11 @@ namespace URFS.Editor
             {
                 
             }
+        }
+
+        public Rect GetRect(VisualElement element)
+        {
+            return new Rect(element.LocalToWorld(element.contentRect.position), element.contentRect.size);
         }
 
         public void OnConnectStatusChanged(ConnectStatus status)
