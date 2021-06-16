@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections;
 using UnityEngine.UIElements;
+using UnityEditor.UIElements;
 using URFS.Editor.UI;
 
 namespace URFS.Editor
@@ -80,6 +81,8 @@ namespace URFS.Editor
 
         private RFSServer m_Server;
 
+        IMGUIContainer m_BreadCrumbsContainer;
+
         private void Awake()
         {
             var root = this.rootVisualElement;
@@ -95,33 +98,63 @@ namespace URFS.Editor
             root.styleSheets.Add(AssetDatabase.LoadAssetAtPath<StyleSheet>(k_WindowNewThemingStyleSheetPath));
             var windowTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(k_WindowUxmlPath);
             windowTree.CloneTree(root);
+            
 
-            // m_AttachToPlayerDropdownHolder = root.Q("attachToPlayerMenuPlaceholder");
-            // m_AttachToPlayerDropdownHolder.Add(new IMGUIContainer(DrawAttachToPlayerDropdown) {name = "attachToPlayerMenu"});
+            var menu = root.Query<ToolbarMenu>("GoToMenu").First();
+            menu.style.borderLeftWidth = 0;
 
+            var backwardsBtn = root.Query<ToolbarButton>("backwardsInHistoryButton").First();
+            var forwardsBtn = root.Query<ToolbarButton>("forwardsInHistoryButton").First();
+            forwardsBtn.style.borderLeftWidth = 0;
 
-            // m_LeftPanel = root.Q("sidebar");
+            var breadCrumbEdit = root.Query<TextField>("breadCrumbEdit").First();
+            var breadCrumbRoot = root.Query<VisualElement>("breadCrumbRoot").First();
+            var breadCrumbView = root.Query<VisualElement>("breadCrumbView").First();
+            m_BreadCrumbsContainer = root.Query<IMGUIContainer>("breadCrumbContainer").First();
+            breadCrumbRoot.RegisterCallback<MouseUpEvent>((MouseUpEvent e) => {
+                breadCrumbEdit.style.display = DisplayStyle.Flex;
+                breadCrumbEdit.value = "this/sflsf/ddd/dddd";
+                var l = breadCrumbEdit.Q<VisualElement>("unity-text-input");
+                l.Focus();
+                breadCrumbEdit.SelectAll();
+
+                breadCrumbView.style.display = DisplayStyle.None;
+            });
+            breadCrumbEdit.RegisterCallback<FocusOutEvent>((FocusOutEvent e) => {
+                breadCrumbEdit.style.display = DisplayStyle.None;
+                breadCrumbView.style.display = DisplayStyle.Flex;
+            });
+
+            m_BreadCrumbsContainer.onGUIHandler = BreadCrumbBar;
         }
 
-        void DrawAttachToPlayerDropdown()
+        void BreadCrumbBar()
         {
-            // if(float.IsNaN(m_LeftPanel.layout.width) || m_lef)
-            float width = m_LeftPanel.layout.width;
-            // if(Content.atta)
-            m_AttachToPlayerDropdownHolder.style.minWidth = 100;
-            m_AttachToPlayerDropdownHolder.style.maxWidth = 200;
-            var rect = GUILayoutUtility.GetRect(width, 100);
+            Rect rect = new Rect(m_BreadCrumbsContainer.contentRect);
+            string text = "Assets";
+            bool last = false;
+           
+            GUIContent content = new GUIContent(text);
+            GUIStyle style = last ? EditorStyles.boldLabel : EditorStyles.label;
+            Vector2 size = style.CalcSize(content);
+            rect.y -= 1;
+            rect.width = size.x;
 
-            rect.x--;
-            // PlayerConnection
-            var style = EditorStyles.toolbarDropDown;
-            if(!UnityEditor.EditorGUI.DropdownButton(rect, EditorGUIUtility.TrTextContent("Editor", "Target selection"), FocusType.Passive, style))
+            if(GUI.Button(rect, content, style))
             {
-                return;
+                
             }
-            GenericMenu menu = new GenericMenu();
-            menu.AddItem(new GUIContent("vvv"), false, null);
-            menu.DropDown(rect);
+
+            rect.y += 1;
+            
+            rect.x += size.x;
+            GUIStyle separatorStyle = "ArrowNavigationRight";
+
+            Rect buttonRect = new Rect(rect.x, rect.y + (rect.height - separatorStyle.fixedHeight) / 2, separatorStyle.fixedWidth, separatorStyle.fixedHeight);
+            if(GUI.Button(buttonRect, GUIContent.none, separatorStyle))
+            {
+                
+            }
         }
 
         public void OnConnectStatusChanged(ConnectStatus status)
@@ -170,43 +203,6 @@ namespace URFS.Editor
                 }
             }
         }
-
-        // private void OnGUI() {
-        //     TopToolbar();
-        // }
-
-        // void TopToolbar()
-        // {
-        //     GUILayout.BeginHorizontal(EditorStyles.toolbar);
-        //     {
-        //         float m_DirectoriesAreaWidth = 100;
-        //         float listWidth = position.width - m_DirectoriesAreaWidth;
-        //         float spaceBetween = 4f;
-        //         bool compactMode = listWidth < 500; // We need quite some space for filtering text
-        //         if (!compactMode)
-        //         {
-        //             spaceBetween = 10f;
-        //         }
-
-        //         // CreateDropdown();
-        //         GUILayout.FlexibleSpace();
-
-        //         GUILayout.Space(spaceBetween * 2f);
-        //         // SearchField();
-        //         TypeDropDown();
-        //         // AssetLabelsDropDown();
-        //     }
-        //     GUILayout.EndHorizontal();
-        // }
-
-        // void TypeDropDown()
-        // {
-        //     Rect r = GUILayoutUtility.GetRect(s_Styles.m_FilterByLabel, EditorStyles.toolbarButton);
-        //     if (EditorGUI.DropdownButton(r, s_Styles.m_FilterByLabel, FocusType.Passive, EditorStyles.toolbarButton))
-        //     {
-        //         PopupWindow.Show(r, new PopupList(m_AssetLabels));
-        //     }
-        // }
 
         private void OnDestroy()
         {

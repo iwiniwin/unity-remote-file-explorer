@@ -12,22 +12,27 @@
 
     <editor:Toolbar name="firstToolbar">
       <editor:ToolbarToggle name="StatsToggle" text="Stats"/>
-      <editor:ToolbarMenu name="JumpToMenu" text="Jump To"/>
+      <editor:ToolbarMenu name="GoToMenu" text="Go To "/>
       <editor:ToolbarSpacer class="toolbarFlexSpacer"/>
       <editor:ToolbarSearchField name="searchField" />
     </editor:Toolbar>
 
     <editor:Toolbar name="secondToolbar">
-      <engine:Label name="emptyWorkbenchText" text="aaaa" />
-      <engine:Label name="emptyWorkbenchText" text="bbbb" />
-      <engine:Label name="emptyWorkbenchText" text="cccc" />
-      <editor:ToolbarSpacer class="toolbarFlexSpacer"/>
-      <editor:ToolbarButton name="backwardsInHistoryButton" tooltip="Previous view" class="iconButton">
+      <editor:ToolbarButton name="backwardsInHistoryButton" tooltip="Previous view">
         <engine:Image name="backwardsInHistoryButton" class="iconButton historyButtonIcon"/>
       </editor:ToolbarButton>
-      <editor:ToolbarButton name="forwardsInHistoryButton" tooltip="Next view" class="iconButton">
+      <editor:ToolbarButton name="forwardsInHistoryButton" tooltip="Next view">
         <engine:Image name="forwardsInHistoryButton" class="iconButton historyButtonIcon"/>
       </editor:ToolbarButton>
+      
+      <engine:VisualElement name="breadCrumbRoot" style="flex:1;">
+        <engine:TextField name="breadCrumbEdit" style="flex:1; display:none;"/>
+        <engine:VisualElement name="breadCrumbView" style="flex:1;flex-direction:row;">
+          <editor:ToolbarSpacer />
+          <editor:ToolbarSpacer />
+          <engine:IMGUIContainer name="breadCrumbContainer" style="flex:1;"/>
+        </engine:VisualElement>
+      </engine:VisualElement>
     </editor:Toolbar>
 
     <engine:VisualElement name="contentView">
