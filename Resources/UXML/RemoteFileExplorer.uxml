@@ -12,7 +12,7 @@
 
     <editor:Toolbar name="firstToolbar">
       <editor:ToolbarToggle name="statsToggle" text="Stats"/>
-      <editor:ToolbarMenu name="goToMenu" text="Go To "/>
+      <editor:ToolbarMenu name="goToMenu" text="Go To " style="border-left-width:0;"/>
       <editor:ToolbarSpacer class="toolbarFlexSpacer"/>
       <editor:ToolbarSearchField name="searchField" />
     </editor:Toolbar>
@@ -21,7 +21,7 @@
       <editor:ToolbarButton name="backwardsInHistoryButton" tooltip="Previous view">
         <engine:Image name="backwardsInHistoryButton" class="iconButton historyButtonIcon"/>
       </editor:ToolbarButton>
-      <editor:ToolbarButton name="forwardsInHistoryButton" tooltip="Next view">
+      <editor:ToolbarButton name="forwardsInHistoryButton" tooltip="Next view" style="border-left-width:0;">
         <engine:Image name="forwardsInHistoryButton" class="iconButton historyButtonIcon"/>
       </editor:ToolbarButton>
       

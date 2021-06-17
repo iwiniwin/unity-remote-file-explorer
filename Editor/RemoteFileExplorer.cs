@@ -23,6 +23,8 @@ namespace URFS.Editor
         const string k_WindowDarkStyleSheetPath = k_StyleSheetsPath + "RemoteFileExplorer_style_dark.uss";
         const string k_WindowNewThemingStyleSheetPath = k_StyleSheetsPath + "RemoteFileExplorer_style_newTheming.uss";
 
+        private static Texture2D m_EstablishedTexture;
+
         [MenuItem("Window/Remote File Explorer")]
         public static void ShowWindow()
         {
@@ -44,6 +46,9 @@ namespace URFS.Editor
         {
             m_WindowInitialized = true;
             titleContent = EditorGUIUtility.TrTextContentWithIcon("Remote File Explorer", "Project");
+            var image = TextureUtility.TextureToTexture2D(titleContent.image);
+            m_EstablishedTexture = TextureUtility.CloneTexture2D(image, Color.green);
+            titleContent.image = m_EstablishedTexture;
         }
 
         private RFSServer m_Server;
@@ -85,7 +90,6 @@ namespace URFS.Editor
             });
 
             var menu = root.Q<ToolbarMenu>("goToMenu");
-            menu.style.borderLeftWidth = 0;
             menu.RegisterCallback<MouseUpEvent>((MouseUpEvent e) =>
             {
                 var m = new GenericMenu();
@@ -108,7 +112,6 @@ namespace URFS.Editor
 
             var backwardsBtn = root.Q<ToolbarButton>("backwardsInHistoryButton");
             var forwardsBtn = root.Q<ToolbarButton>("forwardsInHistoryButton");
-            forwardsBtn.style.borderLeftWidth = 0;
 
             var breadCrumbEdit = root.Q<TextField>("breadCrumbEdit");
             var breadCrumbRoot = root.Q<VisualElement>("breadCrumbRoot");
