@@ -2,13 +2,7 @@
 <engine:UXML
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:engine="UnityEngine.Experimental.UIElements"
-  xmlns:editor="UnityEditor.Experimental.UIElements"
-  xmlns:upm="UnityEditor.PackageManager.UI"
-  xsi:noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
-  xsi:schemaLocation="
-    UnityEngine.Experimental.UIElements ../../../../UIElementsSchema/UnityEngine.Experimental.UIElements.xsd
-    UnityEditor.Experimental.UIElements ../../../../UIElementsSchema/UnityEditor.Experimental.UIElements.xsd
-    UnityEditor.PackageManager.UI ../../../../UIElementsSchema/UnityEditor.PackageManager.UI.xsd">
+  xmlns:editor="UnityEditor.Experimental.UIElements">
 
     <editor:Toolbar name="firstToolbar">
       <editor:ToolbarToggle name="statsToggle" text="Stats"/>
@@ -35,7 +29,7 @@
       </engine:VisualElement>
     </editor:Toolbar>
 
-    <engine:VisualElement name="contentView">
+    <engine:VisualElement name="objectListPlaceHolder" style="flex:1;">
     </engine:VisualElement>
 
     <engine:Box name="statsPanel" style="position:absolute;padding-top:5px;padding-left:5px;margin-top:1px;width:300px;height:150px;top:20px;border-top-width:0px;display:none;flex-direction:row;">

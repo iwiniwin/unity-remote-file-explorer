@@ -42,6 +42,8 @@ namespace URFS.Editor
                 Init();
         }
 
+        ObjectListArea m_ObjectListArea;
+
         void Init()
         {
             m_WindowInitialized = true;
@@ -49,10 +51,12 @@ namespace URFS.Editor
             var image = TextureUtility.TextureToTexture2D(titleContent.image);
             m_EstablishedTexture = TextureUtility.CloneTexture2D(image, Color.green);
             titleContent.image = m_EstablishedTexture;
+            m_ObjectListArea.UpdateView();
         }
 
         private RFSServer m_Server;
 
+        
         IMGUIContainer m_BreadCrumbsContainer;
         ToolbarToggle m_StatsToggle;
 
@@ -72,10 +76,11 @@ namespace URFS.Editor
             var windowTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(k_WindowUxmlPath);
             windowTree.CloneTree(root);
 
+            var objectListPlaceHolder = root.Q<VisualElement>("objectListPlaceHolder");
+            m_ObjectListArea = new ObjectListArea();
+            objectListPlaceHolder.Add(m_ObjectListArea);
+
             m_StatsToggle = root.Q<ToolbarToggle>("statsToggle");
-            // Color color;
-            //  ColorUtility.TryParseHtmlString("#00ff00", out color);
-            // m_StatsToggle.style.
             var statsPanel = root.Q<Box>("statsPanel");
             m_StatsToggle.RegisterValueChangedCallback(e =>
             {
