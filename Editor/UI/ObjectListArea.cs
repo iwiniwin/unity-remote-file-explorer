@@ -6,7 +6,6 @@ namespace URFS.Editor.UI
     public class ObjectListArea : ScrollView 
     {
         private VerticalGrid m_Grid = new VerticalGrid();
-
         public ObjectListArea() : base(ScrollViewMode.Vertical)
         {
             this.style.height = Length.Percent(100);
@@ -42,7 +41,7 @@ namespace URFS.Editor.UI
             for(int i = 0; i < cols; i ++)
             {
                 var item = new ObjectItem(m_Grid.itemSize);
-                item.UpdateView();
+                item.UpdateView(new ObjectData(ObjectType.File, "aasssssssssssddddddd.cs"));
                 v.Add(item);
             }
             Add(v);
