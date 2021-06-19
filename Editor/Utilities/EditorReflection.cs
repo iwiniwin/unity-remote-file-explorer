@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Reflection;
 using UnityEditor;
 
-namespace URFS.Editor
+namespace RemoteFileExplorer.Editor
 {
     public class EditorReflection
     {

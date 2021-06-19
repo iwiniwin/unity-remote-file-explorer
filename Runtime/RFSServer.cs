@@ -4,7 +4,7 @@ using System.Threading;
 using System;
 using System.Collections.Generic;
 
-namespace URFS
+namespace RemoteFileExplorer
 {
     public class RFSServer : Session
     {

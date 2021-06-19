@@ -2,7 +2,7 @@ using UnityEngine.UIElements;
 using UnityEngine;
 using System.Collections.Generic;
 
-namespace URFS.Editor.UI 
+namespace RemoteFileExplorer.Editor.UI 
 {
     public class ObjectListArea : ScrollView 
     {

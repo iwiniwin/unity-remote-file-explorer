@@ -1,6 +1,6 @@
 using System;
 
-namespace URFS
+namespace RemoteFileExplorer
 {
     public class PackageHeader
     {

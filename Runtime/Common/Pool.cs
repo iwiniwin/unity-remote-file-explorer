@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace URFS
+namespace RemoteFileExplorer
 {
     public class Pool<T> where T : new()
     {

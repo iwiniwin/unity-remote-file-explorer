@@ -1,7 +1,7 @@
 using System;
 using System.Net.Sockets;
 
-namespace URFS
+namespace RemoteFileExplorer
 {
     public class RFSClient : Session
     {

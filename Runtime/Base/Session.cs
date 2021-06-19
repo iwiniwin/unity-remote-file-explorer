@@ -4,7 +4,7 @@ using System.Threading;
 using System.Collections.Concurrent;
 using UnityEngine;
 
-namespace URFS
+namespace RemoteFileExplorer
 {
     public enum ConnectStatus
     {

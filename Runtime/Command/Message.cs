@@ -1,4 +1,4 @@
-namespace URFS
+namespace RemoteFileExplorer
 {
     public abstract class Message 
     {

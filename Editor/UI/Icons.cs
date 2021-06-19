@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 
-namespace URFS.Editor.UI
+namespace RemoteFileExplorer.Editor.UI
 {   
     internal static class Icons
     {

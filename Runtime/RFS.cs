@@ -1,7 +1,7 @@
 using System.Net.Sockets;
 using UnityEngine;
 
-namespace URFS
+namespace RemoteFileExplorer
 {
     public class RFS : Singleton<RFS>
     {
@@ -36,7 +36,7 @@ namespace URFS
         {
             Debug.Log("  收到。。。。。。");
 
-            Package rsp = URFS.CommandHandler.Handle(package);
+            Package rsp = RemoteFileExplorer.CommandHandler.Handle(package);
             if (rsp != null)
             {
                 Debug.Log("回复。。。。。。");

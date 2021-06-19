@@ -9,7 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace URFS
+namespace RemoteFileExplorer
 {
 
     public abstract class Singleton<T> where T : new()

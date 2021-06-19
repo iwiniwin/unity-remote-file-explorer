@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace URFS
+namespace RemoteFileExplorer
 {
     public class CommandHandler
     {

@@ -3,12 +3,12 @@ using UnityEditor;
 using System.Collections;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
-using URFS.Editor.UI;
+using RemoteFileExplorer.Editor.UI;
 using PopupWindow = UnityEditor.PopupWindow;
 
-namespace URFS.Editor
+namespace RemoteFileExplorer.Editor
 {
-    public class RemoteFileExplorer : EditorWindow
+    public class RemoteFileExplorerWindow : EditorWindow
     {
         bool m_WindowInitialized = false;
         private static string m_Host = "192.168.1.6";
@@ -28,7 +28,7 @@ namespace URFS.Editor
         [MenuItem("Window/Remote File Explorer")]
         public static void ShowWindow()
         {
-            GetWindow<RemoteFileExplorer>();
+            GetWindow<RemoteFileExplorerWindow>();
         }
 
         void OnEnable()

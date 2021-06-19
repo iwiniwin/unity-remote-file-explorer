@@ -5,7 +5,7 @@ using System.IO;
 using System;
 using UnityEditor.Experimental;
 
-namespace URFS.Editor.UI
+namespace RemoteFileExplorer.Editor.UI
 {
     public class ObjectItem : VisualElement
     {

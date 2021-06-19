@@ -1,7 +1,7 @@
 using System;
 using System.Text;
 
-namespace URFS
+namespace RemoteFileExplorer
 {
     public class Unpacker
     {

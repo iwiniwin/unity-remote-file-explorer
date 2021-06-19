@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Reflection;
 
-namespace URFS
+namespace RemoteFileExplorer
 {
     public sealed class Coroutines
     {

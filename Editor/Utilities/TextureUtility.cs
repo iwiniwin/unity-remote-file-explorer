@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.Experimental;
 
-namespace URFS.Editor
+namespace RemoteFileExplorer.Editor
 {
     public class TextureUtility
     {
