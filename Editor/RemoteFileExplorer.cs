@@ -4,14 +4,13 @@ using System.Collections;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
 using RemoteFileExplorer.Editor.UI;
-using PopupWindow = UnityEditor.PopupWindow;
 
 namespace RemoteFileExplorer.Editor
 {
     public class RemoteFileExplorerWindow : EditorWindow
     {
         bool m_WindowInitialized = false;
-        private static string m_Host = "192.168.1.6";
+        private static string m_Host = "127.0.0.1";
         private static int m_Port = 8999;
 
         const string k_PackageResourcesPath = "Packages/com.iwin.remotefileexplorer/Resources/";
@@ -25,33 +24,40 @@ namespace RemoteFileExplorer.Editor
 
         private static Texture2D m_EstablishedTexture;
 
+        private Manipulator m_Manipulator;
+
         [MenuItem("Window/Remote File Explorer")]
         public static void ShowWindow()
         {
             GetWindow<RemoteFileExplorerWindow>();
         }
 
-        void OnEnable()
-        {
-            Debug.Log("服务器 vvvvvvvvvvvv");
-        }
-
+        int tag = 0;
         void OnGUI()
         {
-            if (!m_WindowInitialized)
-                Init();
+            if(tag == 4)
+            {
+                // m_ObjectListArea.UpdateView();
+            }
+            tag ++;
+            if (m_WindowInitialized)
+            {
+                return;
+            }
+            Init();
         }
 
-        ObjectListArea m_ObjectListArea;
+        public ObjectListArea m_ObjectListArea;
 
         void Init()
         {
             m_WindowInitialized = true;
             titleContent = EditorGUIUtility.TrTextContentWithIcon("Remote File Explorer", "Project");
-            var image = TextureUtility.TextureToTexture2D(titleContent.image);
-            m_EstablishedTexture = TextureUtility.CloneTexture2D(image, Color.green);
-            titleContent.image = m_EstablishedTexture;
-            m_ObjectListArea.UpdateView();
+            // var image = TextureUtility.TextureToTexture2D(TextureUtility.GetTexture("project"));
+            // Debug.Log(image + "             sss");
+            // titleContent.image = TextureUtility.CloneTexture2D(image, Color.green);
+            titleContent.image = TextureUtility.GetTexture("project");
+            InitContent();
         }
 
         private RFSServer m_Server;
@@ -60,8 +66,9 @@ namespace RemoteFileExplorer.Editor
         IMGUIContainer m_BreadCrumbsContainer;
         ToolbarToggle m_StatsToggle;
 
-        private void Awake()
+        private void InitContent()
         {
+            m_Manipulator = new Manipulator(this);
             var root = this.rootVisualElement;
             root.styleSheets.Add(AssetDatabase.LoadAssetAtPath<StyleSheet>(k_WindowCommonStyleSheetPath));
             if (EditorGUIUtility.isProSkin)
@@ -181,7 +188,8 @@ namespace RemoteFileExplorer.Editor
             {
                 case ConnectStatus.Connected:
                     Debug.Log("服务器 已连接。。。。。。");
-                    Coroutines.Start(SendRequest());
+                    // Coroutines.Start(SendRequest());
+                    m_Manipulator.GoToPath("");
                     break;
                 case ConnectStatus.Connecting:
                     Debug.Log("服务器 正在连接。。。。。。");
@@ -190,22 +198,6 @@ namespace RemoteFileExplorer.Editor
                     Debug.Log("服务器 断开连接。。。。。。");
                     break;
             }
-        }
-
-        public IEnumerator SendRequest()
-        {
-            QueryDirectoryInfo.Req req = new QueryDirectoryInfo.Req
-            {
-                Directory = "E:/UnityProject/LastBattle/Assets/Scripts/Game/Message",
-            };
-            Debug.Log("auto senddd ");
-            SendHandle handle = RFS.Instance.Server.Send(req.Pack());
-            yield return handle;
-            QueryDirectoryInfo.Rsp rsp = new QueryDirectoryInfo.Rsp();
-            rsp.Unpack(handle.Rsp);
-            // UDK.Output.Dump(rsp.Exists);
-            // UDK.Output.Dump(rsp.SubDirectories);
-            // UDK.Output.Dump(rsp.SubFiles);
         }
 
         private void Update()
@@ -222,8 +214,9 @@ namespace RemoteFileExplorer.Editor
             }
         }
 
-        private void OnDestroy()
-        {
+        private void OnDisable() {
+            m_WindowInitialized = false;
+            tag = 0;
             RFS.Instance.Server.Stop();
         }
     }

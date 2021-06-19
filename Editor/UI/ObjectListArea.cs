@@ -10,6 +10,8 @@ namespace RemoteFileExplorer.Editor.UI
 
         private List<ObjectItem> m_Items = new List<ObjectItem>();
 
+        private List<ObjectData> m_Data = new List<ObjectData>();
+
         private ObjectItem m_CurSelectItem;
 
         public ObjectListArea() : base(ScrollViewMode.Vertical)
@@ -23,20 +25,21 @@ namespace RemoteFileExplorer.Editor.UI
             
         }
 
-        public void UpdateView()
+        public void UpdateView(List<ObjectData> list)
         {
+            m_Data = list;
             m_Grid.fixedWidth = this.contentRect.width;
 
             int cols = m_Grid.CalcColumns();
+            int rows = m_Grid.CalcRows(list.Count);
 
-            for(int i = 0; i < 10; i ++)
+            for(int i = 0; i < rows; i ++)
             {
-                // Add(new ObjectItem());
-                AddRow(cols);
+                AddRow(cols, i);
             }
         }
 
-        public void AddRow(int cols)
+        public void AddRow(int cols, int row)
         {
             VisualElement v = new VisualElement();
             v.style.width = Length.Percent(100);
@@ -46,11 +49,16 @@ namespace RemoteFileExplorer.Editor.UI
             v.style.marginTop = m_Grid.verticalSpacing;
             for(int i = 0; i < cols; i ++)
             {
+                int index = row * cols + i;
+                if(i >= m_Data.Count)
+                {
+                    break;
+                }
                 var item = new ObjectItem(m_Grid.itemSize);
                 item.clickItemCallback += OnClickItem;
                 item.doubleClickItemCallback += OnDoubleClickItem;
                 v.Add(item);
-                item.UpdateView(new ObjectData(ObjectType.File, "aaa.cs"));
+                item.UpdateView(m_Data[index]);
                 m_Items.Add(item);
             }
             Add(v);
@@ -101,6 +109,11 @@ namespace RemoteFileExplorer.Editor.UI
             int cols = (int)Mathf.Floor((fixedWidth - leftMargin - rightMargin) / (itemSize.x + horizontalSpacing));
             cols = Mathf.Max(cols, 1);
             return cols;
+        }
+
+        public int CalcRows(int itemCount)
+        {
+            return (int)Mathf.Ceil(itemCount / (float)CalcColumns());
         }
     }
 }

@@ -87,10 +87,6 @@ namespace RemoteFileExplorer
         public static void Update()
         {
             if (instance == null) return;
-            if(lastFrameCount == Time.frameCount)
-            {
-                Debug.LogError("Coroutines.Update is called multiple times in one frame");
-            }
             lastFrameCount = Time.frameCount;
             instance.OnUpdate(Time.deltaTime);
         }

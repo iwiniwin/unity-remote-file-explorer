@@ -20,6 +20,9 @@ namespace RemoteFileExplorer.Editor
             Texture2D icon = null;
             switch (key)
             {
+                case "project":
+                    icon = EditorGUIUtility.IconContent("Project").image as Texture2D;
+                    break;
                 case "folder":
                     icon = EditorGUIUtility.IconContent(EditorResources.folderIconName).image as Texture2D;
                     break;
@@ -106,6 +109,5 @@ namespace RemoteFileExplorer.Editor
             texture2D.Apply();
             return texture2D;
         }
-
     }
 }
