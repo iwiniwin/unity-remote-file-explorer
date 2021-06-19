@@ -2,93 +2,138 @@ using UnityEngine.UIElements;
 using UnityEditor;
 using UnityEngine;
 using System.IO;
+using System;
+using UnityEditor.Experimental;
 
-namespace URFS.Editor.UI 
+namespace URFS.Editor.UI
 {
-    public class ObjectItem : VisualElement 
+    public class ObjectItem : VisualElement
     {
+        public Action<ObjectItem> clickItemCallback;
+        public Action<ObjectItem> doubleClickItemCallback;
         const string k_UxmlFilesPath = "Packages/com.iwin.remotefileexplorer/Resources/UXML/ObjectItem.uxml";
 
-        public VisualElement ObjectView {get;}
-        public Image ObjectIcon {get;}
-        public Label ObjectLabel {get;}
+        public VisualElement objectView { get; }
+        public Image objectIcon { get; }
+        public Label objectLabel { get; }
         private ObjectData m_Data;
+        private int m_NumCharacters;
 
         private Vector2 m_Size;
-        public Vector2 Size {
-            set {
+        public Vector2 Size
+        {
+            set
+            {
                 m_Size = value;
                 this.style.width = value.x;
                 this.style.height = value.y;
             }
         }
-        
+
         public ObjectItem(Vector2 size)
         {
             this.Size = size;
             var tree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(k_UxmlFilesPath);
             tree.CloneTree(this);
 
-            ObjectView = this.Q<VisualElement>("objectView");
-            ObjectIcon = this.Q<Image>("objectIcon");
-            
-            ObjectLabel = this.Q<Label>("objectLabel");
-            ObjectLabel.style.backgroundColor = Color.red;
+            objectView = this.Q<VisualElement>("objectView");
+            objectIcon = this.Q<Image>("objectIcon");
+
+            objectLabel = this.Q<Label>("objectLabel");
+            this.RegisterCallback<GeometryChangedEvent>(this.OnGeometryChanged);
+            this.RegisterCallback<MouseDownEvent>(this.OnMouseDown);
         }
 
         public void UpdateView(ObjectData data)
         {
-            m_Data = data; 
-            ObjectIcon.image = GetTexture();
-            ObjectLabel.text = GetText();
+            m_Data = data;
+            objectLabel.text = GetText(data.path);
+            UpdateState(data.state);
+        }
+
+        public void UpdateState(ObjectState state)
+        {
+            m_Data.state = state;
+            switch (state)
+            {
+                case ObjectState.Normal:
+                    objectLabel.style.color = Color.white;
+                    break;
+                case ObjectState.Selected:
+                    Color c;
+                    ColorUtility.TryParseHtmlString("#5576bd", out c);
+                    objectLabel.style.color = c;
+                    break;
+                default:
+                    break;
+            }
+            objectIcon.image = GetTexture();
         }
 
         public Texture2D GetTexture()
         {
-            Texture2D icon = null;
-            switch (Path.GetExtension(m_Data.path))
+            string key = null;
+            if(m_Data.type == ObjectType.Folder)
             {
-                case ".cs":
-                    icon = EditorGUIUtility.IconContent("cs Script Icon").image as Texture2D;
-                    break;
-                case ".shader":
-                    icon = EditorGUIUtility.IconContent("shader Script Icon").image as Texture2D;
-                    break;
-                default:
-                    icon = EditorGUIUtility.IconContent("txt Icon").image as Texture2D;
-                    break;
+                key = "folder";
             }
-            return icon;
+            else
+            {
+                key = Path.GetExtension(m_Data.path);
+            }
+            if(m_Data.state == ObjectState.Selected)
+            {
+                key += " active";
+            }
+            return TextureUtility.GetTexture(key);
         }
 
-        public string GetText()
+        public string GetText(string path)
         {
-            // Font s = Font.CreateDynamicFontFromOSFont("Fonts/Inter/Inter-Regular  ddd.ttf", 0);
-            // Debug.Log(s + "       dddddd");
-            // ObjectLabel.
-            // Debug.Log(ObjectLabel.resolvedStyle.unityFont + "          VVVVVVVVVVVVV " + ObjectLabel.style.unityFont);
-           
-            // ObjectLabel.font
-            string name = Path.GetFileName(m_Data.path);
-            
-            Debug.Log(CalcTextWidth(name) + "        " + CalcTextWidth("vv"));
-            name += " \u2026";
+            string name = Path.GetFileName(path);
+            if (m_NumCharacters > 2 && m_NumCharacters < name.Length)
+            {
+                name = name.Substring(0, m_NumCharacters - 2) + "\u2026";
+            }
             return name;
         }
 
-        public float CalcTextWidth(string text)
+        public void OnGeometryChanged(GeometryChangedEvent e)
         {
-            Font font = ObjectLabel.resolvedStyle.unityFont;
-            float fontSize = ObjectLabel.resolvedStyle.fontSize;
-            float width = 0;
-            CharacterInfo characterInfo;
-            for(int i = 0; i < text.Length; i ++)
+            if (m_NumCharacters == 0)
             {
-                Debug.Log(font + "       SS     " + fontSize);
-                font.GetCharacterInfo(text[i], out characterInfo, (int)fontSize);
-                width += characterInfo.advance;
+                m_NumCharacters = GetNumCharactersThatFitWithinWidth();
             }
-            return width;
+            objectLabel.text = GetText(m_Data.path);
+        }
+
+        public void OnMouseDown(MouseDownEvent e)
+        {
+            if (e.button == 0)
+            {
+                if (clickItemCallback != null)
+                {
+                    clickItemCallback(this);
+                }
+                if (e.clickCount == 2)
+                {
+                    doubleClickItemCallback(this);
+                }
+            }
+        }
+
+        public int GetNumCharactersThatFitWithinWidth()
+        {
+            var rect = objectLabel.contentRect;
+            char testChar = 'a';
+            string testStr = "";
+            float width = 0;
+            while (width < rect.width)
+            {
+                testStr += testChar;
+                width = objectLabel.MeasureTextSize(testStr, rect.width, MeasureMode.AtMost, rect.height, MeasureMode.AtMost).x;
+            }
+            return testStr.Length;
         }
     }
 
@@ -98,14 +143,29 @@ namespace URFS.Editor.UI
         Folder,
     }
 
+    public enum ObjectState
+    {
+        Normal,
+        Selected,
+        Renaming,
+        Deleting,
+        Downloading,
+        Uploading,
+    }
+
     public class ObjectData
     {
         public ObjectType type;
         public string path;
-        public ObjectData(ObjectType type, string path)
+        public ObjectState state;
+
+        public ObjectData() {}
+
+        public ObjectData(ObjectType type, string path, ObjectState state = ObjectState.Normal)
         {
             this.type = type;
             this.path = path;
+            this.state = state;
         }
     }
 }

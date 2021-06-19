@@ -1,11 +1,17 @@
 using UnityEngine.UIElements;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace URFS.Editor.UI 
 {
     public class ObjectListArea : ScrollView 
     {
         private VerticalGrid m_Grid = new VerticalGrid();
+
+        private List<ObjectItem> m_Items = new List<ObjectItem>();
+
+        private ObjectItem m_CurSelectItem;
+
         public ObjectListArea() : base(ScrollViewMode.Vertical)
         {
             this.style.height = Length.Percent(100);
@@ -41,10 +47,28 @@ namespace URFS.Editor.UI
             for(int i = 0; i < cols; i ++)
             {
                 var item = new ObjectItem(m_Grid.itemSize);
-                item.UpdateView(new ObjectData(ObjectType.File, "aasssssssssssddddddd.cs"));
+                item.clickItemCallback += OnClickItem;
+                item.doubleClickItemCallback += OnDoubleClickItem;
                 v.Add(item);
+                item.UpdateView(new ObjectData(ObjectType.File, "aaa.cs"));
+                m_Items.Add(item);
             }
             Add(v);
+        }
+
+        public void OnClickItem(ObjectItem item)
+        {
+            if(m_CurSelectItem != null && m_CurSelectItem != item)
+            {
+                m_CurSelectItem.UpdateState(ObjectState.Normal);
+            }
+            m_CurSelectItem = item;
+            m_CurSelectItem.UpdateState(ObjectState.Selected);
+        }
+
+        public void OnDoubleClickItem(ObjectItem item)
+        {
+            
         }
     }
 
