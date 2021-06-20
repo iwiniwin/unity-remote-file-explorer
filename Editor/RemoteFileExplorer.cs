@@ -35,11 +35,11 @@ namespace RemoteFileExplorer.Editor
         int tag = 0;
         void OnGUI()
         {
-            if(tag == 4)
+            if (tag == 4)
             {
                 // m_ObjectListArea.UpdateView();
             }
-            tag ++;
+            tag++;
             if (m_WindowInitialized)
             {
                 return;
@@ -61,7 +61,7 @@ namespace RemoteFileExplorer.Editor
         }
 
         public BaseServer m_Server;
-        
+
         IMGUIContainer m_BreadCrumbsContainer;
         ToolbarToggle m_StatsToggle;
 
@@ -92,7 +92,7 @@ namespace RemoteFileExplorer.Editor
             var statsPanel = root.Q<Box>("statsPanel");
             m_StatsToggle.RegisterValueChangedCallback(e =>
             {
-                if(e.newValue)
+                if (e.newValue)
                 {
                     statsPanel.style.display = DisplayStyle.Flex;
                 }
@@ -132,7 +132,6 @@ namespace RemoteFileExplorer.Editor
             m_BreadCrumbsContainer = root.Q<IMGUIContainer>("breadCrumbContainer");
             breadCrumbRoot.RegisterCallback<MouseUpEvent>((MouseUpEvent e) =>
             {
-                if(m_Manipulator.curPath == null) return;
                 breadCrumbEdit.style.display = DisplayStyle.Flex;
                 breadCrumbEdit.value = m_Manipulator.curPath;
                 var l = breadCrumbEdit.Q<VisualElement>("unity-text-input");
@@ -146,19 +145,29 @@ namespace RemoteFileExplorer.Editor
                 breadCrumbEdit.style.display = DisplayStyle.None;
                 breadCrumbView.style.display = DisplayStyle.Flex;
             });
+            breadCrumbEdit.RegisterCallback<KeyDownEvent>(e =>
+            {
+                if (e.keyCode == KeyCode.KeypadEnter)
+                {
+                    if(breadCrumbEdit.value != m_Manipulator.curPath)
+                    {
+                        m_Manipulator.GoTo(breadCrumbEdit.value);
+                    }
+                }
+            });
 
             m_BreadCrumbsContainer.onGUIHandler = BreadCrumbBar;
         }
 
         void BreadCrumbBar()
         {
-            if(m_Manipulator.curPath == null) return;
+            if (m_Manipulator.curPath == null) return;
             char separator = '/';
-            string[] names = m_Manipulator.curPath.Split(new char[]{separator}, StringSplitOptions.RemoveEmptyEntries);
+            string[] names = m_Manipulator.curPath.Split(new char[] { separator }, StringSplitOptions.RemoveEmptyEntries);
             Rect rect = new Rect(m_BreadCrumbsContainer.contentRect);
             bool startWithSeparator = m_Manipulator.curPath[0] == separator;
             string targetPath = startWithSeparator ? separator.ToString() : "";
-            for(int i = 0; i < names.Length; i ++)
+            for (int i = 0; i < names.Length; i++)
             {
                 GUIContent content = new GUIContent(names[i]);
                 bool last = i == names.Length - 1;
@@ -169,14 +178,14 @@ namespace RemoteFileExplorer.Editor
                 rect.width = size.x;
                 if (GUI.Button(rect, content, style))
                 {
-                    if(!last)
+                    if (!last)
                     {
                         m_Manipulator.GoTo(targetPath);
                     }
                 }
                 rect.y += 1;
                 rect.x += size.x;
-                if(!last)
+                if (!last)
                 {
                     GUIStyle separatorStyle = "ArrowNavigationRight";
                     Rect buttonRect = new Rect(rect.x, rect.y + (rect.height - separatorStyle.fixedHeight) / 2, separatorStyle.fixedWidth, separatorStyle.fixedHeight);
@@ -204,7 +213,7 @@ namespace RemoteFileExplorer.Editor
 
                     var path = "E:/UnityProject/LastBattle/Assets/Scripts/Game/Message";
                     m_Manipulator.GoTo(path);
-                    
+
                     break;
                 case ConnectStatus.Connecting:
                     Debug.Log("服务器 正在连接。。。。。。");
@@ -230,7 +239,8 @@ namespace RemoteFileExplorer.Editor
             m_Server.Update();
         }
 
-        private void OnDisable() {
+        private void OnDisable()
+        {
             m_WindowInitialized = false;
             tag = 0;
             m_Server.Stop();
