@@ -5,32 +5,40 @@ namespace RemoteFileExplorer
 {
     public abstract class BaseSocket : Session
     {
-        private Dictionary<UInt32, SendHandle> m_HandleDict = new Dictionary<uint, SendHandle>();
-        public Action<Package> OnReceivePackage;
+        private Dictionary<UInt32, CommandHandle> m_HandleDict = new Dictionary<uint, CommandHandle>();
+        public Action<Command> OnReceiveCommand;
 
-        public new SendHandle Send(Package package)
+        public CommandHandle Send(Command command)
         {
+            Package package = Serializer.Serialize(command);
             base.Send(package);
-            SendHandle handle = new SendHandle();
-            handle.Finished = false;
-            m_HandleDict.Add(package.Head.Seq, handle);
-            return handle;
+            var req = package.Head.Seq;
+            
+            if(!m_HandleDict.ContainsKey(req))
+            {
+                m_HandleDict.Add(package.Head.Seq, new CommandHandle());
+            }
+            m_HandleDict[req].Finished = false;
+            return m_HandleDict[req];
         }
 
         public void OnReceive(Package package)
         {
-            if (OnReceivePackage != null)
+            Command command = Serializer.Deserialize(package);
+            if (OnReceiveCommand != null)
             {
-                OnReceivePackage(package);
+                OnReceiveCommand(command);
             }
-            // RFS服务端只处理请求包的响应包
             UInt32 ack = package.Head.Ack;
             if (m_HandleDict.ContainsKey(ack))
             {
                 m_HandleDict[ack].Finished = true;
-                m_HandleDict[ack].Rsp = package;
+                m_HandleDict[ack].Command = command;
                 m_HandleDict[ack].Msg = "success";
-                m_HandleDict.Remove(ack);
+                if(command.IsFinished)
+                {
+                    m_HandleDict.Remove(ack);
+                }
             }
         }
 
@@ -47,7 +55,7 @@ namespace RemoteFileExplorer
         }
     }
 
-    public class SendHandle : ICoroutineYield
+    public class CommandHandle : ICoroutineYield
     {
         public bool Finished = false;
         public bool IsDone()
@@ -55,6 +63,6 @@ namespace RemoteFileExplorer
             return Finished;
         }
         public string Msg;
-        public Package Rsp;
+        public Command Command;
     }
 }

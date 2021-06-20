@@ -2,59 +2,50 @@ using System;
 
 namespace RemoteFileExplorer
 {
-    public class QueryDirectoryInfo 
+    public class QueryPathInfo 
     {
-        public class Req : Message
+        public class Req : Command
         {
-            public string Directory;
+            public string Path;
 
-            public override Package Pack()
+            public override Octets Serialize()
             {
-                Package package = new Package();
-                package.Head = new PackageHead();
-                package.Head.Type = CommandType.QueryDirectoryInfo.ToUInt();
-                package.Body = new Octets();
-                Packer.Bind(package.Body);
-                Packer.WriteString(Directory);
-                package.Head.Size = (uint)(package.Body.Length + PackageHead.Length);
+                Octets octets = new Octets();
+                Packer.Bind(octets);
+                Packer.WriteString(Path);
                 Packer.Unbind();
-                return package;
+                return octets;
             }
 
-            public override void Unpack(Package package)
+            public override void Deserialize(Octets octets)
             {
-                Unpacker.Bind(package.Body);
-                this.Directory = Unpacker.ReadString();
+                Unpacker.Bind(octets);
+                this.Path = Unpacker.ReadString();
                 Unpacker.Unbind();
             }
         }
 
-        public class Rsp : Message
+        public class Rsp : Command
         {
-            public UInt32 Ack;
             public bool Exists;
+            public bool IsFile;
             public string[] SubDirectories;
             public string[] SubFiles;
 
-            public override Package Pack()
+            public override Octets Serialize()
             {
-                Package package = new Package();
-                package.Head = new PackageHead();
-                package.Head.Ack = this.Ack;
-                package.Head.Type = CommandType.QueryDirectoryInfo.ToUInt();
-                package.Body = new Octets();
-                Packer.Bind(package.Body);
+                Octets octets = new Octets();
+                Packer.Bind(octets);
                 Packer.WriteBool(Exists);
                 Packer.WriteStringArray(SubDirectories);
                 Packer.WriteStringArray(SubFiles);
-                package.Head.Size = (uint)(package.Body.Length + PackageHead.Length);
                 Packer.Unbind();
-                return package;
+                return octets;
             }
 
-            public override void Unpack(Package package)
+            public override void Deserialize(Octets octets)
             {
-                Unpacker.Bind(package.Body);
+                Unpacker.Bind(octets);
                 this.Exists = Unpacker.ReadBool();
                 this.SubDirectories = Unpacker.ReadStringArray();
                 this.SubFiles = Unpacker.ReadStringArray();

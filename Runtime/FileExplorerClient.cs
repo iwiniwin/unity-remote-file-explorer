@@ -4,15 +4,17 @@ namespace RemoteFileExplorer
 {
     public class FileExplorerClient : MonoBehaviour
     {
-        private BaseClient m_Client;
+        private Client m_Client;
+        private Robot m_Robot;
         public string host;
         public int port;
         public bool connectAutomatically;
 
         private void Start()
         {
-            m_Client = new BaseClient();
-            m_Client.OnReceivePackage += OnReceivePackage;
+            m_Client = new Client();
+            m_Robot = new Robot(m_Client);
+            m_Client.OnReceiveCommand += OnReceiveCommand;
             if (connectAutomatically)
             {
                 m_Client.StartConnect(host, port);
@@ -31,16 +33,11 @@ namespace RemoteFileExplorer
             }
         }
 
-        public void OnReceivePackage(Package package)
+        public void OnReceiveCommand(Command command)
         {
             Debug.Log("  收到。。。。。。");
 
-            Package rsp = CommandHandler.Handle(package);
-            if (rsp != null)
-            {
-                Debug.Log("回复。。。。。。");
-                m_Client.Send(rsp);
-            }
+            m_Robot.Execute(command);
         }
 
         private void OnDestroy()

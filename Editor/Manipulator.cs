@@ -71,19 +71,16 @@ namespace RemoteFileExplorer.Editor
         /// </summary>
         private IEnumerator Internal_GoTo(string path)
         {
-            if(!path.EndsWith("/"))
+            QueryPathInfo.Req req = new QueryPathInfo.Req
             {
-                path += "/";
-            }
-            QueryDirectoryInfo.Req req = new QueryDirectoryInfo.Req
-            {
-                Directory = path,
+                Path = path,
             };
             Debug.Log("auto senddd ");
-            SendHandle handle = m_Owner.m_Server.Send(req.Pack());
+            CommandHandle handle = m_Owner.m_Server.Send(req);
             yield return handle;
-            QueryDirectoryInfo.Rsp rsp = new QueryDirectoryInfo.Rsp();
-            rsp.Unpack(handle.Rsp);
+            var rsp = handle.Command as QueryPathInfo.Rsp;
+            // QueryDirectoryInfo.Rsp rsp = new QueryDirectoryInfo.Rsp();
+            // rsp.Unpack(handle.Rsp);
             // UDK.Output.Dump(rsp.Exists);
             // UDK.Output.Dump(rsp.SubDirectories);
             // UDK.Output.Dump(rsp.SubFiles);

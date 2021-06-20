@@ -66,7 +66,7 @@ namespace RemoteFileExplorer.Editor
             InitContent();
         }
 
-        public BaseServer m_Server;
+        public Server m_Server;
 
         IMGUIContainer m_BreadCrumbsContainer;
         ToolbarToggle m_StatsToggle;
@@ -235,7 +235,7 @@ namespace RemoteFileExplorer.Editor
             Coroutines.Update();
             if (m_Server == null)
             {
-                m_Server = new BaseServer();
+                m_Server = new Server();
                 if (m_Server.Status == ConnectStatus.Disconnect)
                 {
                     m_Server.OnConnectStatusChanged += OnConnectStatusChanged;
