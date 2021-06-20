@@ -71,6 +71,10 @@ namespace RemoteFileExplorer.Editor
         /// </summary>
         private IEnumerator Internal_GoTo(string path)
         {
+            if(!path.EndsWith("/"))
+            {
+                path += "/";
+            }
             QueryDirectoryInfo.Req req = new QueryDirectoryInfo.Req
             {
                 Directory = path,

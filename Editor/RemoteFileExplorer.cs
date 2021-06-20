@@ -38,6 +38,12 @@ namespace RemoteFileExplorer.Editor
             if (tag == 4)
             {
                 // m_ObjectListArea.UpdateView();
+                // System.Collections.Generic.List<ObjectData> data = new System.Collections.Generic.List<ObjectData>();
+                // for(int i = 0; i < 2; i ++)
+                // {
+                //     data.Add(new ObjectData(ObjectType.File, "aa.cs"));
+                // }
+                // m_ObjectListArea.UpdateView(data);
             }
             tag++;
             if (m_WindowInitialized)
@@ -147,7 +153,7 @@ namespace RemoteFileExplorer.Editor
             });
             breadCrumbEdit.RegisterCallback<KeyDownEvent>(e =>
             {
-                if (e.keyCode == KeyCode.KeypadEnter)
+                if (e.keyCode == KeyCode.Return || e.keyCode == KeyCode.KeypadEnter)
                 {
                     if(breadCrumbEdit.value != m_Manipulator.curPath)
                     {
@@ -171,7 +177,7 @@ namespace RemoteFileExplorer.Editor
             {
                 GUIContent content = new GUIContent(names[i]);
                 bool last = i == names.Length - 1;
-                targetPath += i == 0 ? names[i] : separator + names[i];
+                targetPath += names[i] + separator;
                 GUIStyle style = last ? EditorStyles.boldLabel : EditorStyles.label;
                 Vector2 size = style.CalcSize(content);
                 rect.y -= 1;
