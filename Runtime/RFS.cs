@@ -6,15 +6,15 @@ namespace RemoteFileExplorer
     public class RFS : Singleton<RFS>
     {
         
-        private RFSServer m_Server;
+        private BaseServer m_Server;
 
-        public RFSServer Server
+        public BaseServer Server
         {
             get
             {
                 if (m_Server == null)
                 {
-                    m_Server = new RFSServer();
+                    m_Server = new BaseServer();
                 }
                 return m_Server;
             }

@@ -60,8 +60,7 @@ namespace RemoteFileExplorer.Editor
             InitContent();
         }
 
-        private RFSServer m_Server;
-
+        public BaseServer m_Server;
         
         IMGUIContainer m_BreadCrumbsContainer;
         ToolbarToggle m_StatsToggle;
@@ -205,19 +204,20 @@ namespace RemoteFileExplorer.Editor
             Coroutines.Update();
             if (m_Server == null)
             {
-                m_Server = RFS.Instance.Server;
+                m_Server = new BaseServer();
                 if (m_Server.Status == ConnectStatus.Disconnect)
                 {
                     m_Server.OnConnectStatusChanged += OnConnectStatusChanged;
                     m_Server.Start(m_Host, m_Port);
                 }
             }
+            m_Server.Update();
         }
 
         private void OnDisable() {
             m_WindowInitialized = false;
             tag = 0;
-            RFS.Instance.Server.Stop();
+            m_Server.Stop();
         }
     }
 }

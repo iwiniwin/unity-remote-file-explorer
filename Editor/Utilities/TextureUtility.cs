@@ -13,7 +13,7 @@ namespace RemoteFileExplorer.Editor
 
         public static Texture2D GetTexture(string key)
         {
-            if(m_TextureCache.ContainsKey(key))
+            if (m_TextureCache.ContainsKey(key))
             {
                 return m_TextureCache[key];
             }
@@ -26,34 +26,62 @@ namespace RemoteFileExplorer.Editor
                 case "folder":
                     icon = EditorGUIUtility.IconContent(EditorResources.folderIconName).image as Texture2D;
                     break;
+                case "folder active":
+                    icon = GetBlendTexture(GetTexture("folder"));
+                    break;
                 case ".cs":
                     icon = EditorGUIUtility.IconContent("cs Script Icon").image as Texture2D;
                     break;
                 case ".cs active":
-                    Texture2D texture = GetTexture(".cs");
-                    texture = TextureUtility.TextureToTexture2D(texture);
-
-                    Color c;
-                    ColorUtility.TryParseHtmlString("#91c9f7", out c);
-                    c.a = 0.2f;
-                    texture = TextureUtility.CloneTexture2D_2(texture, c);
-                    icon = texture;
+                    icon = GetBlendTexture(GetTexture(".cs"));
                     break;
                 case ".shader":
                     icon = EditorGUIUtility.IconContent("shader Icon").image as Texture2D;
                     break;
+                case "default":
+                    icon = EditorReflection.InvokeStaticMethod<EditorGUIUtility>("FindTextureByType", typeof(TextAsset)) as Texture2D;
+                    break;
+                case "default active":
+                    icon = GetBlendTexture(GetTexture("default"));
+                    break;
+                case "default inactive":
+                    break;
+                default:
+                    break;
             }
-            if(icon == null)
+            if (icon == null)
             {
-                if(m_DefaultTexture == null)
-                    m_DefaultTexture = EditorReflection.InvokeStaticMethod<EditorGUIUtility>("FindTextureByType", typeof(TextAsset)) as Texture2D;
-                icon = m_DefaultTexture;
+                if(key.Contains("active"))
+                {
+                    key = "default active";
+                }
+                else if(key.Contains("inactive"))
+                {
+                    key = "default inactive";
+                }
+                else
+                {
+                    key = "default";
+                }
+                return GetTexture(key);
             }
             else
             {
                 m_TextureCache.Add(key, icon);
             }
             return icon;
+        }
+
+        public static Texture2D GetBlendTexture(Texture texture)
+        {
+
+            Texture2D t = TextureUtility.TextureToTexture2D(texture);
+
+            Color c;
+            ColorUtility.TryParseHtmlString("#91c9f7", out c);
+            c.a = 0.2f;
+            t = TextureUtility.CloneTexture2D_2(t, c);
+            return t;
         }
 
         public static Texture2D TextureToTexture2D(Texture texture)
@@ -76,9 +104,9 @@ namespace RemoteFileExplorer.Editor
         public static Texture2D CloneTexture2D(Texture2D target, Color color)
         {
             Texture2D texture2D = new Texture2D(target.width, target.height);
-            for(int y = 0; y < texture2D.height; y ++)
+            for (int y = 0; y < texture2D.height; y++)
             {
-                for(int x = 0; x < texture2D.width; x ++)
+                for (int x = 0; x < texture2D.width; x++)
                 {
                     color.a = target.GetPixel(x, y).a;
                     texture2D.SetPixel(x, y, color);
@@ -92,15 +120,16 @@ namespace RemoteFileExplorer.Editor
         public static Texture2D CloneTexture2D_2(Texture2D target, Color color)
         {
             Texture2D texture2D = new Texture2D(target.width, target.height);
-            for(int y = 0; y < texture2D.height; y ++)
+            for (int y = 0; y < texture2D.height; y++)
             {
-                for(int x = 0; x < texture2D.width; x ++)
+                for (int x = 0; x < texture2D.width; x++)
                 {
                     Color c = target.GetPixel(x, y);
-                    if(c.a != 0)
+                    if (c.a != 0)
                     {
                         texture2D.SetPixel(x, y, (c * (1 - color.a)) + (color * color.a));
-                    }else
+                    }
+                    else
                     {
                         texture2D.SetPixel(x, y, c);
                     }

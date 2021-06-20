@@ -6,14 +6,14 @@ using System.Collections.Generic;
 
 namespace RemoteFileExplorer
 {
-    public class RFSServer : Session
+    public class BaseServer : BaseSocket
     {
         private bool m_KeepAlive = true;
         private bool m_IsAlive = false;
         public TcpListener m_Server;
         private TcpClient m_CurrentClient;
 
-        private Dictionary<UInt32, SendHandle> m_HandleDict = new Dictionary<uint, SendHandle>();
+        
 
         public override TcpClient CurrentClient
         {
@@ -43,29 +43,7 @@ namespace RemoteFileExplorer
                 StartTransferThreads();
             }, this);
         }
-
-        public new SendHandle Send(Package package)
-        {
-            base.Send(package);
-            SendHandle handle = new SendHandle();
-            handle.Finished = false;
-            m_HandleDict.Add(package.Head.Seq, handle);
-            return handle;
-        }
-
-        public override void Receive(Package package)
-        {
-            // RFS服务端只处理请求包的响应包
-            UInt32 ack = package.Head.Ack;
-            if(m_HandleDict.ContainsKey(ack))
-            {
-                m_HandleDict[ack].Finished = true;
-                m_HandleDict[ack].Rsp = package;
-                m_HandleDict[ack].Msg = "success";
-                m_HandleDict.Remove(ack);
-            }
-        }
-
+        
         public override void Close()
         {
             base.Close();
@@ -90,16 +68,5 @@ namespace RemoteFileExplorer
             Close();
         }
     }
-
-
-    public class SendHandle : ICoroutineYield
-    {
-        public bool Finished = false;
-        public bool IsDone()
-        {
-            return Finished;
-        }
-        public string Msg;
-        public Package Rsp;
-    }
+    
 }

@@ -29,7 +29,7 @@ namespace RemoteFileExplorer.Editor
                 Directory = path,
             };
             Debug.Log("auto senddd ");
-            SendHandle handle = RFS.Instance.Server.Send(req.Pack());
+            SendHandle handle = m_Owner.m_Server.Send(req.Pack());
             yield return handle;
             QueryDirectoryInfo.Rsp rsp = new QueryDirectoryInfo.Rsp();
             rsp.Unpack(handle.Rsp);

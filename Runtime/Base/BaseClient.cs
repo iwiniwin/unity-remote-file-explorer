@@ -3,11 +3,9 @@ using System.Net.Sockets;
 
 namespace RemoteFileExplorer
 {
-    public class RFSClient : Session
+    public class BaseClient : BaseSocket
     {
         private TcpClient m_Client;
-
-        public event Action<Package> OnReceivePackage;
 
         public override TcpClient CurrentClient
         {
@@ -33,14 +31,6 @@ namespace RemoteFileExplorer
                 }
                 m_Client.EndConnect(asyncResult);
             }, this);
-        }
-
-        public override void Receive(Package package)
-        {
-            if (OnReceivePackage != null)
-            {
-                OnReceivePackage(package);
-            }
         }
 
         public override void Close()

@@ -2,20 +2,21 @@ using UnityEngine;
 
 namespace RemoteFileExplorer
 {
-    public class RemoteFileSystem : MonoBehaviour
+    public class FileExplorerClient : MonoBehaviour
     {
-        private RFSClient m_Client;
+        private BaseClient m_Client;
         public string host;
         public int port;
         public bool connectAutomatically;
 
-        private void Start() {
-             m_Client = new RFSClient();
-             m_Client.OnReceivePackage += OnClientReceivePackage;
-             if(connectAutomatically)
-             {
-                 m_Client.StartConnect(host, port);
-             }
+        private void Start()
+        {
+            m_Client = new BaseClient();
+            m_Client.OnReceivePackage += OnReceivePackage;
+            if (connectAutomatically)
+            {
+                m_Client.StartConnect(host, port);
+            }
         }
 
         public void StartConnect()
@@ -23,7 +24,11 @@ namespace RemoteFileExplorer
             m_Client.StartConnect(host, port);
         }
 
-        public void OnClientReceivePackage(Package package)
+        private void Update() {
+            m_Client.Update();
+        }
+
+        public void OnReceivePackage(Package package)
         {
             Debug.Log("  收到。。。。。。");
 
@@ -35,8 +40,9 @@ namespace RemoteFileExplorer
             }
         }
 
-        private void OnDestroy() {
-            if(m_Client != null)
+        private void OnDestroy()
+        {
+            if (m_Client != null)
             {
                 m_Client.Close();
             }

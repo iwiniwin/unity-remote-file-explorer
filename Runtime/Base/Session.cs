@@ -136,7 +136,7 @@ namespace RemoteFileExplorer
         private byte[] m_ReceiveBuffer;
         private Thread m_ReceiveThread;
 
-        private ConcurrentQueue<Package> m_ReceiveQueue;
+        protected ConcurrentQueue<Package> m_ReceiveQueue;
         private Thread m_UnpackThread;
         private AutoResetEvent m_UnpackResetEvent;
 
