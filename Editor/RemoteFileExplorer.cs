@@ -1,6 +1,6 @@
+using System;
 using UnityEngine;
 using UnityEditor;
-using System.Collections;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
 using RemoteFileExplorer.Editor.UI;
@@ -84,6 +84,8 @@ namespace RemoteFileExplorer.Editor
 
             var objectListPlaceHolder = root.Q<VisualElement>("objectListPlaceHolder");
             m_ObjectListArea = new ObjectListArea();
+            m_ObjectListArea.doubleClickItemCallback += m_Manipulator.GoTo;
+            m_ObjectListArea.clickItemCallback += m_Manipulator.Select;
             objectListPlaceHolder.Add(m_ObjectListArea);
 
             m_StatsToggle = root.Q<ToolbarToggle>("statsToggle");
@@ -130,8 +132,9 @@ namespace RemoteFileExplorer.Editor
             m_BreadCrumbsContainer = root.Q<IMGUIContainer>("breadCrumbContainer");
             breadCrumbRoot.RegisterCallback<MouseUpEvent>((MouseUpEvent e) =>
             {
+                if(m_Manipulator.curPath == null) return;
                 breadCrumbEdit.style.display = DisplayStyle.Flex;
-                breadCrumbEdit.value = "this/sflsf/ddd/dddd";
+                breadCrumbEdit.value = m_Manipulator.curPath;
                 var l = breadCrumbEdit.Q<VisualElement>("unity-text-input");
                 l.Focus();
                 breadCrumbEdit.SelectAll();
@@ -149,30 +152,40 @@ namespace RemoteFileExplorer.Editor
 
         void BreadCrumbBar()
         {
+            if(m_Manipulator.curPath == null) return;
+            char separator = '/';
+            string[] names = m_Manipulator.curPath.Split(new char[]{separator}, StringSplitOptions.RemoveEmptyEntries);
             Rect rect = new Rect(m_BreadCrumbsContainer.contentRect);
-            string text = "Assets";
-            bool last = false;
-
-            GUIContent content = new GUIContent(text);
-            GUIStyle style = last ? EditorStyles.boldLabel : EditorStyles.label;
-            Vector2 size = style.CalcSize(content);
-            rect.y -= 1;
-            rect.width = size.x;
-
-            if (GUI.Button(rect, content, style))
+            bool startWithSeparator = m_Manipulator.curPath[0] == separator;
+            string targetPath = startWithSeparator ? separator.ToString() : "";
+            for(int i = 0; i < names.Length; i ++)
             {
+                GUIContent content = new GUIContent(names[i]);
+                bool last = i == names.Length - 1;
+                targetPath += i == 0 ? names[i] : separator + names[i];
+                GUIStyle style = last ? EditorStyles.boldLabel : EditorStyles.label;
+                Vector2 size = style.CalcSize(content);
+                rect.y -= 1;
+                rect.width = size.x;
+                if (GUI.Button(rect, content, style))
+                {
+                    if(!last)
+                    {
+                        m_Manipulator.GoTo(targetPath);
+                    }
+                }
+                rect.y += 1;
+                rect.x += size.x;
+                if(!last)
+                {
+                    GUIStyle separatorStyle = "ArrowNavigationRight";
+                    Rect buttonRect = new Rect(rect.x, rect.y + (rect.height - separatorStyle.fixedHeight) / 2, separatorStyle.fixedWidth, separatorStyle.fixedHeight);
+                    if (GUI.Button(buttonRect, GUIContent.none, separatorStyle))
+                    {
 
-            }
-
-            rect.y += 1;
-
-            rect.x += size.x;
-            GUIStyle separatorStyle = "ArrowNavigationRight";
-
-            Rect buttonRect = new Rect(rect.x, rect.y + (rect.height - separatorStyle.fixedHeight) / 2, separatorStyle.fixedWidth, separatorStyle.fixedHeight);
-            if (GUI.Button(buttonRect, GUIContent.none, separatorStyle))
-            {
-
+                    }
+                    rect.x += separatorStyle.fixedWidth;
+                }
             }
         }
 
@@ -188,7 +201,10 @@ namespace RemoteFileExplorer.Editor
                 case ConnectStatus.Connected:
                     Debug.Log("服务器 已连接。。。。。。");
                     // Coroutines.Start(SendRequest());
-                    m_Manipulator.GoToPath("");
+
+                    var path = "E:/UnityProject/LastBattle/Assets/Scripts/Game/Message";
+                    m_Manipulator.GoTo(path);
+                    
                     break;
                 case ConnectStatus.Connecting:
                     Debug.Log("服务器 正在连接。。。。。。");

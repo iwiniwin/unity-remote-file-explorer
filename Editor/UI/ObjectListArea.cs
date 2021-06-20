@@ -1,6 +1,7 @@
 using UnityEngine.UIElements;
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 namespace RemoteFileExplorer.Editor.UI 
 {
@@ -13,6 +14,9 @@ namespace RemoteFileExplorer.Editor.UI
         private List<ObjectData> m_Data = new List<ObjectData>();
 
         private ObjectItem m_CurSelectItem;
+
+        public Action<ObjectItem> clickItemCallback;
+        public Action<ObjectItem> doubleClickItemCallback;
 
         public ObjectListArea() : base(ScrollViewMode.Vertical)
         {
@@ -27,6 +31,8 @@ namespace RemoteFileExplorer.Editor.UI
 
         public void UpdateView(List<ObjectData> list)
         {
+            Clear();
+            m_CurSelectItem = null;
             m_Data = list;
             m_Grid.fixedWidth = this.contentRect.width;
 
@@ -50,7 +56,7 @@ namespace RemoteFileExplorer.Editor.UI
             for(int i = 0; i < cols; i ++)
             {
                 int index = row * cols + i;
-                if(i >= m_Data.Count)
+                if(index >= m_Data.Count)
                 {
                     break;
                 }
@@ -72,11 +78,18 @@ namespace RemoteFileExplorer.Editor.UI
             }
             m_CurSelectItem = item;
             m_CurSelectItem.UpdateState(ObjectState.Selected);
+            if(clickItemCallback != null)
+            {
+                clickItemCallback(item);
+            }
         }
 
         public void OnDoubleClickItem(ObjectItem item)
         {
-            
+            if(doubleClickItemCallback != null)
+            {
+                doubleClickItemCallback(item);
+            }
         }
     }
 

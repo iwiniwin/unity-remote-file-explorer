@@ -25,7 +25,10 @@ namespace RemoteFileExplorer
         }
 
         private void Update() {
-            m_Client.Update();
+            if(m_Client != null)
+            {
+                m_Client.Update();
+            }
         }
 
         public void OnReceivePackage(Package package)

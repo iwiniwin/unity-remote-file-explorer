@@ -7,22 +7,69 @@ namespace RemoteFileExplorer.Editor
 {
     public class Manipulator
     {
+        public string m_CurPath;
+
+        public string curPath 
+        {
+            get
+            {
+                return m_CurPath;
+            }
+            set
+            {
+                m_CurPath = value.Replace("\\", "/");
+            }
+        }
+
         private RemoteFileExplorerWindow m_Owner;
         public Manipulator(RemoteFileExplorerWindow owner)
         {
             m_Owner = owner;
         }
 
-        public void GoToPath(string path)
+        public void GoTo(string path)
         {
-            path = "E:/UnityProject/LastBattle/Assets/Scripts/Game/Message";
-            Coroutines.Start(Internal_GoToPath(path));
+            Coroutines.Start(Internal_GoTo(path));
+        }
+
+        public void GoTo(ObjectItem item)
+        {
+            var data = item.Data;
+            if(data.type == ObjectType.File)
+                return;
+            Coroutines.Start(Internal_GoTo(item.Data.path));
+        }
+
+        public void Select(ObjectItem item)
+        {
+            var data = item.Data;
+            curPath = data.path;
+        }
+
+        public void Download(ObjectItem item)
+        {
+
+        }
+
+        public void Delete(ObjectItem item)
+        {
+
+        }
+
+        public void Rename(ObjectItem item)
+        {
+
+        }
+
+        public void Upload()
+        {
+
         }
 
         /// <summary>
         /// 跳转到指定路径
         /// </summary>
-        private IEnumerator Internal_GoToPath(string path)
+        private IEnumerator Internal_GoTo(string path)
         {
             QueryDirectoryInfo.Req req = new QueryDirectoryInfo.Req
             {
@@ -42,15 +89,16 @@ namespace RemoteFileExplorer.Editor
             {
                 List<ObjectData> list = new List<ObjectData>();
                 
-                foreach(var item in rsp.SubDirectories)
+                foreach(var item1 in rsp.SubDirectories)
                 {
-                    list.Add(new ObjectData(ObjectType.Folder, item));
+                    list.Add(new ObjectData(ObjectType.Folder, item1));
                 }
-                foreach(var item in rsp.SubFiles)
+                foreach(var item1 in rsp.SubFiles)
                 {
-                    list.Add(new ObjectData(ObjectType.File, item));
+                    list.Add(new ObjectData(ObjectType.File, item1));
                 }
                 m_Owner.m_ObjectListArea.UpdateView(list);
+                curPath = path;
             }
             
         }

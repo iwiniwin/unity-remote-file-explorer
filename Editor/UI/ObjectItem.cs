@@ -30,6 +30,14 @@ namespace RemoteFileExplorer.Editor.UI
             }
         }
 
+        public ObjectData Data 
+        {
+            get
+            {
+                return m_Data;
+            }
+        }
+
         public ObjectItem(Vector2 size)
         {
             this.Size = size;
