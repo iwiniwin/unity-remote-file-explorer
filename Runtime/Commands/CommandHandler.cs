@@ -28,13 +28,17 @@ namespace RemoteFileExplorer
                 case CommandType.QueryDirectoryInfo:
                     QueryDirectoryInfo.Req req = new QueryDirectoryInfo.Req();
                     req.Unpack(package);
-
                     bool exists = Directory.Exists(req.Directory);
+                    string path = req.Directory;
+                    if(exists)
+                    {
+                        path += "/";
+                    }
                     QueryDirectoryInfo.Rsp rsp = new QueryDirectoryInfo.Rsp{
                         Ack = package.Head.Seq,
                         Exists = exists,
-                        SubDirectories = exists ? Directory.GetDirectories(req.Directory) : emptyStringArray,
-                        SubFiles = exists ? Directory.GetFiles(req.Directory) : emptyStringArray,
+                        SubDirectories = exists ? Directory.GetDirectories(path) : emptyStringArray,
+                        SubFiles = exists ? Directory.GetFiles(path) : emptyStringArray,
                     };
                     response = rsp.Pack();
                     break;
