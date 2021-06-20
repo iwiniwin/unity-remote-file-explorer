@@ -13,6 +13,8 @@ namespace RemoteFileExplorer.Editor.UI
 
         private List<ObjectData> m_Data = new List<ObjectData>();
 
+        private VisualElement m_Content;
+
         private ObjectItem m_CurSelectItem;
 
         public Action<ObjectItem> clickItemCallback;
@@ -20,28 +22,44 @@ namespace RemoteFileExplorer.Editor.UI
 
         public ObjectListArea() : base(ScrollViewMode.Vertical)
         {
+            this.style.width = Length.Percent(100);
             this.style.height = Length.Percent(100);
+
+            m_Content = new VisualElement();
+            Add(m_Content);
 
             m_Grid.itemSize = new Vector2(80, 80);
             m_Grid.minHorizontalSpacing = 10;
             m_Grid.verticalSpacing = 10;
-            
-            
+            m_Grid.topMargin = 10;
         }
 
         public void UpdateView(List<ObjectData> list)
         {
-            Clear();
+            m_Content.Clear();
             m_CurSelectItem = null;
             m_Data = list;
+
             m_Grid.fixedWidth = this.contentRect.width;
+            m_Grid.InitNumRowsAndColumns(list.Count);
+            m_Content.style.width = m_Grid.fixedWidth;
+            m_Content.style.height = m_Grid.height;
 
-            int cols = m_Grid.CalcColumns();
-            int rows = m_Grid.CalcRows(list.Count);
 
-            for(int i = 0; i < rows; i ++)
+            for(int i = 0; i < list.Count; i ++)
             {
-                AddRow(cols, i);
+                Rect rect = m_Grid.CalcRect(i);
+                var item = new ObjectItem(m_Grid.itemSize);
+                item.style.position = Position.Absolute;
+                item.style.marginLeft = rect.x;
+                item.style.marginTop = rect.y;
+
+                item.clickItemCallback += OnClickItem;
+                item.doubleClickItemCallback += OnDoubleClickItem;
+                
+                item.UpdateView(m_Data[i]);
+                m_Items.Add(item);
+                m_Content.Add(item);
             }
         }
 
@@ -50,9 +68,8 @@ namespace RemoteFileExplorer.Editor.UI
             VisualElement v = new VisualElement();
             v.style.width = Length.Percent(100);
             v.style.flexDirection = FlexDirection.Row;
-            v.style.justifyContent = Justify.SpaceAround;
-
             v.style.marginTop = m_Grid.verticalSpacing;
+
             for(int i = 0; i < cols; i ++)
             {
                 int index = row * cols + i;
@@ -116,6 +133,25 @@ namespace RemoteFileExplorer.Editor.UI
         public float fixedHorizontalSpacing {get; set;}
         public bool useFixedHorizontalSpacing {get; set;}
 
+        public void InitNumRowsAndColumns(int itemCount)
+        {
+            m_Columns = CalcColumns();
+            m_Rows = CalcRows(itemCount);
+            if(useFixedHorizontalSpacing)
+            {
+                m_HorizontalSpacing = fixedHorizontalSpacing;
+            }
+            else
+            {
+                m_HorizontalSpacing = Mathf.Max(0f, (fixedWidth - (m_Columns * itemSize.x + leftMargin + rightMargin)) / (m_Columns));
+                if(m_Rows == 1)
+                {
+                    m_HorizontalSpacing = minHorizontalSpacing;
+                }
+            }
+            m_Height = m_Rows * (itemSize.y + verticalSpacing) - verticalSpacing + topMargin + bottomMargin;
+        }
+
         public int CalcColumns()
         {
             float horizontalSpacing = useFixedHorizontalSpacing ? fixedHorizontalSpacing : minHorizontalSpacing;
@@ -127,6 +163,26 @@ namespace RemoteFileExplorer.Editor.UI
         public int CalcRows(int itemCount)
         {
             return (int)Mathf.Ceil(itemCount / (float)CalcColumns());
+        }
+
+        public Rect CalcRect(int itemIdx)
+        {
+            float row = Mathf.Floor(itemIdx / columns);
+            float column = itemIdx - row * columns;
+            if(useFixedHorizontalSpacing)
+            {
+                return new Rect(leftMargin + column * (itemSize.x + fixedHorizontalSpacing),
+                    row * (itemSize.y + verticalSpacing) + topMargin,
+                    itemSize.x,
+                    itemSize.y);
+            }
+            else
+            {
+                return new Rect(leftMargin + horizontalSpacing * 0.5f +  column * (itemSize.x + horizontalSpacing),
+                    row * (itemSize.y + verticalSpacing) + topMargin,
+                    itemSize.x,
+                    itemSize.y);
+            }
         }
     }
 }
