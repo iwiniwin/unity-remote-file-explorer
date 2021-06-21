@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using RemoteFileExplorer.Editor.UI;
+using UnityEditor;
 
 namespace RemoteFileExplorer.Editor
 {
@@ -71,6 +72,7 @@ namespace RemoteFileExplorer.Editor
         /// </summary>
         private IEnumerator Internal_GoTo(string path)
         {
+            if(!CheckConnectStatus()) yield break;
             QueryPathInfo.Req req = new QueryPathInfo.Req
             {
                 Path = path,
@@ -102,6 +104,16 @@ namespace RemoteFileExplorer.Editor
                 curPath = path;
             }
             
+        }
+
+        public bool CheckConnectStatus()
+        {
+            if(m_Owner.m_Server.Status == ConnectStatus.Connected)
+            {
+                return true;
+            }  
+            EditorUtility.DisplayDialog(Constants.WindowTitle, Constants.NotConnectedTip, Constants.OkText);
+            return false;
         }
     }
 }

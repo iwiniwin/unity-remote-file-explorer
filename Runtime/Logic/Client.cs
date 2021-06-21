@@ -3,7 +3,7 @@ using System.Net.Sockets;
 
 namespace RemoteFileExplorer
 {
-    public class Client : BaseSocket
+    public class Client : Socket
     {
         private TcpClient m_Client;
 

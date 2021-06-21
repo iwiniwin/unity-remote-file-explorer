@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace RemoteFileExplorer
 {
-    public class Server : BaseSocket
+    public class Server : Socket
     {
         private bool m_KeepAlive = true;
         private bool m_IsAlive = false;

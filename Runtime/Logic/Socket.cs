@@ -3,7 +3,7 @@ using System;
 
 namespace RemoteFileExplorer
 {
-    public abstract class BaseSocket : Session
+    public abstract class Socket : Session
     {
         private Dictionary<UInt32, CommandHandle> m_HandleDict = new Dictionary<uint, CommandHandle>();
         public Action<Command> OnReceiveCommand;

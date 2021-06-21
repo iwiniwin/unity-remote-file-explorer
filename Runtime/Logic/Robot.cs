@@ -6,9 +6,9 @@ namespace RemoteFileExplorer
     {
         private static string[] emptyStringArray = new string[]{};
 
-        private BaseSocket m_Socket;
+        private Socket m_Socket;
 
-        public Robot(BaseSocket socket)
+        public Robot(Socket socket)
         {
             m_Socket = socket;
         }
