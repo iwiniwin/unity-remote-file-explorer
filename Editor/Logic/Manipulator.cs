@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using RemoteFileExplorer.Editor.UI;
 using UnityEditor;
+using System.IO;
 
 namespace RemoteFileExplorer.Editor
 {
@@ -50,6 +51,20 @@ namespace RemoteFileExplorer.Editor
         {
             var data = item.Data;
             curPath = data.path;
+            m_Owner.m_ObjectListArea.SetSelectItem(item);
+        }
+
+        /// <summary>
+        /// 选择空
+        /// </summary>
+        public void Select()
+        {
+            ObjectItem item = m_Owner.m_ObjectListArea.GetSelectItem();
+            if(item != null)
+            {
+                curPath = Path.GetDirectoryName(item.Data.path);
+            }
+            m_Owner.m_ObjectListArea.SetSelectItem(null);
         }
 
         public void Download(ObjectItem item)

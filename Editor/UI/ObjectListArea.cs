@@ -3,9 +3,9 @@ using UnityEngine;
 using System.Collections.Generic;
 using System;
 
-namespace RemoteFileExplorer.Editor.UI 
+namespace RemoteFileExplorer.Editor.UI
 {
-    public class ObjectListArea : ScrollView 
+    public class ObjectListArea : ScrollView
     {
         private VerticalGrid m_Grid = new VerticalGrid();
 
@@ -21,6 +21,7 @@ namespace RemoteFileExplorer.Editor.UI
         public Action<ObjectItem> clickItemCallback;
         public Action<ObjectItem> doubleClickItemCallback;
         public Action<ObjectItem, Vector2> rightClickItemCallback;
+        public Action clickEmptyAreaCallback;
 
         public ObjectListArea() : base(ScrollViewMode.Vertical)
         {
@@ -40,6 +41,7 @@ namespace RemoteFileExplorer.Editor.UI
             m_Grid.minHorizontalSpacing = 10;
             m_Grid.verticalSpacing = 10;
             m_Grid.topMargin = 10;
+            RegisterCallback<MouseDownEvent>(OnMouseDown);
         }
 
         public void UpdateView(List<ObjectData> list)
@@ -47,7 +49,7 @@ namespace RemoteFileExplorer.Editor.UI
             m_CurSelectItem = null;
             m_Data = list;
 
-            if(list.Count == 0)
+            if (list.Count == 0)
             {
                 m_EmptyLabel.style.display = DisplayStyle.Flex;
                 m_Content.style.display = DisplayStyle.None;
@@ -63,7 +65,7 @@ namespace RemoteFileExplorer.Editor.UI
             m_Content.style.height = m_Grid.height;
 
 
-            for(int i = 0; i < list.Count; i ++)
+            for (int i = 0; i < list.Count; i++)
             {
                 Rect rect = m_Grid.CalcRect(i);
                 var item = new ObjectItem(m_Grid.itemSize);
@@ -71,27 +73,42 @@ namespace RemoteFileExplorer.Editor.UI
                 item.style.marginLeft = rect.x;
                 item.style.marginTop = rect.y;
 
-                item.clickItemCallback += OnClickItem;
+                item.clickItemCallback += clickItemCallback;
                 item.doubleClickItemCallback += doubleClickItemCallback;
                 item.rightClickItemCallback += rightClickItemCallback;
-                
+
                 item.UpdateView(m_Data[i]);
                 m_Items.Add(item);
                 m_Content.Add(item);
             }
         }
 
-        public void OnClickItem(ObjectItem item)
+        public void SetSelectItem(ObjectItem item)
         {
-            if(m_CurSelectItem != null && m_CurSelectItem != item)
+            if (m_CurSelectItem != null && m_CurSelectItem != item)
             {
                 m_CurSelectItem.UpdateState(ObjectState.Normal);
             }
             m_CurSelectItem = item;
-            m_CurSelectItem.UpdateState(ObjectState.Selected);
-            if(clickItemCallback != null)
+            if (m_CurSelectItem != null)
             {
-                clickItemCallback(item);
+                m_CurSelectItem.UpdateState(ObjectState.Selected);
+            }
+        }
+
+        public ObjectItem GetSelectItem()
+        {
+            return m_CurSelectItem;
+        }
+
+        public void OnMouseDown(MouseDownEvent e)
+        {
+            if (e.button == 0 || e.button == 1)
+            {
+                if (clickEmptyAreaCallback != null)
+                {
+                    clickEmptyAreaCallback();
+                }
             }
         }
     }
@@ -103,34 +120,34 @@ namespace RemoteFileExplorer.Editor.UI
         float m_Height;
         float m_HorizontalSpacing;
 
-        public int columns {get {return m_Columns;}}
-        public int rows {get {return m_Rows;}}
-        public float height {get {return m_Height;}}
-        public float horizontalSpacing {get {return m_HorizontalSpacing;}}
+        public int columns { get { return m_Columns; } }
+        public int rows { get { return m_Rows; } }
+        public float height { get { return m_Height; } }
+        public float horizontalSpacing { get { return m_HorizontalSpacing; } }
 
-        public float fixedWidth {get; set;}
-        public Vector2 itemSize {get; set;}
-        public float verticalSpacing {get; set;}
-        public float minHorizontalSpacing {get; set;}
-        public float topMargin {get; set;}
-        public float bottomMargin {get; set;}
-        public float rightMargin {get; set;}
-        public float leftMargin {get; set;}
-        public float fixedHorizontalSpacing {get; set;}
-        public bool useFixedHorizontalSpacing {get; set;}
+        public float fixedWidth { get; set; }
+        public Vector2 itemSize { get; set; }
+        public float verticalSpacing { get; set; }
+        public float minHorizontalSpacing { get; set; }
+        public float topMargin { get; set; }
+        public float bottomMargin { get; set; }
+        public float rightMargin { get; set; }
+        public float leftMargin { get; set; }
+        public float fixedHorizontalSpacing { get; set; }
+        public bool useFixedHorizontalSpacing { get; set; }
 
         public void InitNumRowsAndColumns(int itemCount)
         {
             m_Columns = CalcColumns();
             m_Rows = CalcRows(itemCount);
-            if(useFixedHorizontalSpacing)
+            if (useFixedHorizontalSpacing)
             {
                 m_HorizontalSpacing = fixedHorizontalSpacing;
             }
             else
             {
                 m_HorizontalSpacing = Mathf.Max(0f, (fixedWidth - (m_Columns * itemSize.x + leftMargin + rightMargin)) / (m_Columns));
-                if(m_Rows == 1)
+                if (m_Rows == 1)
                 {
                     m_HorizontalSpacing = minHorizontalSpacing;
                 }
@@ -155,7 +172,7 @@ namespace RemoteFileExplorer.Editor.UI
         {
             float row = Mathf.Floor(itemIdx / columns);
             float column = itemIdx - row * columns;
-            if(useFixedHorizontalSpacing)
+            if (useFixedHorizontalSpacing)
             {
                 return new Rect(leftMargin + column * (itemSize.x + fixedHorizontalSpacing),
                     row * (itemSize.y + verticalSpacing) + topMargin,
@@ -164,7 +181,7 @@ namespace RemoteFileExplorer.Editor.UI
             }
             else
             {
-                return new Rect(leftMargin + horizontalSpacing * 0.5f +  column * (itemSize.x + horizontalSpacing),
+                return new Rect(leftMargin + horizontalSpacing * 0.5f + column * (itemSize.x + horizontalSpacing),
                     row * (itemSize.y + verticalSpacing) + topMargin,
                     itemSize.x,
                     itemSize.y);

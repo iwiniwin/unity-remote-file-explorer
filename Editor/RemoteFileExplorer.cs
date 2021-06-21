@@ -37,13 +37,12 @@ namespace RemoteFileExplorer.Editor
         {
             if (tag == 4)
             {
-                // m_ObjectListArea.UpdateView();
-                // System.Collections.Generic.List<ObjectData> data = new System.Collections.Generic.List<ObjectData>();
-                // for(int i = 0; i < 2; i ++)
-                // {
-                //     data.Add(new ObjectData(ObjectType.File, "aa.cs"));
-                // }
-                // m_ObjectListArea.UpdateView(data);
+                System.Collections.Generic.List<ObjectData> data = new System.Collections.Generic.List<ObjectData>();
+                for(int i = 0; i < 10; i ++)
+                {
+                    data.Add(new ObjectData(ObjectType.File, "vv/aa.cs"));
+                }
+                m_ObjectListArea.UpdateView(data);
             }
             tag++;
             if (m_WindowInitialized)
@@ -93,6 +92,7 @@ namespace RemoteFileExplorer.Editor
             m_ObjectListArea.doubleClickItemCallback += m_Manipulator.GoTo;
             m_ObjectListArea.clickItemCallback += m_Manipulator.Select;
             m_ObjectListArea.rightClickItemCallback += OpenRightClickMenu;
+            m_ObjectListArea.clickEmptyAreaCallback += m_Manipulator.Select;
             objectListPlaceHolder.Add(m_ObjectListArea);
 
             m_StatsToggle = root.Q<ToolbarToggle>("statsToggle");
@@ -163,7 +163,7 @@ namespace RemoteFileExplorer.Editor
 
         void OpenRightClickMenu(ObjectItem item, Vector2 mousePosition)
         {
-            // todo 设置selectitem null
+            m_Manipulator.Select(item);
             var menu = new GenericMenu();
             menu.AddItem(new GUIContent("Download"), false, () =>
             {
@@ -182,7 +182,7 @@ namespace RemoteFileExplorer.Editor
 
         void BreadCrumbBar()
         {
-            if (m_Manipulator.curPath == null) return;
+            if (m_Manipulator.curPath == null || m_Manipulator.curPath.Length == 0) return;
             char separator = '/';
             string[] names = m_Manipulator.curPath.Split(new char[] { separator }, StringSplitOptions.RemoveEmptyEntries);
             Rect rect = new Rect(m_BreadCrumbsContainer.contentRect);

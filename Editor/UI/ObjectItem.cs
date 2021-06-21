@@ -136,6 +136,7 @@ namespace RemoteFileExplorer.Editor.UI
                     rightClickItemCallback(this, e.mousePosition);
                 }
             }
+            e.StopImmediatePropagation();
         }
 
         public int GetNumCharactersThatFitWithinWidth()
