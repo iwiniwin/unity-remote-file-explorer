@@ -14,6 +14,7 @@ namespace RemoteFileExplorer.Editor.UI
         private List<ObjectData> m_Data = new List<ObjectData>();
 
         private VisualElement m_Content;
+        private Label m_EmptyLabel;
 
         private ObjectItem m_CurSelectItem;
 
@@ -26,7 +27,13 @@ namespace RemoteFileExplorer.Editor.UI
             this.style.height = Length.Percent(100);
 
             m_Content = new VisualElement();
+            m_EmptyLabel = new Label("This folder is empty");
+            m_EmptyLabel.style.marginTop = 20;
+            m_EmptyLabel.style.alignSelf = Align.Center;
+            m_EmptyLabel.style.color = Color.gray;
+            m_EmptyLabel.style.display = DisplayStyle.None;
             Add(m_Content);
+            Add(m_EmptyLabel);
 
             m_Grid.itemSize = new Vector2(80, 80);
             m_Grid.minHorizontalSpacing = 10;
@@ -36,10 +43,19 @@ namespace RemoteFileExplorer.Editor.UI
 
         public void UpdateView(List<ObjectData> list)
         {
-            m_Content.Clear();
             m_CurSelectItem = null;
             m_Data = list;
 
+            if(list.Count == 0)
+            {
+                m_EmptyLabel.style.display = DisplayStyle.Flex;
+                m_Content.style.display = DisplayStyle.None;
+                return;
+            }
+            m_EmptyLabel.style.display = DisplayStyle.None;
+            m_Content.style.display = DisplayStyle.Flex;
+            
+            m_Content.Clear();
             m_Grid.fixedWidth = this.contentRect.width;
             m_Grid.InitNumRowsAndColumns(list.Count);
             m_Content.style.width = m_Grid.fixedWidth;
