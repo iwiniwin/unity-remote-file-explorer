@@ -108,23 +108,18 @@ namespace RemoteFileExplorer.Editor
                 }
             });
 
-            var menu = root.Q<ToolbarMenu>("goToMenu");
-            menu.RegisterCallback<MouseUpEvent>((MouseUpEvent e) =>
+            var goToMenu = root.Q<ToolbarMenu>("goToMenu");
+            goToMenu.RegisterCallback<MouseUpEvent>((MouseUpEvent e) =>
             {
-                var m = new GenericMenu();
-                m.AddItem(new GUIContent("1111"), true, () =>
+                var menu = new GenericMenu();
+                foreach (var key in Robot.PathKeyMap.Keys)
                 {
-
-                });
-                m.AddItem(new GUIContent("2222"), false, () =>
-                {
-
-                });
-                m.AddItem(new GUIContent("3333"), false, () =>
-                {
-
-                });
-                m.DropDown(GetRect(menu));
+                    menu.AddItem(new GUIContent(key), false, () =>
+                    {
+                        m_Manipulator.GoToByKey(key);
+                    });
+                }
+                menu.DropDown(GetRect(goToMenu));
             });
 
             var captureButton = root.Q<Button>("snapshot-control-area__capture-button");

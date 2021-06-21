@@ -10,6 +10,8 @@ namespace RemoteFileExplorer
 
         public bool IsFinished;
 
+        public abstract CommandType Type {get;}
+
         public UInt32 Seq = 0;
         public UInt32 Ack = 0;
 

@@ -41,6 +41,11 @@ namespace RemoteFileExplorer.Editor
             Coroutines.Start(Internal_GoTo(item.Data.path));
         }
 
+        public void GoToByKey(string key)
+        {
+            Coroutines.Start(Internal_GoTo(key, true));
+        }
+
         public void Select(ObjectItem item)
         {
             var data = item.Data;
@@ -70,14 +75,24 @@ namespace RemoteFileExplorer.Editor
         /// <summary>
         /// 跳转到指定路径
         /// </summary>
-        private IEnumerator Internal_GoTo(string path)
+        private IEnumerator Internal_GoTo(string path, bool isKey = false)
         {
             if(!CheckConnectStatus()) yield break;
-            QueryPathInfo.Req req = new QueryPathInfo.Req
+            Command req;
+            if(isKey)
             {
-                Path = path,
-            };
-            Debug.Log("auto senddd ");
+                req = new QueryPathKeyInfo.Req
+                {
+                    PathKey = path,
+                };
+            }
+            else
+            {
+                req = new QueryPathInfo.Req
+                {
+                    Path = path,
+                };
+            }
             CommandHandle handle = m_Owner.m_Server.Send(req);
             yield return handle;
             var rsp = handle.Command as QueryPathInfo.Rsp;
@@ -92,16 +107,23 @@ namespace RemoteFileExplorer.Editor
             {
                 List<ObjectData> list = new List<ObjectData>();
                 
-                foreach(var item1 in rsp.SubDirectories)
+                foreach(var item1 in rsp.Directories)
                 {
                     list.Add(new ObjectData(ObjectType.Folder, item1));
                 }
-                foreach(var item1 in rsp.SubFiles)
+                foreach(var item1 in rsp.Files)
                 {
                     list.Add(new ObjectData(ObjectType.File, item1));
                 }
                 m_Owner.m_ObjectListArea.UpdateView(list);
-                curPath = path;
+                if(rsp is QueryPathKeyInfo.Rsp)
+                {
+                    curPath = (rsp as QueryPathKeyInfo.Rsp).Path;
+                }
+                else
+                {
+                    curPath = path;
+                }
             }
             
         }

@@ -11,6 +11,11 @@ namespace RemoteFileExplorer
 
         private Unpacker() {}
 
+        public static int GetPos()
+        {
+            return m_Pos;
+        }
+
         public static void Bind(Octets octets)
         {
             Bind(octets.Buffer, 0);

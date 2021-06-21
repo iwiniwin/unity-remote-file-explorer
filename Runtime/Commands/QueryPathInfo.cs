@@ -2,11 +2,12 @@ using System;
 
 namespace RemoteFileExplorer
 {
-    public class QueryPathInfo 
+    public class QueryPathInfo
     {
         public class Req : Command
         {
             public string Path;
+            public override CommandType Type { get { return CommandType.QueryPathInfo; } }
 
             public override Octets Serialize()
             {
@@ -29,16 +30,20 @@ namespace RemoteFileExplorer
         {
             public bool Exists;
             public bool IsFile;
-            public string[] SubDirectories;
-            public string[] SubFiles;
+            public string[] Directories;
+            public string[] Files;
+            public override CommandType Type { get { return CommandType.QueryPathInfo; } }
+
+            private int m_ReadSize;
 
             public override Octets Serialize()
             {
                 Octets octets = new Octets();
                 Packer.Bind(octets);
                 Packer.WriteBool(Exists);
-                Packer.WriteStringArray(SubDirectories);
-                Packer.WriteStringArray(SubFiles);
+                Packer.WriteBool(IsFile);
+                Packer.WriteStringArray(Directories);
+                Packer.WriteStringArray(Files);
                 Packer.Unbind();
                 return octets;
             }
@@ -47,9 +52,16 @@ namespace RemoteFileExplorer
             {
                 Unpacker.Bind(octets);
                 this.Exists = Unpacker.ReadBool();
-                this.SubDirectories = Unpacker.ReadStringArray();
-                this.SubFiles = Unpacker.ReadStringArray();
+                this.IsFile = Unpacker.ReadBool();
+                this.Directories = Unpacker.ReadStringArray();
+                this.Files = Unpacker.ReadStringArray();
+                m_ReadSize = Unpacker.GetPos();
                 Unpacker.Unbind();
+            }
+
+            public int ReadSize()
+            {
+                return m_ReadSize;
             }
         }
     }

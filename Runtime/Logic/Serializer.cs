@@ -6,7 +6,7 @@ namespace RemoteFileExplorer
         {
             Package package = new Package();
             package.Head = new PackageHead();
-            package.Head.Type = CommandType.QueryPathInfo.ToUInt();
+            package.Head.Type = command.Type.ToUInt();
             package.Head.Ack = command.Ack;
             package.Body = command.Serialize();
             package.Head.Size = (uint)(package.Body.Length + PackageHead.Length);
@@ -16,8 +16,8 @@ namespace RemoteFileExplorer
         public static Command Deserialize(Package package)
         {
             Command command = null;
-            
-            if(package.Head.Type == CommandType.QueryPathInfo.ToUInt())
+            CommandType type = (CommandType)package.Head.Type;
+            if(type == CommandType.QueryPathInfo)
             {
                 if(package.Head.Ack == 0)
                 {
@@ -26,6 +26,17 @@ namespace RemoteFileExplorer
                 else
                 {
                     command = new QueryPathInfo.Rsp();
+                }
+            }
+            else if(type == CommandType.QueryPathKeyInfo)
+            {
+                if(package.Head.Ack == 0)
+                {
+                    command = new QueryPathKeyInfo.Req();
+                }
+                else
+                {
+                    command = new QueryPathKeyInfo.Rsp();
                 }
             }
             if(command != null)
