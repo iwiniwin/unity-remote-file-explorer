@@ -10,7 +10,7 @@ namespace RemoteFileExplorer.Editor
     {
         public string m_CurPath;
 
-        public string curPath 
+        public string curPath
         {
             get
             {
@@ -36,7 +36,7 @@ namespace RemoteFileExplorer.Editor
         public void GoTo(ObjectItem item)
         {
             var data = item.Data;
-            if(data.type == ObjectType.File)
+            if (data.type == ObjectType.File)
                 return;
             Coroutines.Start(Internal_GoTo(item.Data.path));
         }
@@ -77,9 +77,9 @@ namespace RemoteFileExplorer.Editor
         /// </summary>
         private IEnumerator Internal_GoTo(string path, bool isKey = false)
         {
-            if(!CheckConnectStatus()) yield break;
+            if (!CheckConnectStatus()) yield break;
             Command req;
-            if(isKey)
+            if (isKey)
             {
                 req = new QueryPathKeyInfo.Req
                 {
@@ -95,45 +95,44 @@ namespace RemoteFileExplorer.Editor
             }
             CommandHandle handle = m_Owner.m_Server.Send(req);
             yield return handle;
-            var rsp = handle.Command as QueryPathInfo.Rsp;
-            // QueryDirectoryInfo.Rsp rsp = new QueryDirectoryInfo.Rsp();
-            // rsp.Unpack(handle.Rsp);
-            // UDK.Output.Dump(rsp.Exists);
-            // UDK.Output.Dump(rsp.SubDirectories);
-            // UDK.Output.Dump(rsp.SubFiles);
-            // Debug.Log(rsp.Exists + "        vvvvvvv " + rsp.SubDirectories.Length);
-            
-            if(rsp.Exists)
+            if (handle.Error != null)
             {
-                List<ObjectData> list = new List<ObjectData>();
-                
-                foreach(var item1 in rsp.Directories)
-                {
-                    list.Add(new ObjectData(ObjectType.Folder, item1));
-                }
-                foreach(var item1 in rsp.Files)
-                {
-                    list.Add(new ObjectData(ObjectType.File, item1));
-                }
-                m_Owner.m_ObjectListArea.UpdateView(list);
-                if(rsp is QueryPathKeyInfo.Rsp)
-                {
-                    curPath = (rsp as QueryPathKeyInfo.Rsp).Path;
-                }
-                else
-                {
-                    curPath = path;
-                }
+                yield break;
             }
-            
+            var rsp = handle.Command as QueryPathInfo.Rsp;
+            if (!rsp.Exists)
+            {
+                EditorUtility.DisplayDialog(Constants.WindowTitle, string.Format(Constants.PathNotExistTip, path), Constants.OkText);
+                yield break;
+            }
+
+            List<ObjectData> list = new List<ObjectData>();
+
+            foreach (var item1 in rsp.Directories)
+            {
+                list.Add(new ObjectData(ObjectType.Folder, item1));
+            }
+            foreach (var item1 in rsp.Files)
+            {
+                list.Add(new ObjectData(ObjectType.File, item1));
+            }
+            m_Owner.m_ObjectListArea.UpdateView(list);
+            if (rsp is QueryPathKeyInfo.Rsp)
+            {
+                curPath = (rsp as QueryPathKeyInfo.Rsp).Path;
+            }
+            else
+            {
+                curPath = path;
+            }
         }
 
         public bool CheckConnectStatus()
         {
-            if(m_Owner.m_Server.Status == ConnectStatus.Connected)
+            if (m_Owner.m_Server.Status == ConnectStatus.Connected)
             {
                 return true;
-            }  
+            }
             EditorUtility.DisplayDialog(Constants.WindowTitle, Constants.NotConnectedTip, Constants.OkText);
             return false;
         }

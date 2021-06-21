@@ -34,7 +34,6 @@ namespace RemoteFileExplorer
             {
                 m_HandleDict[ack].Finished = true;
                 m_HandleDict[ack].Command = command;
-                m_HandleDict[ack].Msg = "success";
                 if(command.IsFinished)
                 {
                     m_HandleDict.Remove(ack);
@@ -62,7 +61,7 @@ namespace RemoteFileExplorer
         {
             return Finished;
         }
-        public string Msg;
+        public string Error;
         public Command Command;
     }
 }
