@@ -92,6 +92,7 @@ namespace RemoteFileExplorer.Editor
             m_ObjectListArea = new ObjectListArea();
             m_ObjectListArea.doubleClickItemCallback += m_Manipulator.GoTo;
             m_ObjectListArea.clickItemCallback += m_Manipulator.Select;
+            m_ObjectListArea.rightClickItemCallback += OpenRightClickMenu;
             objectListPlaceHolder.Add(m_ObjectListArea);
 
             m_StatsToggle = root.Q<ToolbarToggle>("statsToggle");
@@ -160,6 +161,25 @@ namespace RemoteFileExplorer.Editor
             m_BreadCrumbsContainer.onGUIHandler = BreadCrumbBar;
         }
 
+        void OpenRightClickMenu(ObjectItem item, Vector2 mousePosition)
+        {
+            // todo 设置selectitem null
+            var menu = new GenericMenu();
+            menu.AddItem(new GUIContent("Download"), false, () =>
+            {
+                
+            });
+            menu.AddItem(new GUIContent("Rename"), false, () =>
+            {
+                
+            });
+            menu.AddItem(new GUIContent("Delete"), false, () =>
+            {
+                
+            });
+            menu.DropDown(new Rect(mousePosition, Vector2.zero));
+        }
+
         void BreadCrumbBar()
         {
             if (m_Manipulator.curPath == null) return;
@@ -212,8 +232,8 @@ namespace RemoteFileExplorer.Editor
                     Debug.Log("服务器 已连接。。。。。。");
                     // Coroutines.Start(SendRequest());
 
-                    var path = "E:/UnityProject/LastBattle/Assets/Scripts/Game/Message";
-                    m_Manipulator.GoTo(path);
+                    // var path = "E:/UnityProject/LastBattle/Assets/Scripts/Game/Message";
+                    // m_Manipulator.GoTo(path);
 
                     break;
                 case ConnectStatus.Connecting:

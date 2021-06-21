@@ -11,6 +11,7 @@ namespace RemoteFileExplorer.Editor.UI
     {
         public Action<ObjectItem> clickItemCallback;
         public Action<ObjectItem> doubleClickItemCallback;
+        public Action<ObjectItem, Vector2> rightClickItemCallback;
         const string k_UxmlFilesPath = "Packages/com.iwin.remotefileexplorer/Resources/UXML/ObjectItem.uxml";
 
         public VisualElement objectView { get; }
@@ -126,6 +127,13 @@ namespace RemoteFileExplorer.Editor.UI
                 if (e.clickCount == 2)
                 {
                     doubleClickItemCallback(this);
+                }
+            }
+            else if(e.button == 1)
+            {
+                if(rightClickItemCallback != null)
+                {
+                    rightClickItemCallback(this, e.mousePosition);
                 }
             }
         }

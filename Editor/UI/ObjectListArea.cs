@@ -20,6 +20,7 @@ namespace RemoteFileExplorer.Editor.UI
 
         public Action<ObjectItem> clickItemCallback;
         public Action<ObjectItem> doubleClickItemCallback;
+        public Action<ObjectItem, Vector2> rightClickItemCallback;
 
         public ObjectListArea() : base(ScrollViewMode.Vertical)
         {
@@ -54,7 +55,7 @@ namespace RemoteFileExplorer.Editor.UI
             }
             m_EmptyLabel.style.display = DisplayStyle.None;
             m_Content.style.display = DisplayStyle.Flex;
-            
+
             m_Content.Clear();
             m_Grid.fixedWidth = this.contentRect.width;
             m_Grid.InitNumRowsAndColumns(list.Count);
@@ -71,36 +72,13 @@ namespace RemoteFileExplorer.Editor.UI
                 item.style.marginTop = rect.y;
 
                 item.clickItemCallback += OnClickItem;
-                item.doubleClickItemCallback += OnDoubleClickItem;
+                item.doubleClickItemCallback += doubleClickItemCallback;
+                item.rightClickItemCallback += rightClickItemCallback;
                 
                 item.UpdateView(m_Data[i]);
                 m_Items.Add(item);
                 m_Content.Add(item);
             }
-        }
-
-        public void AddRow(int cols, int row)
-        {
-            VisualElement v = new VisualElement();
-            v.style.width = Length.Percent(100);
-            v.style.flexDirection = FlexDirection.Row;
-            v.style.marginTop = m_Grid.verticalSpacing;
-
-            for(int i = 0; i < cols; i ++)
-            {
-                int index = row * cols + i;
-                if(index >= m_Data.Count)
-                {
-                    break;
-                }
-                var item = new ObjectItem(m_Grid.itemSize);
-                item.clickItemCallback += OnClickItem;
-                item.doubleClickItemCallback += OnDoubleClickItem;
-                v.Add(item);
-                item.UpdateView(m_Data[index]);
-                m_Items.Add(item);
-            }
-            Add(v);
         }
 
         public void OnClickItem(ObjectItem item)
@@ -114,14 +92,6 @@ namespace RemoteFileExplorer.Editor.UI
             if(clickItemCallback != null)
             {
                 clickItemCallback(item);
-            }
-        }
-
-        public void OnDoubleClickItem(ObjectItem item)
-        {
-            if(doubleClickItemCallback != null)
-            {
-                doubleClickItemCallback(item);
             }
         }
     }
