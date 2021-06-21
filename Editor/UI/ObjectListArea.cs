@@ -20,7 +20,7 @@ namespace RemoteFileExplorer.Editor.UI
 
         public Action<ObjectItem> clickItemCallback;
         public Action<ObjectItem> doubleClickItemCallback;
-        public Action<ObjectItem, Vector2> rightClickItemCallback;
+        public Action<ObjectItem> rightClickItemCallback;
         public Action clickEmptyAreaCallback;
 
         public ObjectListArea() : base(ScrollViewMode.Vertical)

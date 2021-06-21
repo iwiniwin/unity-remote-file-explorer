@@ -134,6 +134,7 @@ namespace RemoteFileExplorer.Editor
             m_BreadCrumbsContainer = root.Q<IMGUIContainer>("breadCrumbContainer");
             breadCrumbRoot.RegisterCallback<MouseUpEvent>((MouseUpEvent e) =>
             {
+                if(e.button != 0) return;
                 breadCrumbEdit.style.display = DisplayStyle.Flex;
                 breadCrumbEdit.value = m_Manipulator.curPath;
                 var l = breadCrumbEdit.Q<VisualElement>("unity-text-input");
@@ -161,9 +162,8 @@ namespace RemoteFileExplorer.Editor
             m_BreadCrumbsContainer.onGUIHandler = BreadCrumbBar;
         }
 
-        void OpenRightClickMenu(ObjectItem item, Vector2 mousePosition)
+        void OpenRightClickMenu(ObjectItem item)
         {
-            m_Manipulator.Select(item);
             var menu = new GenericMenu();
             menu.AddItem(new GUIContent("Download"), false, () =>
             {
@@ -177,7 +177,7 @@ namespace RemoteFileExplorer.Editor
             {
                 
             });
-            menu.DropDown(new Rect(mousePosition, Vector2.zero));
+            menu.ShowAsContext();
         }
 
         void BreadCrumbBar()

@@ -11,7 +11,7 @@ namespace RemoteFileExplorer.Editor.UI
     {
         public Action<ObjectItem> clickItemCallback;
         public Action<ObjectItem> doubleClickItemCallback;
-        public Action<ObjectItem, Vector2> rightClickItemCallback;
+        public Action<ObjectItem> rightClickItemCallback;
         const string k_UxmlFilesPath = "Packages/com.iwin.remotefileexplorer/Resources/UXML/ObjectItem.uxml";
 
         public VisualElement objectView { get; }
@@ -51,6 +51,7 @@ namespace RemoteFileExplorer.Editor.UI
             objectLabel = this.Q<Label>("objectLabel");
             this.RegisterCallback<GeometryChangedEvent>(this.OnGeometryChanged);
             this.RegisterCallback<MouseDownEvent>(this.OnMouseDown);
+            this.RegisterCallback<MouseUpEvent>(this.OnMouseUp);
         }
 
         public void UpdateView(ObjectData data)
@@ -131,12 +132,23 @@ namespace RemoteFileExplorer.Editor.UI
             }
             else if(e.button == 1)
             {
-                if(rightClickItemCallback != null)
+                if(clickItemCallback != null)
                 {
-                    rightClickItemCallback(this, e.mousePosition);
+                    clickItemCallback(this);
                 }
             }
             e.StopImmediatePropagation();
+        }
+
+        public void OnMouseUp(MouseUpEvent e)
+        {
+            if(e.button == 1)
+            {
+                if(rightClickItemCallback != null)
+                {
+                    rightClickItemCallback(this);
+                }
+            }
         }
 
         public int GetNumCharactersThatFitWithinWidth()
