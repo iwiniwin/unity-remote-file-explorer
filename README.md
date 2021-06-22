@@ -12,7 +12,6 @@
 * 支持右键空白区域刷新
 * 多次Go To停止上一个
 * 当前任务显示
-* 完善无访问权限路径的提示
 
 ### Test
 * 测试打开RemoteFileExplorer后，多次Play Game后的连接情况

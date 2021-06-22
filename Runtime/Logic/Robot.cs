@@ -74,7 +74,7 @@ namespace RemoteFileExplorer
                 {
                     rsp.Directories = emptyStringArray;
                     rsp.Files = emptyStringArray;
-                    rsp.Error = e.ToString();
+                    rsp.Error = e.Message;
                 }
                 rsp.Ack = command.Seq;
                 m_Socket.Send(rsp);
