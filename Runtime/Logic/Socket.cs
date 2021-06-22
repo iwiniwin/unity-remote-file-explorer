@@ -12,14 +12,13 @@ namespace RemoteFileExplorer
         {
             Package package = Serializer.Serialize(command);
             base.Send(package);
-            var req = package.Head.Seq;
             
-            if(!m_HandleDict.ContainsKey(req))
+            if(!m_HandleDict.ContainsKey(command.Seq))
             {
-                m_HandleDict.Add(package.Head.Seq, new CommandHandle());
+                m_HandleDict.Add(command.Seq, new CommandHandle());
             }
-            m_HandleDict[req].Finished = false;
-            return m_HandleDict[req];
+            m_HandleDict[command.Seq].Finished = false;
+            return m_HandleDict[command.Seq];
         }
 
         public void OnReceive(Package package)
@@ -29,7 +28,7 @@ namespace RemoteFileExplorer
             {
                 OnReceiveCommand(command);
             }
-            UInt32 ack = package.Head.Ack;
+            UInt32 ack = command.Ack;
             if (m_HandleDict.ContainsKey(ack))
             {
                 m_HandleDict[ack].Finished = true;

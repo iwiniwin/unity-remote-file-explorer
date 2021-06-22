@@ -125,7 +125,7 @@ namespace RemoteFileExplorer
                 {
                     lock (m_SendOctets)
                     {
-                        m_SendOctets.Push(package.Export());
+                        m_SendOctets.Push(package.Serialize());
                         m_SendResetEvent.Set();
                     }
                 }
@@ -192,7 +192,7 @@ namespace RemoteFileExplorer
                 m_UnpackResetEvent.WaitOne();
                 while (true)
                 {
-                    if (m_ReceiveOctets.Length < PackageHead.Length)
+                    if (m_ReceiveOctets.Length < Package.Header.Length)
                     {
                         break;
                     }
@@ -207,7 +207,7 @@ namespace RemoteFileExplorer
                         m_ReceiveOctets.Erase(0, packageLength, out receiveOctets);
                     }
                     Package package = new Package();
-                    package.Import(receiveOctets);
+                    package.Deserialize(receiveOctets);
                     Receive(package);
                 }
             }

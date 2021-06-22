@@ -2,8 +2,10 @@ namespace RemoteFileExplorer
 {
     public enum CommandType : uint
     {
-        QueryPathInfo = 1,
-        QueryPathKeyInfo,
+        QueryPathInfoReq = 1,
+        QueryPathInfoRsp,
+        QueryPathKeyInfoReq,
+        QueryPathKeyInfoRsp,
     }
 
     public static class CommandTypeExtend

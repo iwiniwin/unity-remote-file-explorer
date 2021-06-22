@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace RemoteFileExplorer
 {
     public class Serializer
@@ -5,11 +7,10 @@ namespace RemoteFileExplorer
         public static Package Serialize(Command command)
         {
             Package package = new Package();
-            package.Head = new PackageHead();
+            package.Head = new Package.Header();
             package.Head.Type = command.Type.ToUInt();
-            package.Head.Ack = command.Ack;
             package.Body = command.Serialize();
-            package.Head.Size = (uint)(package.Body.Length + PackageHead.Length);
+            package.Head.Size = (uint)(package.Body.Length + Package.Header.Length);
             return package;
         }
 
@@ -17,33 +18,24 @@ namespace RemoteFileExplorer
         {
             Command command = null;
             CommandType type = (CommandType)package.Head.Type;
-            if(type == CommandType.QueryPathInfo)
+            switch(type)
             {
-                if(package.Head.Ack == 0)
-                {
+                case CommandType.QueryPathInfoReq:
                     command = new QueryPathInfo.Req();
-                }
-                else
-                {
+                    break;
+                case CommandType.QueryPathInfoRsp:
                     command = new QueryPathInfo.Rsp();
-                }
-            }
-            else if(type == CommandType.QueryPathKeyInfo)
-            {
-                if(package.Head.Ack == 0)
-                {
+                    break;
+                case CommandType.QueryPathKeyInfoReq:
                     command = new QueryPathKeyInfo.Req();
-                }
-                else
-                {
+                    break;
+                case CommandType.QueryPathKeyInfoRsp:
                     command = new QueryPathKeyInfo.Rsp();
-                }
+                    break;
             }
             if(command != null)
             {
                 command.Deserialize(package.Body);
-                command.Seq = package.Head.Seq;
-                command.Ack = package.Head.Ack;
             }
             return command;
         }

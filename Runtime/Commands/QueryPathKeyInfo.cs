@@ -7,29 +7,29 @@ namespace RemoteFileExplorer
         public class Req : Command
         {
             public string PathKey;
-            public override CommandType Type { get { return CommandType.QueryPathKeyInfo; } }
+            public override CommandType Type { get { return CommandType.QueryPathKeyInfoReq; } }
 
             public override Octets Serialize()
             {
-                Octets octets = new Octets();
+                Octets octets = base.Serialize();
                 Packer.Bind(octets);
                 Packer.WriteString(PathKey);
                 Packer.Unbind();
                 return octets;
             }
 
-            public override void Deserialize(Octets octets)
+            public override int Deserialize(Octets octets)
             {
-                Unpacker.Bind(octets);
+                Unpacker.Bind(octets, base.Deserialize(octets));
                 this.PathKey = Unpacker.ReadString();
-                Unpacker.Unbind();
+                return Unpacker.Unbind();
             }
         }
 
         public class Rsp : QueryPathInfo.Rsp
         {
             public string Path;
-            public override CommandType Type { get { return CommandType.QueryPathKeyInfo; } }
+            public override CommandType Type { get { return CommandType.QueryPathKeyInfoRsp; } }
 
             public override Octets Serialize()
             {
@@ -40,12 +40,11 @@ namespace RemoteFileExplorer
                 return octets;
             }
 
-            public override void Deserialize(Octets octets)
+            public override int Deserialize(Octets octets)
             {
-                base.Deserialize(octets);
-                Unpacker.Bind(octets, base.ReadSize());
+                Unpacker.Bind(octets, base.Deserialize(octets));
                 this.Path = Unpacker.ReadString();
-                Unpacker.Unbind();
+                return Unpacker.Unbind();
             }
         }
     }

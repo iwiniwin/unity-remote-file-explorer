@@ -4,106 +4,55 @@ namespace RemoteFileExplorer
 {
     public class Package
     {
-        public PackageHead Head;
+        public Header Head;
         public Octets Body;
 
-        // public void Reset() 
-        // {
-        //     if(Head != null)
-        //     {
-        //         Head.Reset();
-        //     }
-        //     Body.Clear();
-        // }
-
-        public virtual Octets Export()
+        public Octets Serialize()
         {
-            Octets octets = new Octets((int)Head.Size);
-            Packer.Bind(octets);
-            Packer.WriteUInt(Head.Size);
-            Packer.WriteUInt(Head.Seq);
-            Packer.WriteUInt(Head.Ack);
-            Packer.WriteUInt(Head.Type);
-            Packer.Unbind();
+            Octets octets = Head.Serialize();
             octets.Push(Body);
             return octets;
         }
 
-        public virtual void Import(Octets octets)
+        public int Deserialize(Octets octets)
         {
-            Unpacker.Bind(octets);
-            Head = PackageHead.Create(Unpacker.ReadUInt(), Unpacker.ReadUInt(), Unpacker.ReadUInt(), Unpacker.ReadUInt());
-            Unpacker.Unbind();
-            Body = new Octets();
-            Body.Push(octets.Buffer, PackageHead.Length, octets.Length - PackageHead.Length);
+            Head = new Header();
+            int size = Head.Deserialize(octets);
+            octets.Erase(0, size);
+            Body = octets;
+            return 0;
         }
-    }
 
-    public class PackageHead
-    {
-        private static UInt32 uniqueSeq = 0;
-        public UInt32 Size;
-        private UInt32 m_Seq;
-        public UInt32 Ack;
-        public UInt32 Type;
-
-        public UInt32 Seq
+        public class Header 
         {
-            get
+            public UInt32 Size;
+            public UInt32 Type;
+
+            public static int Length 
             {
-                return m_Seq;
+                get 
+                {
+                    return sizeof(UInt32) * 2;
+                }
+            }
+
+            public Octets Serialize()
+            {
+                Octets octets = new Octets();
+                Packer.Bind(octets);
+                Packer.WriteUInt(Size);
+                Packer.WriteUInt(Type);
+                Packer.Unbind();
+                return octets;
+            }
+
+            public int Deserialize(Octets octets)
+            {
+                Unpacker.Bind(octets);
+                this.Size = Unpacker.ReadUInt();
+                this.Type = Unpacker.ReadUInt();
+                return Unpacker.Unbind();
             }
         }
-
-        public static int Length
-        {
-            get
-            {
-                return sizeof(UInt32) * 4;
-            }
-        }
-
-        public static PackageHead Create(UInt32 size, UInt32 seq, UInt32 ack, UInt32 type)
-        {
-            return new PackageHead(size, seq, ack, type);
-        }
-
-        private PackageHead(UInt32 size, UInt32 seq, UInt32 ack, UInt32 type)
-        {
-            this.Size = size;
-            this.m_Seq = seq;
-            this.Ack = ack;
-            this.Type = type;
-        }
-
-        public PackageHead() : this(0) { }
-
-        public PackageHead(UInt32 size) : this(size, 0) { }
-
-        public PackageHead(UInt32 size, UInt32 ack)
-        {
-            this.Size = size;
-            this.m_Seq = ++uniqueSeq;
-            this.Ack = ack;
-        }
-
-        // public void Reset()
-        // {
-        //     this.Size = 0;
-        //     this.m_Seq = ++ uniqueSeq;
-        //     this.Ack = 0;
-        //     this.Type = 0;
-        // }
     }
-
-    // public class PackagePool : Pool<Package>
-    // {
-    //     public override Package Get()
-    //     {
-    //         Package package = base.Get();
-    //         return package;
-    //     }
-    // }
-
-    // public class PackageManager : Singleton<PackagePool> { }
 }
