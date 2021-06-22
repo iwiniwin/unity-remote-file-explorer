@@ -82,9 +82,9 @@ namespace RemoteFileExplorer.Editor
 
         }
 
-        public void Upload()
+        public void Upload(string[] paths)
         {
-
+            
         }
 
         /// <summary>

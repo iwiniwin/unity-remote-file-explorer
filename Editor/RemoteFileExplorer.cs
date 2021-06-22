@@ -94,6 +94,7 @@ namespace RemoteFileExplorer.Editor
             m_ObjectListArea.clickEmptyAreaCallback += m_Manipulator.Select;
             m_ObjectListArea.rightClickItemCallback += OpenRightClickMenu;
             m_ObjectListArea.rightClickEmptyAreaCallback += OpenRightClickEmptyAreaMenu;
+            m_ObjectListArea.receiveDragPerformCallback += m_Manipulator.Upload;
             objectListPlaceHolder.Add(m_ObjectListArea);
 
             m_StatsToggle = root.Q<ToolbarToggle>("statsToggle");

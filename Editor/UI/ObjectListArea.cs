@@ -1,5 +1,6 @@
 using UnityEngine.UIElements;
 using UnityEngine;
+using UnityEditor;
 using System.Collections.Generic;
 using System;
 
@@ -23,6 +24,7 @@ namespace RemoteFileExplorer.Editor.UI
         public Action<ObjectItem> rightClickItemCallback;
         public Action clickEmptyAreaCallback;
         public Action rightClickEmptyAreaCallback;
+        public Action<string[]> receiveDragPerformCallback;
 
         public ObjectListArea() : base(ScrollViewMode.Vertical)
         {
@@ -44,6 +46,11 @@ namespace RemoteFileExplorer.Editor.UI
             m_Grid.topMargin = 10;
             RegisterCallback<MouseDownEvent>(OnMouseDown);
             RegisterCallback<MouseUpEvent>(OnMouseUp);
+
+            RegisterCallback<DragEnterEvent>(OnDragEnter);
+            RegisterCallback<DragLeaveEvent>(OnDragLeave);
+            RegisterCallback<DragUpdatedEvent>(OnDragUpdated);
+            RegisterCallback<DragPerformEvent>(OnDragPerform);
         }
 
         public void UpdateView(List<ObjectData> list)
@@ -114,13 +121,38 @@ namespace RemoteFileExplorer.Editor.UI
             }
         }
 
-        private void OnMouseUp(MouseUpEvent e) {
-            if(e.button == 1)
+        private void OnMouseUp(MouseUpEvent e)
+        {
+            if (e.button == 1)
             {
-                if(rightClickEmptyAreaCallback != null)
+                if (rightClickEmptyAreaCallback != null)
                 {
                     rightClickEmptyAreaCallback();
                 }
+            }
+        }
+
+        private void OnDragEnter(DragEnterEvent e)
+        {
+            DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
+        }
+
+        private void OnDragLeave(DragLeaveEvent e)
+        {
+            DragAndDrop.visualMode = DragAndDropVisualMode.None;
+        }
+
+        private void OnDragUpdated(DragUpdatedEvent e)
+        {
+            DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
+        }
+
+        private void OnDragPerform(DragPerformEvent e)
+        {
+            DragAndDrop.AcceptDrag();
+            if (receiveDragPerformCallback != null)
+            {
+                receiveDragPerformCallback(DragAndDrop.paths);
             }
         }
     }
