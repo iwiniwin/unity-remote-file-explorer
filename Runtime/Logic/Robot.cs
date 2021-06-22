@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,6 +8,7 @@ namespace RemoteFileExplorer
     public class Robot
     {
         private static string[] emptyStringArray = new string[]{};
+        private static string emptyString = "";
 
         public static Dictionary<string, string> PathKeyMap = new Dictionary<string, string>(){
             {"Application.dataPath", Application.dataPath},
@@ -33,7 +35,6 @@ namespace RemoteFileExplorer
                 {
                     var req = command as QueryPathKeyInfo.Req;
                     path = Robot.PathKeyMap[req.PathKey];
-                    Debug.Log(path + "              gggg");
                 }
                 else
                 {
@@ -63,8 +64,18 @@ namespace RemoteFileExplorer
                     rsp = new QueryPathInfo.Rsp();
                 }
                 rsp.Exists = exists;
-                rsp.Directories = exists ? Directory.GetDirectories(path) : emptyStringArray;
-                rsp.Files = exists ? Directory.GetFiles(path) : emptyStringArray;  
+                try
+                {
+                    rsp.Directories = exists ? Directory.GetDirectories(path) : emptyStringArray;
+                    rsp.Files = exists ? Directory.GetFiles(path) : emptyStringArray;  
+                    rsp.Error = emptyString;
+                }
+                catch(Exception e)
+                {
+                    rsp.Directories = emptyStringArray;
+                    rsp.Files = emptyStringArray;
+                    rsp.Error = e.ToString();
+                }
                 rsp.Ack = command.Seq;
                 m_Socket.Send(rsp);
             }

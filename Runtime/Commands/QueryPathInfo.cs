@@ -32,6 +32,7 @@ namespace RemoteFileExplorer
             public bool IsFile;
             public string[] Directories;
             public string[] Files;
+            public string Error;
             public override CommandType Type { get { return CommandType.QueryPathInfoRsp; } }
 
             private int m_ReadSize;
@@ -44,6 +45,7 @@ namespace RemoteFileExplorer
                 Packer.WriteBool(IsFile);
                 Packer.WriteStringArray(Directories);
                 Packer.WriteStringArray(Files);
+                Packer.WriteString(Error);
                 Packer.Unbind();
                 return octets;
             }
@@ -55,6 +57,7 @@ namespace RemoteFileExplorer
                 this.IsFile = Unpacker.ReadBool();
                 this.Directories = Unpacker.ReadStringArray();
                 this.Files = Unpacker.ReadStringArray();
+                this.Error = Unpacker.ReadString();
                 return Unpacker.Unbind();
             }
         }

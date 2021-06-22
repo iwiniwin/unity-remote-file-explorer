@@ -120,6 +120,11 @@ namespace RemoteFileExplorer.Editor
                 EditorUtility.DisplayDialog(Constants.WindowTitle, string.Format(Constants.PathNotExistTip, path), Constants.OkText);
                 yield break;
             }
+            if(!string.IsNullOrEmpty(rsp.Error))
+            {
+                EditorUtility.DisplayDialog(Constants.WindowTitle, rsp.Error, Constants.OkText);
+                yield break;
+            }
 
             List<ObjectData> list = new List<ObjectData>();
 
