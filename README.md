@@ -16,3 +16,5 @@
 ### Test
 * 测试打开RemoteFileExplorer后，多次Play Game后的连接情况
 * 测试多客户端请求连接
+* Android平台测试
+* IOS平台测试

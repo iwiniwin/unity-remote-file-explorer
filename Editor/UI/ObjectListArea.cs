@@ -22,6 +22,7 @@ namespace RemoteFileExplorer.Editor.UI
         public Action<ObjectItem> doubleClickItemCallback;
         public Action<ObjectItem> rightClickItemCallback;
         public Action clickEmptyAreaCallback;
+        public Action rightClickEmptyAreaCallback;
 
         public ObjectListArea() : base(ScrollViewMode.Vertical)
         {
@@ -42,6 +43,7 @@ namespace RemoteFileExplorer.Editor.UI
             m_Grid.verticalSpacing = 10;
             m_Grid.topMargin = 10;
             RegisterCallback<MouseDownEvent>(OnMouseDown);
+            RegisterCallback<MouseUpEvent>(OnMouseUp);
         }
 
         public void UpdateView(List<ObjectData> list)
@@ -101,13 +103,23 @@ namespace RemoteFileExplorer.Editor.UI
             return m_CurSelectItem;
         }
 
-        public void OnMouseDown(MouseDownEvent e)
+        private void OnMouseDown(MouseDownEvent e)
         {
             if (e.button == 0 || e.button == 1)
             {
                 if (clickEmptyAreaCallback != null)
                 {
                     clickEmptyAreaCallback();
+                }
+            }
+        }
+
+        private void OnMouseUp(MouseUpEvent e) {
+            if(e.button == 1)
+            {
+                if(rightClickEmptyAreaCallback != null)
+                {
+                    rightClickEmptyAreaCallback();
                 }
             }
         }

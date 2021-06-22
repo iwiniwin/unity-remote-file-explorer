@@ -91,8 +91,9 @@ namespace RemoteFileExplorer.Editor
             m_ObjectListArea = new ObjectListArea();
             m_ObjectListArea.doubleClickItemCallback += m_Manipulator.GoTo;
             m_ObjectListArea.clickItemCallback += m_Manipulator.Select;
-            m_ObjectListArea.rightClickItemCallback += OpenRightClickMenu;
             m_ObjectListArea.clickEmptyAreaCallback += m_Manipulator.Select;
+            m_ObjectListArea.rightClickItemCallback += OpenRightClickMenu;
+            m_ObjectListArea.rightClickEmptyAreaCallback += OpenRightClickEmptyAreaMenu;
             objectListPlaceHolder.Add(m_ObjectListArea);
 
             m_StatsToggle = root.Q<ToolbarToggle>("statsToggle");
@@ -180,6 +181,20 @@ namespace RemoteFileExplorer.Editor
             menu.ShowAsContext();
         }
 
+        void OpenRightClickEmptyAreaMenu()
+        {
+            var menu = new GenericMenu();
+            menu.AddItem(new GUIContent("Refresh"), false, () =>
+            {
+                
+            });
+            menu.AddItem(new GUIContent("Upload"), false, () =>
+            {
+                
+            });
+            menu.ShowAsContext();
+        }
+
         void BreadCrumbBar()
         {
             if (m_Manipulator.curPath == null || m_Manipulator.curPath.Length == 0) return;
@@ -226,23 +241,18 @@ namespace RemoteFileExplorer.Editor
 
         public void OnConnectStatusChanged(ConnectStatus status)
         {
-            switch (status)
-            {
-                case ConnectStatus.Connected:
-                    Debug.Log("服务器 已连接。。。。。。");
-                    // Coroutines.Start(SendRequest());
-
-                    // var path = "E:/UnityProject/LastBattle/Assets/Scripts/Game/Message";
-                    // m_Manipulator.GoTo(path);
-
-                    break;
-                case ConnectStatus.Connecting:
-                    Debug.Log("服务器 正在连接。。。。。。");
-                    break;
-                case ConnectStatus.Disconnect:
-                    Debug.Log("服务器 断开连接。。。。。。");
-                    break;
-            }
+            // switch (status)
+            // {
+            //     case ConnectStatus.Connected:
+            //         Debug.Log("vvvvvvvvvvv");
+            //         titleContent.image = TextureUtility.GetTexture("project active");
+            //         break;
+            //     case ConnectStatus.Connecting:
+            //     case ConnectStatus.Disconnect:
+            //         // titleContent.image = TextureUtility.GetTexture("project");
+            //         titleContent.image = TextureUtility.GetTexture("project active");
+            //         break;
+            // }
         }
 
         private void Update()
