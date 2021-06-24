@@ -6,6 +6,10 @@ namespace RemoteFileExplorer
         QueryPathInfoRsp,
         QueryPathKeyInfoReq,
         QueryPathKeyInfoRsp,
+        DownloadReq,
+        DownloadRsp,
+        TransferFileReq,
+        TransferFileRsp,
     }
 
     public static class CommandTypeExtend

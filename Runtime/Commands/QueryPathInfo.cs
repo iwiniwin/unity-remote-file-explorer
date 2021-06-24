@@ -34,8 +34,6 @@ namespace RemoteFileExplorer
             public string[] Files;
             public override CommandType Type { get { return CommandType.QueryPathInfoRsp; } }
 
-            private int m_ReadSize;
-
             public override Octets Serialize()
             {
                 Octets octets = base.Serialize();

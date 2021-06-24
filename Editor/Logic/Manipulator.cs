@@ -39,7 +39,7 @@ namespace RemoteFileExplorer.Editor
             var data = item.Data;
             if (data.type == ObjectType.File)
                 return;
-            Coroutines.Start(Internal_GoTo(item.Data.path));
+            Coroutines.Start(Internal_GoTo(data.path));
         }
 
         public void GoToByKey(string key)
@@ -69,7 +69,7 @@ namespace RemoteFileExplorer.Editor
 
         public void Download(ObjectItem item)
         {
-
+            Coroutines.Start(Internal_Download(item.Data.path));
         }
 
         public void Delete(ObjectItem item)
@@ -144,6 +144,31 @@ namespace RemoteFileExplorer.Editor
             else
             {
                 curPath = path;
+            }
+        }
+
+        /// <summary>
+        /// 下载
+        /// </summary>
+        private IEnumerator Internal_Download(string path)
+        {
+            if (!CheckConnectStatus()) yield break;
+            var req = new Download.Req
+            {
+                Path = path,
+            };
+            CommandHandle handle = m_Owner.m_Server.Send(req);
+            yield return handle;
+            if (handle.Error != null)
+            {
+                yield break;
+            }
+            var rsp = handle.Command as Download.Rsp;
+            // 下载文件
+            m_Owner.m_Server.Send(req);
+            if(!rsp.IsFinished)
+            {
+
             }
         }
 

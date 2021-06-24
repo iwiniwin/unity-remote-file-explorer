@@ -169,7 +169,7 @@ namespace RemoteFileExplorer.Editor
             var menu = new GenericMenu();
             menu.AddItem(new GUIContent("Download"), false, () =>
             {
-                
+                m_Manipulator.Download(item);
             });
             menu.AddItem(new GUIContent("Rename"), false, () =>
             {
