@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Collections;
 
 namespace RemoteFileExplorer
 {
@@ -79,6 +80,65 @@ namespace RemoteFileExplorer
                 rsp.Ack = command.Seq;
                 m_Socket.Send(rsp);
             }
+            else if(command is Download.Req)
+            {
+                Coroutines.Start(ProcessDownload(command as Download.Req));
+            }
+        }
+
+        private IEnumerator ProcessDownload(Download.Req downloadReq)
+        {
+            string path = downloadReq.Path;
+            Download.Rsp rsp = new Download.Rsp(){
+                Ack = downloadReq.Seq,
+            };
+            string[] files = null;
+            try
+            {
+                if(File.Exists(path))  // 单文件下载
+                {
+                    files = new string[]{path};
+                }
+                else
+                {
+                    files = Directory.GetFiles(path);
+                }
+            }
+            catch(Exception e)
+            {
+                Debug.Log(e.ToString());
+                Debug.Log(e.Message + "   vvv");
+                rsp.Error = e.Message;
+                m_Socket.Send(rsp);
+                yield break;
+            }
+            foreach(string file in files)
+            {
+                byte[] content;
+                try
+                {
+                    content = File.ReadAllBytes(file);
+                }
+                catch(Exception e) 
+                {
+                    rsp.Error = e.Message;
+                    m_Socket.Send(rsp);
+                    yield break;
+                }
+                TransferFile.Req req = new TransferFile.Req(){
+                    Ack = downloadReq.Seq,
+                    Path = file, 
+                    Content = content,
+                    IsFinished = false
+                };
+                CommandHandle handle = m_Socket.Send(req);
+                yield return handle;
+                if(handle.Error != null || !string.IsNullOrEmpty(handle.Command.Error))
+                {
+                    yield break;
+                }
+            }
+            m_Socket.Send(rsp);
         }
     }
 }

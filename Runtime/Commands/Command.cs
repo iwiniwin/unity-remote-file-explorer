@@ -6,7 +6,7 @@ namespace RemoteFileExplorer
     {
         
 
-        public bool IsFinished;
+        public bool IsFinished = true;
 
         public virtual CommandType Type {get; protected set;}
 
@@ -21,6 +21,7 @@ namespace RemoteFileExplorer
             Seq = UniqueSeq.Get();
             Packer.WriteUInt(Seq);
             Packer.WriteUInt(Ack);
+            Packer.WriteBool(IsFinished);
             Packer.WriteString(Error);
             Packer.Unbind();
             return octets;
@@ -31,6 +32,7 @@ namespace RemoteFileExplorer
             Unpacker.Bind(octets);
             this.Seq = Unpacker.ReadUInt();
             this.Ack = Unpacker.ReadUInt();
+            this.IsFinished = Unpacker.ReadBool();
             this.Error = Unpacker.ReadString();
             return Unpacker.Unbind();
         }

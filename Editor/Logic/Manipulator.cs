@@ -4,6 +4,7 @@ using UnityEngine;
 using RemoteFileExplorer.Editor.UI;
 using UnityEditor;
 using System.IO;
+using System;
 
 namespace RemoteFileExplorer.Editor
 {
@@ -110,7 +111,7 @@ namespace RemoteFileExplorer.Editor
             }
             CommandHandle handle = m_Owner.m_Server.Send(req);
             yield return handle;
-            if (handle.Error != null)
+            if (!CheckHandleError(handle) || !CheckCommandError(handle.Command))
             {
                 yield break;
             }
@@ -120,12 +121,6 @@ namespace RemoteFileExplorer.Editor
                 EditorUtility.DisplayDialog(Constants.WindowTitle, string.Format(Constants.PathNotExistTip, path), Constants.OkText);
                 yield break;
             }
-            if(!string.IsNullOrEmpty(rsp.Error))
-            {
-                EditorUtility.DisplayDialog(Constants.WindowTitle, rsp.Error, Constants.OkText);
-                yield break;
-            }
-
             List<ObjectData> list = new List<ObjectData>();
 
             foreach (var item1 in rsp.Directories)
@@ -159,16 +154,41 @@ namespace RemoteFileExplorer.Editor
             };
             CommandHandle handle = m_Owner.m_Server.Send(req);
             yield return handle;
-            if (handle.Error != null)
+            while (CheckHandleError(handle) && CheckCommandError(handle.Command))
             {
-                yield break;
-            }
-            var rsp = handle.Command as Download.Rsp;
-            // 下载文件
-            m_Owner.m_Server.Send(req);
-            if(!rsp.IsFinished)
-            {
-
+                if(handle.Command is TransferFile.Req)
+                {
+                    var transferFileReq = handle.Command as TransferFile.Req;
+                    TransferFile.Rsp rsp = new TransferFile.Rsp(){
+                        Ack = transferFileReq.Seq,
+                    };
+                    try
+                    {
+                        // File.WriteAllBytes(Path.Combine(path, transferFileReq.Path), transferFileReq.Content);
+                        Debug.Log(transferFileReq.Path + "       ff " + transferFileReq.Content.Length);
+                    }
+                    catch(Exception e)
+                    {
+                        rsp.Error = e.Message;
+                    }
+                    m_Owner.m_Server.Send(rsp);
+                    if(!CheckCommandError(rsp))
+                    {
+                        yield break;
+                    }
+                    handle.Finished = false;
+                    yield return handle;
+                }
+                else if(handle.Command is Download.Rsp)
+                {
+                    EditorUtility.DisplayDialog(Constants.WindowTitle, "文件下载成功", Constants.OkText);
+                    yield break;
+                }
+                else
+                {
+                    EditorUtility.DisplayDialog(Constants.WindowTitle, Constants.UnknownError, Constants.OkText);
+                    yield break;
+                }
             }
         }
 
@@ -180,6 +200,26 @@ namespace RemoteFileExplorer.Editor
             }
             EditorUtility.DisplayDialog(Constants.WindowTitle, Constants.NotConnectedTip, Constants.OkText);
             return false;
+        }
+
+        public bool CheckHandleError(CommandHandle handle)
+        {
+            if (handle.Error != null)
+            {
+                EditorUtility.DisplayDialog(Constants.WindowTitle, "handle.Error", Constants.OkText);
+                return false;
+            }
+            return true;
+        }
+
+        public bool CheckCommandError(Command command)
+        {
+            if(!string.IsNullOrEmpty(command.Error))
+            {
+                EditorUtility.DisplayDialog(Constants.WindowTitle, command.Error, Constants.OkText);
+                return false;
+            }
+            return true;
         }
     }
 }

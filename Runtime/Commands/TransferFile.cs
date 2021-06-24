@@ -7,15 +7,15 @@ namespace RemoteFileExplorer
 
         public class Req : Command
         {
-            public string ShortName;
+            public string Path;
             public byte[] Content;
-            public override CommandType Type { get { return CommandType.TransferFileRsp; } }
+            public override CommandType Type { get { return CommandType.TransferFileReq; } }
 
             public override Octets Serialize()
             {
                 Octets octets = base.Serialize();
                 Packer.Bind(octets);
-                Packer.WriteString(ShortName);
+                Packer.WriteString(Path);
                 Packer.WriteByteArray(Content);
                 Packer.Unbind();
                 return octets;
@@ -24,7 +24,7 @@ namespace RemoteFileExplorer
             public override int Deserialize(Octets octets)
             {
                 Unpacker.Bind(octets, base.Deserialize(octets));
-                this.ShortName = Unpacker.ReadString();
+                this.Path = Unpacker.ReadString();
                 this.Content = Unpacker.ReadByteArray();
                 return Unpacker.Unbind();
             }
@@ -32,7 +32,7 @@ namespace RemoteFileExplorer
 
         public class Rsp : Command
         {
-            
+            public override CommandType Type { get { return CommandType.TransferFileRsp; } }
         }
     }
 }

@@ -28,7 +28,7 @@ namespace RemoteFileExplorer
 
         public class Rsp : Command
         {
-            
+            public override CommandType Type { get { return CommandType.DownloadRsp; } }
         }
     }
 }

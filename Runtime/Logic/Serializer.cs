@@ -32,10 +32,26 @@ namespace RemoteFileExplorer
                 case CommandType.QueryPathKeyInfoRsp:
                     command = new QueryPathKeyInfo.Rsp();
                     break;
+                case CommandType.DownloadReq:
+                    command = new Download.Req();
+                    break;
+                case CommandType.DownloadRsp:
+                    command = new Download.Rsp();
+                    break;
+                case CommandType.TransferFileReq:
+                    command = new TransferFile.Req();
+                    break;
+                case CommandType.TransferFileRsp:
+                    command = new TransferFile.Rsp();
+                    break;
             }
             if(command != null)
             {
                 command.Deserialize(package.Body);
+            }
+            else
+            {
+                Debug.LogError("receive unknown command : " + package.Head.Type);
             }
             return command;
         }
