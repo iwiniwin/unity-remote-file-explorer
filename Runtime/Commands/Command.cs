@@ -12,6 +12,7 @@ namespace RemoteFileExplorer
 
         public UInt32 Seq = 0;
         public UInt32 Ack = 0;
+        public string Error = "";
 
         public virtual Octets Serialize()
         {
@@ -20,6 +21,7 @@ namespace RemoteFileExplorer
             Seq = UniqueSeq.Get();
             Packer.WriteUInt(Seq);
             Packer.WriteUInt(Ack);
+            Packer.WriteString(Error);
             Packer.Unbind();
             return octets;
         }
@@ -29,6 +31,7 @@ namespace RemoteFileExplorer
             Unpacker.Bind(octets);
             this.Seq = Unpacker.ReadUInt();
             this.Ack = Unpacker.ReadUInt();
+            this.Error = Unpacker.ReadString();
             return Unpacker.Unbind();
         }
 
