@@ -101,13 +101,11 @@ namespace RemoteFileExplorer
                 }
                 else
                 {
-                    files = Directory.GetFiles(path);
+                    files = Directory.GetFiles(path, "*", SearchOption.AllDirectories);
                 }
             }
             catch(Exception e)
             {
-                Debug.Log(e.ToString());
-                Debug.Log(e.Message + "   vvv");
                 rsp.Error = e.Message;
                 m_Socket.Send(rsp);
                 yield break;
