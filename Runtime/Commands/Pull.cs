@@ -2,12 +2,12 @@ using System;
 
 namespace RemoteFileExplorer
 {
-    public class Download
+    public class Pull
     {
         public class Req : Command
         {
             public string Path;
-            public override CommandType Type { get { return CommandType.DownloadReq; } }
+            public override CommandType Type { get { return CommandType.PullReq; } }
 
             public override Octets Serialize()
             {
@@ -28,7 +28,7 @@ namespace RemoteFileExplorer
 
         public class Rsp : Command
         {
-            public override CommandType Type { get { return CommandType.DownloadRsp; } }
+            public override CommandType Type { get { return CommandType.PullRsp; } }
         }
     }
 }

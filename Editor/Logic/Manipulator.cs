@@ -148,7 +148,7 @@ namespace RemoteFileExplorer.Editor
         private IEnumerator Internal_Download(string path)
         {
             if (!CheckConnectStatus()) yield break;
-            var req = new Download.Req
+            var req = new Pull.Req
             {
                 Path = path,
             };
@@ -179,7 +179,7 @@ namespace RemoteFileExplorer.Editor
                     handle.Finished = false;
                     yield return handle;
                 }
-                else if(handle.Command is Download.Rsp)
+                else if(handle.Command is Pull.Rsp)
                 {
                     EditorUtility.DisplayDialog(Constants.WindowTitle, "文件下载成功", Constants.OkText);
                     yield break;

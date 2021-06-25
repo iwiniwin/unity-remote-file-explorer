@@ -80,16 +80,16 @@ namespace RemoteFileExplorer
                 rsp.Ack = command.Seq;
                 m_Socket.Send(rsp);
             }
-            else if(command is Download.Req)
+            else if(command is Pull.Req)
             {
-                Coroutines.Start(ProcessDownload(command as Download.Req));
+                Coroutines.Start(ProcessDownload(command as Pull.Req));
             }
         }
 
-        private IEnumerator ProcessDownload(Download.Req downloadReq)
+        private IEnumerator ProcessDownload(Pull.Req downloadReq)
         {
             string path = downloadReq.Path;
-            Download.Rsp rsp = new Download.Rsp(){
+            Pull.Rsp rsp = new Pull.Rsp(){
                 Ack = downloadReq.Seq,
             };
             string[] files = null;

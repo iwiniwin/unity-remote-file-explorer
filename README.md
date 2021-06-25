@@ -15,6 +15,7 @@
 * Octets使用对象池优化
 * 文件网格cell复用
 * 记录GoTo前进后退
+* 支持新建文件夹
 
 ### Test
 * 测试打开RemoteFileExplorer后，多次Play Game后的连接情况

@@ -6,8 +6,8 @@ namespace RemoteFileExplorer
         QueryPathInfoRsp,
         QueryPathKeyInfoReq,
         QueryPathKeyInfoRsp,
-        DownloadReq,
-        DownloadRsp,
+        PullReq,
+        PullRsp,
         TransferFileReq,
         TransferFileRsp,
     }
