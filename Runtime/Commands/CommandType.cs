@@ -10,6 +10,8 @@ namespace RemoteFileExplorer
         PullRsp,
         TransferFileReq,
         TransferFileRsp,
+        CreateDirectoryReq,
+        CreateDirectoryRsp,
     }
 
     public static class CommandTypeExtend

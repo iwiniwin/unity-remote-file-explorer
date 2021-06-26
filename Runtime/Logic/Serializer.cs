@@ -44,6 +44,12 @@ namespace RemoteFileExplorer
                 case CommandType.TransferFileRsp:
                     command = new TransferFile.Rsp();
                     break;
+                case CommandType.CreateDirectoryReq:
+                    command = new CreateDirectory.Req();
+                    break;
+                case CommandType.CreateDirectoryRsp:
+                    command = new CreateDirectory.Rsp();
+                    break;
             }
             if(command != null)
             {

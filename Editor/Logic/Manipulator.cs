@@ -20,7 +20,7 @@ namespace RemoteFileExplorer.Editor
             }
             set
             {
-                m_CurPath = value.Replace("\\", "/");
+                m_CurPath = FileUtil.FixedPath(value);
             }
         }
 
@@ -61,7 +61,7 @@ namespace RemoteFileExplorer.Editor
         public void Select()
         {
             ObjectItem item = m_Owner.m_ObjectListArea.GetSelectItem();
-            if(item != null)
+            if (item != null)
             {
                 curPath = Path.GetDirectoryName(item.Data.path);
             }
@@ -70,7 +70,22 @@ namespace RemoteFileExplorer.Editor
 
         public void Download(ObjectItem item)
         {
-            Coroutines.Start(Internal_Download(item.Data.path));
+            var data = item.Data;
+            string path = data.path;
+            string dest = null;
+            if(data.type == ObjectType.File)
+            {
+                dest = EditorUtility.SaveFilePanel(Constants.SelectFileTitle, "", Path.GetFileNameWithoutExtension(path), Path.GetExtension(path));
+            }
+            else
+            {
+                dest = EditorUtility.SaveFolderPanel(Constants.SelectFileTitle, "", "");
+                dest = FileUtil.CombinePath(dest, Path.GetFileName(path));
+            }
+            if (!string.IsNullOrEmpty(dest))
+            {
+                Coroutines.Start(Internal_Download(path, dest));
+            }
         }
 
         public void Delete(ObjectItem item)
@@ -83,9 +98,46 @@ namespace RemoteFileExplorer.Editor
 
         }
 
+        public void UploadFile()
+        {
+            string path = EditorUtility.OpenFilePanel(Constants.SelectFileTitle, "", "");
+            if (!string.IsNullOrEmpty(path))
+            {
+                Upload(new string[] { path });
+            }
+        }
+
+        public void UploadFolder()
+        {
+            string path = EditorUtility.OpenFolderPanel(Constants.SelectFolderTitle, "", "");
+            if (!string.IsNullOrEmpty(path))
+            {
+                Upload(new string[] { path });
+            }
+        }
+
         public void Upload(string[] paths)
         {
-            
+            string dest = curPath;
+            ObjectItem item = m_Owner.m_ObjectListArea.GetSelectItem();
+            if (item != null)
+            {
+                dest = Path.GetDirectoryName(item.Data.path);
+            }
+            if (string.IsNullOrEmpty(dest))
+            {
+                EditorUtility.DisplayDialog(Constants.WindowTitle, Constants.NoDestPathTip, Constants.OkText);
+                return;
+            }
+            foreach (string path in paths)
+            {
+                if (!File.Exists(path) && !Directory.Exists(path))
+                {
+                    EditorUtility.DisplayDialog(Constants.WindowTitle, string.Format(Constants.PathNotExistTip, path), Constants.OkText);
+                    return;
+                }
+            }
+            Coroutines.Start(Internal_Upload(paths, dest));
         }
 
         /// <summary>
@@ -145,7 +197,7 @@ namespace RemoteFileExplorer.Editor
         /// <summary>
         /// 下载
         /// </summary>
-        private IEnumerator Internal_Download(string path)
+        private IEnumerator Internal_Download(string path, string dest)
         {
             if (!CheckConnectStatus()) yield break;
             var req = new Pull.Req
@@ -154,42 +206,177 @@ namespace RemoteFileExplorer.Editor
             };
             CommandHandle handle = m_Owner.m_Server.Send(req);
             yield return handle;
-            while (CheckHandleError(handle) && CheckCommandError(handle.Command))
+            string downloadFailedTip = string.Format(Constants.DownloadFailedTip, path);
+            while (CheckHandleError(handle, downloadFailedTip) && CheckCommandError(handle.Command, downloadFailedTip))
             {
-                if(handle.Command is TransferFile.Req)
+                if (handle.Command is CreateDirectory.Req)
                 {
-                    var transferFileReq = handle.Command as TransferFile.Req;
-                    TransferFile.Rsp rsp = new TransferFile.Rsp(){
-                        Ack = transferFileReq.Seq,
+                    
+                    var createDirectoryReq = handle.Command as CreateDirectory.Req;
+                    CreateDirectory.Rsp rsp = new CreateDirectory.Rsp()
+                    {
+                        Ack = createDirectoryReq.Seq,
                     };
                     try
                     {
-                        // File.WriteAllBytes(Path.Combine(path, transferFileReq.Path), transferFileReq.Content);
-                        Debug.Log(transferFileReq.Path + "       ff " + transferFileReq.Content.Length);
+                        foreach (string directory in ConvertPaths(path, dest, createDirectoryReq.Directories))
+                        {
+                            if(!Directory.Exists(directory))
+                            {
+                                Directory.CreateDirectory(directory);
+                            }
+                        }
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         rsp.Error = e.Message;
                     }
                     m_Owner.m_Server.Send(rsp);
-                    if(!CheckCommandError(rsp))
+                    if (!CheckCommandError(rsp, downloadFailedTip))
                     {
                         yield break;
                     }
                     handle.Finished = false;
                     yield return handle;
                 }
-                else if(handle.Command is Pull.Rsp)
+                else if (handle.Command is TransferFile.Req)
                 {
-                    EditorUtility.DisplayDialog(Constants.WindowTitle, "文件下载成功", Constants.OkText);
+                    var transferFileReq = handle.Command as TransferFile.Req;
+                    TransferFile.Rsp rsp = new TransferFile.Rsp()
+                    {
+                        Ack = transferFileReq.Seq,
+                    };
+                    try
+                    {
+                        File.WriteAllBytes(ConvertPath(path, dest, transferFileReq.Path), transferFileReq.Content);
+                    }
+                    catch (Exception e)
+                    {
+                        rsp.Error = e.Message;
+                    }
+                    m_Owner.m_Server.Send(rsp);
+                    if (!CheckCommandError(rsp, downloadFailedTip))
+                    {
+                        yield break;
+                    }
+                    handle.Finished = false;
+                    yield return handle;
+                }
+                else if (handle.Command is Pull.Rsp)
+                {
+                    EditorUtility.DisplayDialog(Constants.WindowTitle, string.Format(Constants.DownloadSuccessTip, path), Constants.OkText);
                     yield break;
                 }
                 else
                 {
-                    EditorUtility.DisplayDialog(Constants.WindowTitle, Constants.UnknownError, Constants.OkText);
+                    EditorUtility.DisplayDialog(Constants.WindowTitle, downloadFailedTip + Constants.UnknownError, Constants.OkText);
                     yield break;
                 }
             }
+        }
+
+        private IEnumerator Internal_Upload(string[] paths, string dest)
+        {
+            if (!CheckConnectStatus()) yield break;
+            string uploadConfirmTip = string.Format(Constants.UploadConfirmTip, "\n", string.Join("\n", paths), dest);
+            bool ret = EditorUtility.DisplayDialog(Constants.WindowTitle, uploadConfirmTip, Constants.OkText, Constants.CancelText);
+            if (!ret)
+            {
+                yield break;
+            }
+            foreach (string path in paths)
+            {
+                string error = null;
+                string[] directories = null;
+                string[] files = null;
+                string curDest = FileUtil.CombinePath(dest, Path.GetFileName(path));  // dest一定是路径
+                if (File.Exists(path))
+                {
+                    files = new string[] { path };
+                }
+                else
+                {
+                    directories = FileUtil.GetAllDirectories(path);
+                    files = FileUtil.GetAllFiles(path);
+                }
+                if (directories != null)
+                {
+                    CreateDirectory.Req req = new CreateDirectory.Req()
+                    {
+                        Directories = ConvertPaths(path, curDest, directories),
+                    };
+                    CommandHandle handle = m_Owner.m_Server.Send(req);
+                    yield return handle;
+                    if (handle.Error != null)
+                    {
+                        error = handle.Error;
+                    }
+                    else if (!string.IsNullOrEmpty(handle.Command.Error))
+                    {
+                        error = handle.Command.Error;
+                    }
+                }
+                if (error == null)
+                {
+                    foreach (string file in files)
+                    {
+                        byte[] content;
+                        try
+                        {
+                            content = File.ReadAllBytes(file);
+                        }
+                        catch (Exception e)
+                        {
+                            error = e.Message;
+                            break;
+                        }
+                        TransferFile.Req req = new TransferFile.Req()
+                        {
+                            Path = ConvertPath(path, curDest, file),
+                            Content = content,
+                        };
+                        CommandHandle handle = m_Owner.m_Server.Send(req);
+                        yield return handle;
+                        if (handle.Error != null)
+                        {
+                            error = handle.Error;
+                            break;
+                        }
+                        else if (!string.IsNullOrEmpty(handle.Command.Error))
+                        {
+                            error = handle.Command.Error;
+                            break;
+                        }
+                    }
+                }
+                if (error == null)
+                {
+                    EditorUtility.DisplayDialog(Constants.WindowTitle, string.Format(Constants.UploadSuccessTip, path), Constants.OkText);
+                }
+                else
+                {
+                    EditorUtility.DisplayDialog(Constants.WindowTitle, string.Format(Constants.UploadFailedTip, path) + error, Constants.OkText);
+                }
+            }
+        }
+
+        public string[] ConvertPaths(string src, string dest, string[] curs)
+        {
+            string[] paths = new string[curs.Length];
+            for (int i = 0; i < curs.Length; i++)
+            {
+                paths[i] = ConvertPath(src, dest, curs[i]);
+            }
+            return paths;
+        }
+
+        public string ConvertPath(string src, string dest, string cur)
+        {
+            src = FileUtil.FixedPath(src);
+            if(src.EndsWith("/")) src = src.Substring(0, src.Length - 1);
+            dest = FileUtil.FixedPath(dest);
+            cur = FileUtil.FixedPath(cur);
+            return dest + cur.Replace(src, "");
         }
 
         public bool CheckConnectStatus()
@@ -202,21 +389,21 @@ namespace RemoteFileExplorer.Editor
             return false;
         }
 
-        public bool CheckHandleError(CommandHandle handle)
+        public bool CheckHandleError(CommandHandle handle, string tip = "")
         {
             if (handle.Error != null)
             {
-                EditorUtility.DisplayDialog(Constants.WindowTitle, "handle.Error", Constants.OkText);
+                EditorUtility.DisplayDialog(Constants.WindowTitle, tip + "handle.Error", Constants.OkText);
                 return false;
             }
             return true;
         }
 
-        public bool CheckCommandError(Command command)
+        public bool CheckCommandError(Command command, string tip = "")
         {
-            if(!string.IsNullOrEmpty(command.Error))
+            if (!string.IsNullOrEmpty(command.Error))
             {
-                EditorUtility.DisplayDialog(Constants.WindowTitle, command.Error, Constants.OkText);
+                EditorUtility.DisplayDialog(Constants.WindowTitle, tip + command.Error, Constants.OkText);
                 return false;
             }
             return true;
