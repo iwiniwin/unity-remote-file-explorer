@@ -25,6 +25,9 @@ namespace RemoteFileExplorer.Editor
         private static Texture2D m_EstablishedTexture;
 
         private Manipulator m_Manipulator;
+        public Label m_DeviceNameLabel;
+        public Label m_DeviceModelLabel;
+        public Label m_DeviceSystemLabel;
 
         [MenuItem("Window/Remote File Explorer")]
         public static void ShowWindow()
@@ -124,6 +127,10 @@ namespace RemoteFileExplorer.Editor
                 }
                 menu.DropDown(GetRect(goToMenu));
             });
+
+            m_DeviceNameLabel = root.Q<Label>("deviceName");
+            m_DeviceModelLabel = root.Q<Label>("deviceModel");
+            m_DeviceSystemLabel = root.Q<Label>("deviceSystem");
 
             var captureButton = root.Q<Button>("snapshot-control-area__capture-button");
 
@@ -249,18 +256,18 @@ namespace RemoteFileExplorer.Editor
 
         public void OnConnectStatusChanged(ConnectStatus status)
         {
-            // switch (status)
-            // {
-            //     case ConnectStatus.Connected:
-            //         Debug.Log("vvvvvvvvvvv");
-            //         titleContent.image = TextureUtility.GetTexture("project active");
-            //         break;
-            //     case ConnectStatus.Connecting:
-            //     case ConnectStatus.Disconnect:
-            //         // titleContent.image = TextureUtility.GetTexture("project");
-            //         titleContent.image = TextureUtility.GetTexture("project active");
-            //         break;
-            // }
+            switch (status)
+            {
+                case ConnectStatus.Connected:
+                    // titleContent.image = TextureUtility.GetTexture("project active");
+                    
+                    break;
+                case ConnectStatus.Connecting:
+                case ConnectStatus.Disconnect:
+                    // titleContent.image = TextureUtility.GetTexture("project active");
+                    break;
+            }
+            m_Manipulator.UpdateDeviceInfo();
         }
 
         private void Update()

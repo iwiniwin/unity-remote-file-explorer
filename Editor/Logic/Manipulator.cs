@@ -30,6 +30,11 @@ namespace RemoteFileExplorer.Editor
             m_Owner = owner;
         }
 
+        public void UpdateDeviceInfo()
+        {
+            Coroutines.Start(Internal_UpdateDeviceInfo());
+        }
+
         public void Refresh()
         {
             if(string.IsNullOrEmpty(curPath)) return;
@@ -405,6 +410,27 @@ namespace RemoteFileExplorer.Editor
             EditorUtility.DisplayDialog(Constants.WindowTitle, string.Format(Constants.RenameSuccessTip, path), Constants.OkText);
         }
 
+        private IEnumerator Internal_UpdateDeviceInfo()
+        {
+            if (!CheckConnectStatus(false))
+            {
+                yield return null;  // 下一帧执行，保证在主线程更新UI
+                m_Owner.m_DeviceNameLabel.text = Constants.UnknownText;
+                m_Owner.m_DeviceModelLabel.text = Constants.UnknownText;
+                m_Owner.m_DeviceSystemLabel.text = Constants.UnknownText;
+                yield break;
+            }
+            CommandHandle handle = m_Owner.m_Server.Send(new QueryDeviceInfo.Req());
+            yield return handle;
+            if(handle.Error == null && string.IsNullOrEmpty(handle.Command.Error))
+            {
+                var rsp = handle.Command as QueryDeviceInfo.Rsp;
+                m_Owner.m_DeviceNameLabel.text = rsp.Name;
+                m_Owner.m_DeviceModelLabel.text = rsp.Model;
+                m_Owner.m_DeviceSystemLabel.text = rsp.System;
+            }
+        }
+
         public string[] ConvertPaths(string src, string dest, string[] curs)
         {
             string[] paths = new string[curs.Length];
@@ -424,13 +450,16 @@ namespace RemoteFileExplorer.Editor
             return dest + cur.Replace(src, "");
         }
 
-        public bool CheckConnectStatus()
+        public bool CheckConnectStatus(bool displayDialog = true)
         {
             if (m_Owner.m_Server.Status == ConnectStatus.Connected)
             {
                 return true;
             }
-            EditorUtility.DisplayDialog(Constants.WindowTitle, Constants.NotConnectedTip, Constants.OkText);
+            if(displayDialog)
+            {
+                EditorUtility.DisplayDialog(Constants.WindowTitle, Constants.NotConnectedTip, Constants.OkText);
+            }
             return false;
         }
 

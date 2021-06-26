@@ -62,6 +62,12 @@ namespace RemoteFileExplorer
                 case CommandType.RenameRsp:
                     command = new Rename.Rsp();
                     break;
+                case CommandType.QueryDeviceInfoReq:
+                    command = new QueryDeviceInfo.Req();
+                    break;
+                case CommandType.QueryDeviceInfoRsp:
+                    command = new QueryDeviceInfo.Rsp();
+                    break;
             }
             if(command != null)
             {

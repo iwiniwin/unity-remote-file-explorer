@@ -27,6 +27,7 @@ namespace RemoteFileExplorer.Editor
         public const string RenameFailedTip = "Rename \"{0}\" failed. ";
         public const string RenameSuccessTip = "Rename \"{0}\" successfully";
 
+        public const string UnknownText = "Unknown";
         public const string OkText = "Ok";
         public const string CancelText = "Cancel";
     }

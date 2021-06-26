@@ -32,7 +32,7 @@
     <engine:VisualElement name="objectListPlaceHolder" style="flex:1;">
     </engine:VisualElement>
 
-    <engine:Box name="statsPanel" style="position:absolute;padding-top:5px;padding-left:5px;margin-top:1px;width:300px;height:150px;top:20px;border-top-width:0px;display:none;flex-direction:row;">
+    <engine:Box name="statsPanel" style="position:absolute;padding-top:5px;padding-left:5px;margin-top:1px;width:300px;height:160px;top:20px;border-top-width:0px;display:none;flex-direction:row;">
 
       <engine:VisualElement style="flex:1">
 
@@ -45,13 +45,14 @@
 
         <engine:Label text="Device:" style="-unity-font-style:bold;margin-top:10px;"/>
         <engine:VisualElement style="margin-top:5px;margin-left:20px;">
-          <engine:Label text="Brand: "/>
+          <engine:Label text="Name: "/>
           <engine:Label text="Model: "/>
+          <engine:Label text="System: "/>
         </engine:VisualElement>
 
       </engine:VisualElement>
 
-      <engine:VisualElement style="flex:3">
+      <engine:VisualElement style="flex:2">
         
         <engine:Label text=" " style="-unity-font-style:bold;"/>
         <engine:VisualElement style="margin-top:5px;">
@@ -62,8 +63,9 @@
 
         <engine:Label text=" " style="-unity-font-style:bold;margin-top:10px;"/>
         <engine:VisualElement style="margin-top:5px;">
-          <engine:Label text="Unknown"/>
-          <engine:Label text="Unknown"/>
+          <engine:Label name="deviceName" text="Unknown"/>
+          <engine:Label name="deviceSystem" text="Unknown"/>
+          <engine:Label name="deviceModel" text="Unknown"/>
         </engine:VisualElement>
 
       </engine:VisualElement>

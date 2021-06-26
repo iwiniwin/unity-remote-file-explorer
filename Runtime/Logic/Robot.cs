@@ -82,102 +82,134 @@ namespace RemoteFileExplorer
             }
             else if (command is TransferFile.Req)
             {
-                var req = command as TransferFile.Req;
-                TransferFile.Rsp rsp = new TransferFile.Rsp()
-                {
-                    Ack = req.Seq,
-                };
-                try
-                {
-                    File.WriteAllBytes(req.Path, req.Content);
-                }
-                catch (Exception e)
-                {
-                    rsp.Error = e.Message;
-                }
-                m_Socket.Send(rsp);
+                ProcessTransferFileReq(command as TransferFile.Req);
             }
             else if (command is CreateDirectory.Req)
             {
-                var req = command as CreateDirectory.Req;
-                CreateDirectory.Rsp rsp = new CreateDirectory.Rsp()
-                {
-                    Ack = req.Seq,
-                };
-                try
-                {
-                    foreach (string directory in req.Directories)
-                    {
-                        if (!Directory.Exists(directory))
-                        {
-                            Directory.CreateDirectory(directory);
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    rsp.Error = e.Message;
-                }
-                m_Socket.Send(rsp);
+                ProcessCreateDirectoryReq(command as CreateDirectory.Req);
             }
-            else if(command is Delete.Req)
+            else if (command is Delete.Req)
             {
-                var req = command as Delete.Req;
-                string path = req.Path;
-                Delete.Rsp rsp = new Delete.Rsp()
-                {
-                    Ack = req.Seq,
-                };
-                try
-                {
-                    if(File.Exists(path))
-                    {
-                        File.Delete(path);
-                    }
-                    else
-                    {
-                        Directory.Delete(path, true);
-                    }
-                }
-                catch (Exception e)
-                {
-                    rsp.Error = e.Message;
-                }
-                m_Socket.Send(rsp);
+                ProcessDeleteReq(command as Delete.Req);
             }
-            else if(command is Rename.Req)
+            else if (command is Rename.Req)
             {
-                var req = command as Rename.Req;
-                string path = req.Path;
-                string newPath = req.NewPath;
-                Rename.Rsp rsp = new Rename.Rsp()
-                {
-                    Ack = req.Seq,
-                };
-                try
-                {
-                    if(File.Exists(path))
-                    {
-                        File.Move(path, newPath);
-                    }
-                    else
-                    {
-                        Directory.Move(path, newPath);
-                    }
-                }
-                catch (Exception e)
-                {
-                    rsp.Error = e.Message;
-                }
-                m_Socket.Send(rsp);
+                ProcessRenameReq(command as Rename.Req);
+            }
+            else if (command is QueryDeviceInfo.Req)
+            {
+                ProcessQueryDeviceInfoReq(command as QueryDeviceInfo.Req);
             }
             else if (command is Pull.Req)
             {
-                Coroutines.Start(ProcessDownload(command as Pull.Req));
+                Coroutines.Start(ProcessDownloadReq(command as Pull.Req));
             }
         }
 
-        private IEnumerator ProcessDownload(Pull.Req downloadReq)
+        private void ProcessTransferFileReq(TransferFile.Req req)
+        {
+            TransferFile.Rsp rsp = new TransferFile.Rsp()
+            {
+                Ack = req.Seq,
+            };
+            try
+            {
+                File.WriteAllBytes(req.Path, req.Content);
+            }
+            catch (Exception e)
+            {
+                rsp.Error = e.Message;
+            }
+            m_Socket.Send(rsp);
+        }
+
+        private void ProcessCreateDirectoryReq(CreateDirectory.Req req)
+        {
+            CreateDirectory.Rsp rsp = new CreateDirectory.Rsp()
+            {
+                Ack = req.Seq,
+            };
+            try
+            {
+                foreach (string directory in req.Directories)
+                {
+                    if (!Directory.Exists(directory))
+                    {
+                        Directory.CreateDirectory(directory);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                rsp.Error = e.Message;
+            }
+            m_Socket.Send(rsp);
+        }
+
+        private void ProcessDeleteReq(Delete.Req req)
+        {
+            string path = req.Path;
+            Delete.Rsp rsp = new Delete.Rsp()
+            {
+                Ack = req.Seq,
+            };
+            try
+            {
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+                else
+                {
+                    Directory.Delete(path, true);
+                }
+            }
+            catch (Exception e)
+            {
+                rsp.Error = e.Message;
+            }
+            m_Socket.Send(rsp);
+        }
+
+        private void ProcessRenameReq(Rename.Req req)
+        {
+            string path = req.Path;
+            string newPath = req.NewPath;
+            Rename.Rsp rsp = new Rename.Rsp()
+            {
+                Ack = req.Seq,
+            };
+            try
+            {
+                if (File.Exists(path))
+                {
+                    File.Move(path, newPath);
+                }
+                else
+                {
+                    Directory.Move(path, newPath);
+                }
+            }
+            catch (Exception e)
+            {
+                rsp.Error = e.Message;
+            }
+            m_Socket.Send(rsp);
+        }
+
+        private void ProcessQueryDeviceInfoReq(QueryDeviceInfo.Req req)
+        {
+            QueryDeviceInfo.Rsp rsp = new QueryDeviceInfo.Rsp()
+            {
+                Ack = req.Seq,
+                Name = SystemInfo.deviceName,
+                Model = SystemInfo.deviceModel,
+                System = SystemInfo.operatingSystem,
+            };
+            m_Socket.Send(rsp);
+        }
+
+        private IEnumerator ProcessDownloadReq(Pull.Req downloadReq)
         {
             string path = downloadReq.Path;
             Pull.Rsp rsp = new Pull.Rsp()
