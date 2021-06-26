@@ -120,6 +120,57 @@ namespace RemoteFileExplorer
                 }
                 m_Socket.Send(rsp);
             }
+            else if(command is Delete.Req)
+            {
+                var req = command as Delete.Req;
+                string path = req.Path;
+                Delete.Rsp rsp = new Delete.Rsp()
+                {
+                    Ack = req.Seq,
+                };
+                try
+                {
+                    if(File.Exists(path))
+                    {
+                        File.Delete(path);
+                    }
+                    else
+                    {
+                        Directory.Delete(path, true);
+                    }
+                }
+                catch (Exception e)
+                {
+                    rsp.Error = e.Message;
+                }
+                m_Socket.Send(rsp);
+            }
+            else if(command is Rename.Req)
+            {
+                var req = command as Rename.Req;
+                string path = req.Path;
+                string newPath = req.NewPath;
+                Rename.Rsp rsp = new Rename.Rsp()
+                {
+                    Ack = req.Seq,
+                };
+                try
+                {
+                    if(File.Exists(path))
+                    {
+                        File.Move(path, newPath);
+                    }
+                    else
+                    {
+                        Directory.Move(path, newPath);
+                    }
+                }
+                catch (Exception e)
+                {
+                    rsp.Error = e.Message;
+                }
+                m_Socket.Send(rsp);
+            }
             else if (command is Pull.Req)
             {
                 Coroutines.Start(ProcessDownload(command as Pull.Req));

@@ -12,6 +12,10 @@ namespace RemoteFileExplorer
         TransferFileRsp,
         CreateDirectoryReq,
         CreateDirectoryRsp,
+        DeleteReq,
+        DeleteRsp,
+        RenameReq,
+        RenameRsp,
     }
 
     public static class CommandTypeExtend

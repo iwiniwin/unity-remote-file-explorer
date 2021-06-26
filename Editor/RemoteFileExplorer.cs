@@ -171,13 +171,14 @@ namespace RemoteFileExplorer.Editor
             {
                 m_Manipulator.Download(item);
             });
+            menu.AddSeparator("");
             menu.AddItem(new GUIContent("Rename"), false, () =>
             {
-                
+                m_Manipulator.Rename(item);
             });
             menu.AddItem(new GUIContent("Delete"), false, () =>
             {
-                
+                m_Manipulator.Delete(item);
             });
             menu.ShowAsContext();
         }

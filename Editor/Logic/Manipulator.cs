@@ -96,12 +96,12 @@ namespace RemoteFileExplorer.Editor
 
         public void Delete(ObjectItem item)
         {
-
+            Coroutines.Start(Internal_Delete(item.Data.path));
         }
 
         public void Rename(ObjectItem item)
         {
-
+            // Coroutines.Start(Internal_Rename(item.Data.path));
         }
 
         public void UploadFile()
@@ -364,6 +364,45 @@ namespace RemoteFileExplorer.Editor
                     EditorUtility.DisplayDialog(Constants.WindowTitle, string.Format(Constants.UploadFailedTip, path) + error, Constants.OkText);
                 }
             }
+        }
+
+        private IEnumerator Internal_Delete(string path)
+        {
+            if (!CheckConnectStatus()) yield break;
+            string deleteConfirmTip = string.Format(Constants.DeleteConfirmTip, path);
+            bool ret = EditorUtility.DisplayDialog(Constants.WindowTitle, deleteConfirmTip, Constants.OkText, Constants.CancelText);
+            if (!ret)
+            {
+                yield break;
+            }
+            var req = new Delete.Req(){
+                Path = path,
+            };
+            CommandHandle handle = m_Owner.m_Server.Send(req);
+            yield return handle;
+            string deleteFailedTip = string.Format(Constants.DeleteFailedTip, path);
+            if (!CheckHandleError(handle, deleteFailedTip) || !CheckCommandError(handle.Command, deleteFailedTip))
+            {
+                yield break;
+            }
+            EditorUtility.DisplayDialog(Constants.WindowTitle, string.Format(Constants.DeleteSuccessTip, path), Constants.OkText);
+        }
+
+        private IEnumerator Internal_Rename(string path, string newPath)
+        {
+            if (!CheckConnectStatus()) yield break;
+            var req = new Rename.Req(){
+                Path = path,
+                NewPath = newPath,
+            };
+            CommandHandle handle = m_Owner.m_Server.Send(req);
+            yield return handle;
+            string renameFailedTip = string.Format(Constants.RenameFailedTip, path);
+            if (!CheckHandleError(handle, renameFailedTip) || !CheckCommandError(handle.Command, renameFailedTip))
+            {
+                yield break;
+            }
+            EditorUtility.DisplayDialog(Constants.WindowTitle, string.Format(Constants.RenameSuccessTip, path), Constants.OkText);
         }
 
         public string[] ConvertPaths(string src, string dest, string[] curs)

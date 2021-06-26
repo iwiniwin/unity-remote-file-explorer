@@ -176,7 +176,7 @@ namespace RemoteFileExplorer
         private IEnumerator m_Routine;
         internal IEnumerator Routine => m_Routine;
 
-        internal bool Finished = false;
+        public bool Finished {get; internal set;}
 
         internal ICoroutineYield CurrentYield = new YieldDefault();
 

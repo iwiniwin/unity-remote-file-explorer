@@ -50,6 +50,18 @@ namespace RemoteFileExplorer
                 case CommandType.CreateDirectoryRsp:
                     command = new CreateDirectory.Rsp();
                     break;
+                case CommandType.DeleteReq:
+                    command = new Delete.Req();
+                    break;
+                case CommandType.DeleteRsp:
+                    command = new Delete.Rsp();
+                    break;
+                case CommandType.RenameReq:
+                    command = new Rename.Req();
+                    break;
+                case CommandType.RenameRsp:
+                    command = new Rename.Rsp();
+                    break;
             }
             if(command != null)
             {

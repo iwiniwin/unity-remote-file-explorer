@@ -20,6 +20,13 @@ namespace RemoteFileExplorer.Editor
         public const string UploadSuccessTip = "Upload \"{0}\" successfully";
         public const string NoDestPathTip = "Please go to the destination first";
 
+        public const string DeleteConfirmTip = "Are you sure you want to delete \"{0}\"?";
+        public const string DeleteFailedTip = "Delete \"{0}\" failed. ";
+        public const string DeleteSuccessTip = "Delete \"{0}\" successfully";
+
+        public const string RenameFailedTip = "Rename \"{0}\" failed. ";
+        public const string RenameSuccessTip = "Rename \"{0}\" successfully";
+
         public const string OkText = "Ok";
         public const string CancelText = "Cancel";
     }
