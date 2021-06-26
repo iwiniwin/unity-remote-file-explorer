@@ -30,9 +30,9 @@ namespace RemoteFileExplorer.Editor
             m_Owner = owner;
         }
 
-        public void UpdateDeviceInfo()
+        public void UpdateStatusInfo()
         {
-            Coroutines.Start(Internal_UpdateDeviceInfo());
+            Coroutines.Start(Internal_UpdateStatusInfo());
         }
 
         public void Refresh()
@@ -410,7 +410,7 @@ namespace RemoteFileExplorer.Editor
             EditorUtility.DisplayDialog(Constants.WindowTitle, string.Format(Constants.RenameSuccessTip, path), Constants.OkText);
         }
 
-        private IEnumerator Internal_UpdateDeviceInfo()
+        private IEnumerator Internal_UpdateStatusInfo()
         {
             if (!CheckConnectStatus(false))
             {
@@ -418,6 +418,7 @@ namespace RemoteFileExplorer.Editor
                 m_Owner.m_DeviceNameLabel.text = Constants.UnknownText;
                 m_Owner.m_DeviceModelLabel.text = Constants.UnknownText;
                 m_Owner.m_DeviceSystemLabel.text = Constants.UnknownText;
+                m_Owner.titleContent.image = TextureUtility.GetTexture("project");
                 yield break;
             }
             CommandHandle handle = m_Owner.m_Server.Send(new QueryDeviceInfo.Req());
@@ -428,6 +429,7 @@ namespace RemoteFileExplorer.Editor
                 m_Owner.m_DeviceNameLabel.text = rsp.Name;
                 m_Owner.m_DeviceModelLabel.text = rsp.Model;
                 m_Owner.m_DeviceSystemLabel.text = rsp.System;
+                m_Owner.titleContent.image = TextureUtility.GetTexture("project active");
             }
         }
 

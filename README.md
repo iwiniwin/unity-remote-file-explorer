@@ -1,7 +1,6 @@
 # RemoteFileExplorer
 
 ### TODO
-* Title Icon显示连接状态
 * 获取显示Server IP
 * 获取显示设备型号
 * 右键选中Rename

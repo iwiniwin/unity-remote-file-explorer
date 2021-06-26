@@ -61,9 +61,6 @@ namespace RemoteFileExplorer.Editor
         {
             m_WindowInitialized = true;
             titleContent = EditorGUIUtility.TrTextContentWithIcon("Remote File Explorer", "Project");
-            // var image = TextureUtility.TextureToTexture2D(TextureUtility.GetTexture("project"));
-            // Debug.Log(image + "             sss");
-            // titleContent.image = TextureUtility.CloneTexture2D(image, Color.green);
             titleContent.image = TextureUtility.GetTexture("project");
             InitContent();
         }
@@ -256,18 +253,7 @@ namespace RemoteFileExplorer.Editor
 
         public void OnConnectStatusChanged(ConnectStatus status)
         {
-            switch (status)
-            {
-                case ConnectStatus.Connected:
-                    // titleContent.image = TextureUtility.GetTexture("project active");
-                    
-                    break;
-                case ConnectStatus.Connecting:
-                case ConnectStatus.Disconnect:
-                    // titleContent.image = TextureUtility.GetTexture("project active");
-                    break;
-            }
-            m_Manipulator.UpdateDeviceInfo();
+            m_Manipulator.UpdateStatusInfo();
         }
 
         private void Update()
