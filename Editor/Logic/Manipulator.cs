@@ -30,9 +30,10 @@ namespace RemoteFileExplorer.Editor
             m_Owner = owner;
         }
 
-        public void GoTo(string path)
+        public void Refresh()
         {
-            Coroutines.Start(Internal_GoTo(path));
+            if(string.IsNullOrEmpty(curPath)) return;
+            GoTo(curPath);
         }
 
         public void GoTo(ObjectItem item)
@@ -40,7 +41,12 @@ namespace RemoteFileExplorer.Editor
             var data = item.Data;
             if (data.type == ObjectType.File)
                 return;
-            Coroutines.Start(Internal_GoTo(data.path));
+            GoTo(data.path);
+        }
+
+        public void GoTo(string path)
+        {
+            Coroutines.Start(Internal_GoTo(path));
         }
 
         public void GoToByKey(string key)

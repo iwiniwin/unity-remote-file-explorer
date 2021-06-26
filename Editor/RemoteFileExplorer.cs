@@ -188,7 +188,7 @@ namespace RemoteFileExplorer.Editor
             var menu = new GenericMenu();
             menu.AddItem(new GUIContent("Refresh"), false, () =>
             {
-                
+                m_Manipulator.Refresh();
             });
             menu.AddSeparator("");
             menu.AddItem(new GUIContent("Upload File"), false, () =>
