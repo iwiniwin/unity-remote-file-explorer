@@ -10,7 +10,7 @@ namespace RemoteFileExplorer.Editor
     public class RemoteFileExplorerWindow : EditorWindow
     {
         bool m_WindowInitialized = false;
-        private static string m_Host = "127.0.0.1";
+        private static string m_Host = NetworkUtility.GetLocalHost();
         private static int m_Port = 8999;
 
         const string k_PackageResourcesPath = "Packages/com.iwin.remotefileexplorer/Resources/";
@@ -24,6 +24,9 @@ namespace RemoteFileExplorer.Editor
         private static Texture2D m_EstablishedTexture;
 
         private Manipulator m_Manipulator;
+        public Label m_ConnectStateLabel;
+        public Label m_ConnectHostLabel;
+        public Label m_ConnectPortLabel;
         public Label m_DeviceNameLabel;
         public Label m_DeviceModelLabel;
         public Label m_DeviceSystemLabel;
@@ -126,6 +129,12 @@ namespace RemoteFileExplorer.Editor
                 }
                 menu.DropDown(GetRect(goToMenu));
             });
+
+            m_ConnectStateLabel = root.Q<Label>("connectState");
+            m_ConnectHostLabel = root.Q<Label>("connectHost");
+            m_ConnectHostLabel.text = m_Host;
+            m_ConnectPortLabel = root.Q<Label>("connectPort");
+            m_ConnectPortLabel.text = m_Port.ToString();
 
             m_DeviceNameLabel = root.Q<Label>("deviceName");
             m_DeviceModelLabel = root.Q<Label>("deviceModel");

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using RemoteFileExplorer.Editor.UI;
+using UnityEngine;
 using UnityEditor;
 using System.IO;
 using System;
@@ -471,6 +472,8 @@ namespace RemoteFileExplorer.Editor
                 m_Owner.m_DeviceModelLabel.text = Constants.UnknownText;
                 m_Owner.m_DeviceSystemLabel.text = Constants.UnknownText;
                 m_Owner.titleContent.image = TextureUtility.GetTexture("project");
+                m_Owner.m_ConnectStateLabel.text = "Unconnected";
+                m_Owner.m_ConnectStateLabel.style.color = Color.red;
                 yield break;
             }
             CommandHandle handle = m_Owner.m_Server.Send(new QueryDeviceInfo.Req());
@@ -482,6 +485,8 @@ namespace RemoteFileExplorer.Editor
                 m_Owner.m_DeviceModelLabel.text = rsp.Model;
                 m_Owner.m_DeviceSystemLabel.text = rsp.System;
                 m_Owner.titleContent.image = TextureUtility.GetTexture("project active");
+                m_Owner.m_ConnectStateLabel.text = "Established";
+                m_Owner.m_ConnectStateLabel.style.color = Color.green;
             }
         }
 

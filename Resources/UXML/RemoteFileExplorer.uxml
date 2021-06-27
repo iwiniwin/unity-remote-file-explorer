@@ -56,9 +56,9 @@
         
         <engine:Label text=" " style="-unity-font-style:bold;"/>
         <engine:VisualElement style="margin-top:5px;">
-          <engine:Label text="Established"/>
-          <engine:Label text="127.0.0.1"/>
-          <engine:Label text="8888"/>
+          <engine:Label name="connectState" text="Established"/>
+          <engine:Label name="connectHost" text="127.0.0.1"/>
+          <engine:Label name="connectPort" text="8888"/>
         </engine:VisualElement>
 
         <engine:Label text=" " style="-unity-font-style:bold;margin-top:10px;"/>

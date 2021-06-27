@@ -1,7 +1,6 @@
 # RemoteFileExplorer
 
 ### TODO
-* 获取显示Server IP
 * 右键选中Rename
 * 多次Go To停止上一个，相同的path则忽略
 * 支持新建文件夹
