@@ -135,7 +135,12 @@ namespace RemoteFileExplorer.Editor
             string dest = null;
             if(data.type == ObjectType.File)
             {
-                dest = EditorUtility.SaveFilePanel(Constants.SelectFileTitle, "", Path.GetFileNameWithoutExtension(path), Path.GetExtension(path));
+                string extension = Path.GetExtension(path);
+                if(extension.StartsWith("."))
+                {
+                    extension = extension.Substring(1, extension.Length - 1);
+                }
+                dest = EditorUtility.SaveFilePanel(Constants.SelectFileTitle, "", Path.GetFileNameWithoutExtension(path), extension);
             }
             else
             {
