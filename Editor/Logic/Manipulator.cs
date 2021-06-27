@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using RemoteFileExplorer.Editor.UI;
 using UnityEditor;
 using System.IO;
@@ -11,6 +10,9 @@ namespace RemoteFileExplorer.Editor
     public class Manipulator
     {
         public string m_CurPath;
+
+        private List<string> m_GoToHistory = new List<string>();
+        private int m_GoToHistoryIndex = -1;
 
         public string curPath
         {
@@ -51,12 +53,58 @@ namespace RemoteFileExplorer.Editor
 
         public void GoTo(string path)
         {
-            Coroutines.Start(Internal_GoTo(path));
+            GoTo(path, false, true);
         }
 
         public void GoToByKey(string key)
         {
-            Coroutines.Start(Internal_GoTo(key, true));
+            GoTo(key, true, true);
+        }
+
+        public void GoTo(string path, bool isKey, bool record)
+        {
+            Coroutines.Start(Internal_GoTo(path, isKey, record));
+        }
+
+        public void RecordGoTo(string path)
+        {
+            if(m_GoToHistoryIndex >= 0 && m_GoToHistoryIndex < m_GoToHistory.Count - 1)
+            {
+                m_GoToHistory.RemoveRange(m_GoToHistoryIndex + 1, m_GoToHistory.Count - m_GoToHistoryIndex - 1);
+            }
+            m_GoToHistory.Add(path);
+            m_GoToHistoryIndex = m_GoToHistory.Count - 1;
+            if(m_GoToHistoryIndex > 0)
+            {
+                m_Owner.m_PrevButton.SetEnabled(true);
+            }
+            m_Owner.m_NextButton.SetEnabled(false);
+        }
+
+        public void BackwardGoTo()
+        {
+            if(m_GoToHistoryIndex > 0)
+            {
+                GoTo(m_GoToHistory[-- m_GoToHistoryIndex], false, false);
+                m_Owner.m_NextButton.SetEnabled(true);
+            }
+            if(m_GoToHistoryIndex <= 0)
+            {
+                m_Owner.m_PrevButton.SetEnabled(false);
+            }
+        }
+
+        public void ForwardGoTo()
+        {
+            if(m_GoToHistoryIndex < m_GoToHistory.Count - 1)
+            {
+                GoTo(m_GoToHistory[++ m_GoToHistoryIndex], false, false);
+                m_Owner.m_PrevButton.SetEnabled(true);
+            }
+            if(m_GoToHistoryIndex >= m_GoToHistory.Count - 1)
+            {
+                m_Owner.m_NextButton.SetEnabled(false);
+            }
         }
 
         public void Select(ObjectItem item)
@@ -154,7 +202,7 @@ namespace RemoteFileExplorer.Editor
         /// <summary>
         /// 跳转到指定路径
         /// </summary>
-        private IEnumerator Internal_GoTo(string path, bool isKey = false)
+        private IEnumerator Internal_GoTo(string path, bool isKey, bool record)
         {
             if (!CheckConnectStatus()) yield break;
             Command req;
@@ -202,6 +250,10 @@ namespace RemoteFileExplorer.Editor
             else
             {
                 curPath = path;
+            }
+            if(record)
+            {
+                RecordGoTo(curPath);
             }
         }
 

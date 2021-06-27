@@ -27,6 +27,10 @@ namespace RemoteFileExplorer.Editor
         public Label m_DeviceNameLabel;
         public Label m_DeviceModelLabel;
         public Label m_DeviceSystemLabel;
+        public ToolbarButton m_PrevButton;
+        public ToolbarButton m_NextButton;
+        public Image m_PrevImage;
+        public Image m_NextImage;
 
         [MenuItem("Window/Remote File Explorer")]
         public static void ShowWindow()
@@ -126,6 +130,18 @@ namespace RemoteFileExplorer.Editor
             m_DeviceNameLabel = root.Q<Label>("deviceName");
             m_DeviceModelLabel = root.Q<Label>("deviceModel");
             m_DeviceSystemLabel = root.Q<Label>("deviceSystem");
+
+            m_PrevButton = root.Q<ToolbarButton>("backwardsInHistoryButton");
+            m_PrevButton.SetEnabled(false);
+            m_NextButton = root.Q<ToolbarButton>("forwardsInHistoryButton");
+            m_NextButton.SetEnabled(false);
+
+            m_PrevButton.RegisterCallback<MouseUpEvent>(e => {
+                m_Manipulator.BackwardGoTo();
+            });
+            m_NextButton.RegisterCallback<MouseUpEvent>(e => {
+                m_Manipulator.ForwardGoTo();
+            });
 
             var captureButton = root.Q<Button>("snapshot-control-area__capture-button");
 
@@ -251,7 +267,10 @@ namespace RemoteFileExplorer.Editor
 
         public void OnConnectStatusChanged(ConnectStatus status)
         {
-            m_Manipulator.UpdateStatusInfo();
+            if(m_Manipulator != null)
+            {
+                m_Manipulator.UpdateStatusInfo();
+            }
         }
 
         private void Update()
