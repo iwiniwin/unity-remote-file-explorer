@@ -90,6 +90,10 @@ namespace RemoteFileExplorer.Editor.UI
             else
             {
                 key = Path.GetExtension(m_Data.path);
+                if(key.StartsWith("."))
+                {
+                    key = key.Substring(1, key.Length - 1);
+                }
             }
             if(m_Data.state == ObjectState.Selected)
             {

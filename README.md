@@ -18,7 +18,7 @@
 * 名称显示过长换成省略号优化
 * 命令支持超时
 * 选择文件夹时打叉仍有效
-* 整理资源icon等
+* dark/light皮肤处理
 
 ### Test
 * 测试打开RemoteFileExplorer后，多次Play Game后的连接情况

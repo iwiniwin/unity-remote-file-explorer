@@ -32,7 +32,7 @@
     <engine:VisualElement name="objectListPlaceHolder" style="flex:1;">
     </engine:VisualElement>
 
-    <engine:Box name="statsPanel" style="position:absolute;padding-top:5px;padding-left:5px;margin-top:1px;width:300px;height:160px;top:20px;border-top-width:0px;display:none;flex-direction:row;">
+    <engine:Box name="statsPanel" style="position:absolute;padding-top:10px;padding-left:5px;margin-top:1px;width:360px;height:180px;top:20px;border-top-width:0px;display:none;flex-direction:row;">
 
       <engine:VisualElement style="flex:1">
 
@@ -63,9 +63,9 @@
 
         <engine:Label text=" " style="-unity-font-style:bold;margin-top:10px;"/>
         <engine:VisualElement style="margin-top:5px;">
-          <engine:Label name="deviceName" text="Unknown"/>
-          <engine:Label name="deviceSystem" text="Unknown"/>
-          <engine:Label name="deviceModel" text="Unknown"/>
+          <engine:Label name="deviceName" text="Unknown" style="overflow:hidden;margin-right:10px;"/>
+          <engine:Label name="deviceSystem" text="Unknown" style="overflow:hidden;margin-right:10px;"/>
+          <engine:Label name="deviceModel" text="Unknown"  style="overflow:hidden;margin-right:10px;"/>
         </engine:VisualElement>
 
       </engine:VisualElement>
