@@ -2,10 +2,8 @@ using System;
 
 namespace RemoteFileExplorer
 {
-    public abstract class Command 
+    public abstract class Command : ISerialize
     {
-        
-
         public bool IsFinished = true;
 
         public virtual CommandType Type {get; protected set;}

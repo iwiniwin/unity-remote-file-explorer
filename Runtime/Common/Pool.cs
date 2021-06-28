@@ -34,6 +34,7 @@ namespace RemoteFileExplorer
             if(m_Stack.Count == 0)
             {
                 element = new T();
+                CountAll ++;
             }
             else
             {

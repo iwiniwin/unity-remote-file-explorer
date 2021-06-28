@@ -2,7 +2,7 @@ using System;
 
 namespace RemoteFileExplorer
 {
-    public class Package
+    public class Package : ISerialize
     {
         public Header Head;
         public Octets Body;
@@ -23,7 +23,7 @@ namespace RemoteFileExplorer
             return 0;
         }
 
-        public class Header 
+        public class Header : ISerialize
         {
             public UInt32 Size;
             public UInt32 Type;
