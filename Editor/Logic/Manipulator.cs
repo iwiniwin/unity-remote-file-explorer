@@ -353,6 +353,7 @@ namespace RemoteFileExplorer.Editor
             {
                 yield break;
             }
+            string curGoToPath = curPath;
             foreach (string path in paths)
             {
                 string error = null;
@@ -420,6 +421,10 @@ namespace RemoteFileExplorer.Editor
                 }
                 if (error == null)
                 {
+                    if(curGoToPath == curPath)
+                    {
+                        Refresh();
+                    }
                     EditorUtility.DisplayDialog(Constants.WindowTitle, string.Format(Constants.UploadSuccessTip, path), Constants.OkText);
                 }
                 else

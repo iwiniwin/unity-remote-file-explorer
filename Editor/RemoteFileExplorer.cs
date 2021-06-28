@@ -11,7 +11,7 @@ namespace RemoteFileExplorer.Editor
     {
         bool m_WindowInitialized = false;
         private static string m_Host = NetworkUtility.GetLocalHost();
-        private static int m_Port = 8999;
+        private static int m_Port = 8243;
 
         const string k_PackageResourcesPath = "Packages/com.iwin.remotefileexplorer/Resources/";
         const string k_UxmlFilesPath = k_PackageResourcesPath + "UXML/";
