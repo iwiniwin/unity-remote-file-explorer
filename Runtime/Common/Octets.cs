@@ -46,15 +46,6 @@ namespace RemoteFileExplorer
             m_Buffer = new byte[capacity];
         }
 
-        public Octets(int capacity, int length)
-        {
-            if(length < capacity)
-                length = capacity;
-            m_Length = length;
-            m_Capacity = capacity;
-            m_Buffer = new byte[capacity];
-        }
-
         public Octets(byte[] data, int length)
         {
             m_Length = length;
@@ -150,9 +141,9 @@ namespace RemoteFileExplorer
             m_Length -= length;
         }
 
-        public void Erase(int pos, int length, out Octets eraseOctets)
+        public void Erase(int pos, int length, Octets eraseOctets)
         {
-            eraseOctets = new Octets(length, length);
+            eraseOctets.m_Length = length;
             Array.Copy(m_Buffer, pos, eraseOctets.Buffer, 0, length);
             Array.Copy(m_Buffer, pos + length, m_Buffer, pos, m_Length - length - pos);
             m_Length -= length;

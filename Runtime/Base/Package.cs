@@ -11,6 +11,8 @@ namespace RemoteFileExplorer
         {
             Octets octets = Head.Serialize();
             octets.Push(Body);
+            OctetsCache.Instance.Release(Body);
+            Body = null;
             return octets;
         }
 
@@ -38,7 +40,7 @@ namespace RemoteFileExplorer
 
             public Octets Serialize()
             {
-                Octets octets = new Octets();
+                Octets octets = OctetsCache.Instance.Get();
                 Packer.Bind(octets);
                 Packer.WriteUInt(Size);
                 Packer.WriteUInt(Type);

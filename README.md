@@ -7,7 +7,6 @@
 ### 安装方式
 
 ### TODO
-* Octets使用对象池优化以及统一ISerialize接口
 * 多次Go To停止上一个，相同的path则忽略
 * 文件网格cell复用
 * dark/light皮肤处理

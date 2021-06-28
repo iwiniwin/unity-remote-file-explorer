@@ -72,6 +72,7 @@ namespace RemoteFileExplorer
             if(command != null)
             {
                 command.Deserialize(package.Body);
+                OctetsCache.Instance.Release(package.Body);
             }
             else
             {

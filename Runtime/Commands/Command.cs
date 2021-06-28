@@ -14,7 +14,7 @@ namespace RemoteFileExplorer
 
         public virtual Octets Serialize()
         {
-            Octets octets = new Octets();
+            Octets octets = OctetsCache.Instance.Get();
             Packer.Bind(octets);
             Seq = UniqueSeq.Get();
             Packer.WriteUInt(Seq);

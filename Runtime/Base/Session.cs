@@ -75,7 +75,7 @@ namespace RemoteFileExplorer
 
         public void StartSendThread()
         {
-            m_SendOctets = new Octets(1024 * 1024);
+            m_SendOctets = OctetsCache.Instance.Get(1024 * 1024);
             m_SendBuffer = new byte[CurrentClient.SendBufferSize];
             m_SendResetEvent = new AutoResetEvent(false);
             m_SendThread = new Thread(SendThreadFunction);
@@ -98,11 +98,13 @@ namespace RemoteFileExplorer
                     lock (m_SendOctets)
                     {
                         int length = Math.Min(m_SendOctets.Length, m_SendBuffer.Length);
-                        m_SendOctets.Erase(0, length, out sendOctets);
+                        sendOctets = OctetsCache.Instance.Get(length);
+                        m_SendOctets.Erase(0, length, sendOctets);
                     }
                     try
                     {
                         CurrentClient.GetStream().Write(sendOctets.Buffer, 0, sendOctets.Length);
+                        OctetsCache.Instance.Release(sendOctets);
                     }
                     catch (Exception e)
                     {
@@ -125,7 +127,9 @@ namespace RemoteFileExplorer
                 {
                     lock (m_SendOctets)
                     {
-                        m_SendOctets.Push(package.Serialize());
+                        Octets octets = package.Serialize();
+                        m_SendOctets.Push(octets);
+                        OctetsCache.Instance.Release(octets);
                         m_SendResetEvent.Set();
                     }
                 }
@@ -142,7 +146,7 @@ namespace RemoteFileExplorer
 
         public void StartReceiveThread()
         {
-            m_ReceiveOctets = new Octets(1024 * 1024);
+            m_ReceiveOctets = OctetsCache.Instance.Get(1024 * 1024);
             m_ReceiveBuffer = new byte[CurrentClient.ReceiveBufferSize];
             m_ReceiveThread = new Thread(ReceiveThreadFunction);
             m_ReceiveThread.Start();
@@ -201,10 +205,10 @@ namespace RemoteFileExplorer
                     {
                         break;
                     }
-                    Octets receiveOctets;
+                    Octets receiveOctets = OctetsCache.Instance.Get(packageLength);
                     lock (m_ReceiveOctets)
                     {
-                        m_ReceiveOctets.Erase(0, packageLength, out receiveOctets);
+                        m_ReceiveOctets.Erase(0, packageLength, receiveOctets);
                     }
                     Package package = new Package();
                     package.Deserialize(receiveOctets);
