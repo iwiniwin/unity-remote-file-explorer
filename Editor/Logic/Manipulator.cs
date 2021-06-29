@@ -146,16 +146,15 @@ namespace RemoteFileExplorer.Editor
                     extension = extension.Substring(1, extension.Length - 1);
                 }
                 dest = EditorUtility.SaveFilePanel(Constants.SelectFileTitle, "", Path.GetFileNameWithoutExtension(path), extension);
+                if(string.IsNullOrEmpty(dest)) return;
             }
             else
             {
                 dest = EditorUtility.SaveFolderPanel(Constants.SelectFileTitle, "", "");
+                if(string.IsNullOrEmpty(dest)) return;
                 dest = FileUtil.CombinePath(dest, Path.GetFileName(path));
             }
-            if (!string.IsNullOrEmpty(dest))
-            {
-                Coroutines.Start(Internal_Download(path, dest));
-            }
+            Coroutines.Start(Internal_Download(path, dest));
         }
 
         public void Delete(ObjectItem item)
