@@ -1,13 +1,16 @@
 {
-    "name": "com.iwin.remotefileexplorer",
-    "references": [],
+    "name": "Unity.RemoteFileExplorer.Editor",
+    "references": [
+        "Unity.RemoteFileExplorer"
+    ],
     "optionalUnityReferences": [],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": true,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
-    "defineConstraints": [],
-    "versionDefines": []
+    "defineConstraints": []
 }
