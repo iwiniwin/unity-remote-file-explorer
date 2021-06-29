@@ -14,6 +14,7 @@ namespace RemoteFileExplorer.Editor
 
         private List<string> m_GoToHistory = new List<string>();
         private int m_GoToHistoryIndex = -1;
+        private Coroutine m_GoToCoroutine;
 
         public string curPath
         {
@@ -64,7 +65,11 @@ namespace RemoteFileExplorer.Editor
 
         public void GoTo(string path, bool isKey, bool record)
         {
-            Coroutines.Start(Internal_GoTo(path, isKey, record));
+            if(m_GoToCoroutine != null)
+            {
+                Coroutines.Stop(m_GoToCoroutine);
+            }
+            m_GoToCoroutine = Coroutines.Start(Internal_GoTo(path, isKey, record));
         }
 
         public void RecordGoTo(string path)

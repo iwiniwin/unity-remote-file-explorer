@@ -76,10 +76,10 @@ namespace RemoteFileExplorer.Editor
         {
             for(int i = m_TaskList.Count - 1; i >= 0; i --)
             {
-                if(m_TaskList[i].Coroutine.Finished)
-                {
-                    m_TaskList.RemoveAt(i);
-                }
+                // if(m_TaskList[i].Coroutine.Finished)
+                // {
+                //     m_TaskList.RemoveAt(i);
+                // }
             }
         }
     }

@@ -55,33 +55,69 @@ namespace RemoteFileExplorer
             {
                 instance = new Coroutines();
             }
-            instance.Start(coroutine);
+            instance.StartCoroutine(coroutine);
             return coroutine;
         }
 
         public static void Stop(IEnumerator routine, object target)
         {
-
-        }
-
-        public static void Stop(Coroutine routine)
-        {
-
+            Stop(new Coroutine(routine, target));
         }
 
         public static void Stop(string methodName, object target)
         {
+            Stop(new Coroutine(null, methodName, target));
+        }
 
+        public static void Stop(Coroutine routine)
+        {
+            if(instance == null) return;
+            instance.StopCoroutine(routine);
         }
 
         public static void StopAll(object target)
         {
-
+            if(instance == null) return;
+            instance.StopAllCoroutines(new Coroutine(null, target).TargetKey);
         }
 
         public static void StopAll()
         {
+            if(instance == null) return;
+            instance.StopAllCoroutines();
+        }
 
+        private void StopCoroutine(Coroutine routine)
+        {
+            if(m_CoroutineDict.ContainsKey(routine.Key))
+            {
+                m_CoroutineDict.Remove(routine.Key);
+            }
+        }
+
+        private void StopAllCoroutines(string targetKey)
+        {
+            List<string> keys = new List<string>(m_CoroutineDict.Keys);
+            foreach (string key in keys)
+            {
+                List<Coroutine> coroutines = m_CoroutineDict[key];
+                for (int i = coroutines.Count - 1; i >= 0; i--)
+                {
+                    if(coroutines[i].TargetKey == targetKey)
+                    {
+                        coroutines.RemoveAt(i);
+                    }
+                }
+                if(m_CoroutineDict[key].Count == 0)
+                {
+                    m_CoroutineDict.Remove(key);
+                }
+            }
+        }
+
+        private void StopAllCoroutines()
+        {
+            m_CoroutineDict.Clear();
         }
 
         public static void Update()
@@ -91,7 +127,7 @@ namespace RemoteFileExplorer
             instance.OnUpdate(Time.deltaTime);
         }
 
-        private void Start(Coroutine coroutine)
+        private void StartCoroutine(Coroutine coroutine)
         {
             MoveNext(coroutine);
             if (!m_CoroutineDict.ContainsKey(coroutine.Key))
@@ -176,7 +212,7 @@ namespace RemoteFileExplorer
         private IEnumerator m_Routine;
         internal IEnumerator Routine => m_Routine;
 
-        public bool Finished {get; internal set;}
+        internal bool Finished {get; set;}
 
         internal ICoroutineYield CurrentYield = new YieldDefault();
 
@@ -193,7 +229,10 @@ namespace RemoteFileExplorer
             {
                 this.m_TargetKey = target.GetHashCode().ToString();
             }
-            this.m_Key = this.m_TargetKey + routine.GetHashCode().ToString();
+            if(routine != null)
+            {
+                this.m_Key = this.m_TargetKey + routine.GetHashCode().ToString();
+            }
             this.m_Routine = routine;
         }
     }
