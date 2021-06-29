@@ -41,7 +41,7 @@ namespace RemoteFileExplorer.Editor
         public void Refresh()
         {
             if(string.IsNullOrEmpty(curPath)) return;
-            GoTo(curPath);
+            GoTo(curPath, false, false);
         }
 
         public void GoTo(ObjectItem item)
@@ -437,6 +437,7 @@ namespace RemoteFileExplorer.Editor
         private IEnumerator Internal_Delete(string path)
         {
             if (!CheckConnectStatus()) yield break;
+            string curGoToPath = curPath;
             string deleteConfirmTip = string.Format(Constants.DeleteConfirmTip, path);
             bool ret = EditorUtility.DisplayDialog(Constants.WindowTitle, deleteConfirmTip, Constants.OkText, Constants.CancelText);
             if (!ret)
@@ -452,6 +453,10 @@ namespace RemoteFileExplorer.Editor
             if (!CheckHandleError(handle, deleteFailedTip) || !CheckCommandError(handle.Command, deleteFailedTip))
             {
                 yield break;
+            }
+            if(curGoToPath == curPath)
+            {
+                GoTo(Directory.GetParent(curPath).ToString(), false, false);  // 刷新
             }
             EditorUtility.DisplayDialog(Constants.WindowTitle, string.Format(Constants.DeleteSuccessTip, path), Constants.OkText);
         }
