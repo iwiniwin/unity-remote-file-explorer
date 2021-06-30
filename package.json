@@ -3,7 +3,7 @@
     "displayName": "Remote File Explorer",
     "version": "0.0.1",
     "unity": "2019.4",
-    "description": "Remote File Explorer.",
+    "description": "Remote File Explorer is a tool that can browse, download and upload files of the application running platform on the Unity Editor. You can open it from the main menu 'Window > Analysis > Remote File Explorer'.",
     "documentationUrl": "https://github.com/iwiniwin/unity-remote-file-explorer",
     "keywords": [
       "remote",
