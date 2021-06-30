@@ -68,6 +68,7 @@ namespace RemoteFileExplorer.Editor
             m_WindowInitialized = true;
             titleContent = EditorGUIUtility.TrTextContentWithIcon("Remote File Explorer", "Project");
             titleContent.image = TextureUtility.GetTexture("project");
+            minSize = new Vector2(500, 300);
             InitContent();
         }
 
