@@ -65,7 +65,6 @@ namespace RemoteFileExplorer.Editor
             {
                 if(m_TaskList[i].Type == type)
                 {
-                    UnityEngine.Debug.Log("stop..........");
                     Coroutines.Stop(m_TaskList[i].Coroutine);
                     m_TaskList.RemoveAt(i);
                 }

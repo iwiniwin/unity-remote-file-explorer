@@ -41,19 +41,8 @@ namespace RemoteFileExplorer.Editor
             GetWindow<RemoteFileExplorerWindow>();
         }
 
-        int tag = 0;
         void OnGUI()
         {
-            if (tag == 4)
-            {
-                // System.Collections.Generic.List<ObjectData> data = new System.Collections.Generic.List<ObjectData>();
-                // for(int i = 0; i < 10; i ++)
-                // {
-                //     data.Add(new ObjectData(ObjectType.File, "vv/aa.cs"));
-                // }
-                // m_ObjectListArea.UpdateView(data);
-            }
-            tag++;
             if (m_WindowInitialized)
             {
                 return;
@@ -301,7 +290,6 @@ namespace RemoteFileExplorer.Editor
         private void OnDisable()
         {
             m_WindowInitialized = false;
-            tag = 0;
             m_Server.Stop();
         }
     }

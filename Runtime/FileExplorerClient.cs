@@ -7,7 +7,7 @@ namespace RemoteFileExplorer
         private Client m_Client;
         private Robot m_Robot;
         public string host;
-        public int port;
+        public readonly int port = 8243;
         public bool connectAutomatically;
 
         private void Start()
@@ -35,8 +35,6 @@ namespace RemoteFileExplorer
 
         public void OnReceiveCommand(Command command)
         {
-            Debug.Log("  收到。。。。。。");
-
             m_Robot.Execute(command);
         }
 
