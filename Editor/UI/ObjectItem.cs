@@ -67,7 +67,14 @@ namespace RemoteFileExplorer.Editor.UI
             switch (state)
             {
                 case ObjectState.Normal:
-                    objectLabel.style.color = Color.white;
+                    if(EditorGUIUtility.isProSkin)
+                    {
+                        objectLabel.style.color = Color.white;
+                    }
+                    else
+                    {
+                        objectLabel.style.color = Color.black;
+                    }
                     break;
                 case ObjectState.Selected:
                     Color c;

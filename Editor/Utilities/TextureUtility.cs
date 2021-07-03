@@ -14,6 +14,15 @@ namespace RemoteFileExplorer.Editor
 
         public static Texture2D GetTexture(string key)
         {
+            if(!EditorGUIUtility.isProSkin)
+            {
+                key = "d_" + key; 
+            }
+            return Internal_GetTexture(key);
+        }
+
+        private static Texture2D Internal_GetTexture(string key)
+        {
             
             if (m_TextureCache.ContainsKey(key))
             {
@@ -22,6 +31,9 @@ namespace RemoteFileExplorer.Editor
             var icon = AssetDatabase.LoadAssetAtPath<Texture2D>(IconPath + key + ".png");
             if (icon == null)
             {
+                string prefix = "";
+                if(key.StartsWith("d_"))
+                    prefix = "d_";
                 if(key.Contains("active"))
                 {
                     key = "default active";
@@ -34,7 +46,8 @@ namespace RemoteFileExplorer.Editor
                 {
                     key = "default";
                 }
-                return GetTexture(key);
+                key = prefix + key;
+                return Internal_GetTexture(key);
             }
             else
             {
