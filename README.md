@@ -4,52 +4,46 @@
 [![release](https://img.shields.io/badge/release-v0.0.1-blue.svg)](https://github.com/iwiniwin/unity-remote-file-explorer/releases)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-blue.svg)](https://github.com/iwiniwin/unity-remote-file-explorer/pulls)
 
-[Remote File Explorer](https://github.com/iwiniwin/unity-remote-file-explorer)是一个远程文件浏览器，使用户通过Unity Editor就能操作应用所运行平台上的目录文件。比如浏览，下载，上传，删除等操作。通过本工具可以极大提高开发调试效率。例如：
-* 应用在设备上运行时，出现异常情况，推测可能是资源丢失导致的。此情况下可以通过Remote File Explorer查看关键资源是否存在
-* 应用在设备上运行出现与本地环境不同的现象时，可通过Remote File Explorer下载关键代码，对比与本地的不同
-* 使用XLua或SLua开发时，排除bug，修改代码后可以通过Remote File Explorer快速上传修改后的代码，而避免重复的打包
+[Remote File Explorer](https://github.com/iwiniwin/unity-remote-file-explorer)是一个跨平台的远程文件浏览器，使用户通过*Unity Editor*就能操作应用所运行平台上的目录文件。比如当项目打包运行到设备上时，可通过[Remote File Explorer](https://github.com/iwiniwin/unity-remote-file-explorer)直接浏览设备上的目录文件，并进行下载，上传，删除等操作。
+![](Documentation~/Images/main_ui.png)
+
+## 用武之地
+在很多场景下利用本工具都可以极大的提高开发调试效率。例如：
+* 应用打包后在真机上运行时，出现经推测可能是资源丢失导致的异常情况。此时可以通过本工具直接浏览手机上的相关文件，查看关键资源是否存在
+* 应用的某个版本在真机上运行时出现bug，而在开发环境无法复现时，可通过本工具直接下载真机上运行的代码，定位差异
+* **如果项目采用了XLua或SLua开发，在真机开发调试时，可通过本工具直接上传修改后的Lua代码，然后重启应用即可生效。从而避免每修改一次代码就重新构建一次应用的繁琐过程，大大提高调试效率**
 
 
 ## 安装
-本程序是Unity Package形式
-可通过Unity Package + 输入本程序git地址完成安装
-或直接克隆本程序到项目Pacages目录下
-更多安装包的方式可查看[Unity官方文档](https://docs.unity3d.com/cn/2019.4/Manual/upm-ui-actions.html)
+本工具是采用Unity的[包](https://docs.unity3d.com/cn/2019.4/Manual/PackagesList.html)形式，可以通过*Unity Package Manager*直接安装
+![](Documentation~/Images/package_manager.png)
+
+这里介绍两种常用方式
+* 打开*Package Manager*窗口后，单击状态栏左侧的`+`按钮，选择`Add package from git URL`，然后在文本框中输入本工具的git地址`https://github.com/iwiniwin/unity-remote-file-explorer.git`，单击`Add`按钮后完成安装
+    ![](Documentation~/Images/add_from_git_url.png)
+* 或直接克隆本工具到项目的`Pacages`目录下
+
+更多将本工具作为包的安装方式可查看[Unity官方文档](https://docs.unity3d.com/cn/2019.4/Manual/upm-ui-actions.html)
 
 ## 使用
+安装本工具后，给任意游戏对象添加`FileExplorerClient`组件
+![](Documentation~/Images/file_explorer_client.png)
+* 如果是固定连接到某台机器上，可直接通过Inspector面板在`Host`域输入这台机器的IP地址，然后勾选`Connect Automatically`，则会在应用启动时自动连接
+* 如果希望应用启动后能主动选择连接到哪台机器，则可在Debug模式下封装一套简单的UI，使开发人员能够输入想要连接到的IP地址。例如在自己的菜单中添加一个条目或按钮，点击后弹出输入窗口。在成功获取到的IP地址后，将其赋值给`FileExplorerClient`组件的`Host`属性，然后调用`FileExplorerClient`组件的`StartConnect`方法开启连接
 
-给任意游戏对象挂载FileExplorerClient组件
-如果固定已知IP，可通过Inspector面板输入IP和端口号，然后勾选connectAutomatically，则会在应用启动时自动连接
-否则，可以在调试模式下，点击一个按钮，然后打开输入框，输入通过Remote File Explorer查看到的IP和端口进行连接 然后调用FileExplorerClient组件的StartConnect接口连接
-当连接成功后，Remote File Explorer的title icon会变回绿色，status connect statue也会显示绿色Established
+通过本工具的`Status`面板可以查看到当前机器的IP地址
+![](Documentation~/Images/status_panel_small.png)
+当连接成功后，本工具标题栏的Icon会变成绿色，以表示连接状态是已连接
+![](Documentation~/Images/status_panel_small2.png)
 
 ## 功能
-* 通过GOTO直接打开，Unity预定义的一些路径
-* 通过输入框直接输入路径跳转
-* 右键选中下载
-* 右键选中删除
-* 右键空白区域上传
-* 右键空白区域刷新
-* 直接从Unity Project窗口或系统文件浏览器拖拽到窗口进行上传
-* 通过status面板可以查看连接状态以及连接设备的信息，以此判断连接的是哪台设备
-
-### TODO
-* 名称显示过长换成省略号优化
-* 文件网格cell复用
-* 窗口大小改变自动刷新cell布局
-* 连接后自动GO TO上次路径
-* 处理.jar只读问题
-* 下载成功提示有打开所在文件夹
-* 当前任务显示
-* 命令支持超时
-* 右键选中Rename
-* 支持新建文件夹
-* 上传下载时Icon变化以显示状态
-
-### Test
-* 测试打开RemoteFileExplorer后，多次Play Game后的连接情况
-* 测试多客户端请求连接
-* Android平台测试
-* IOS平台测试
-* Mac平台测试
-* 不同平台分隔符问题
+详细的图文功能介绍请查看[使用文档](Documentation~/RemoteFileExplorer.md)
+* 通过状态栏的`GOTO`可直接跳转到Unity预定义的一些路径
+* 通过单击路径栏可打开输入框，以直接输入路径跳转或复制当前路径
+* 右键所选中的文件夹或文件支持下载
+* 右键所选中的文件夹或文件支持删除
+* 右键空白区域支持上传文件夹或文件
+* 右键空白区域支持刷新当前路径的内容
+* 支持直接从`Unity Project`窗口拖拽文件夹或文件到本工具上传
+* 支持直接从系统文件浏览器拖拽文件夹或文件到本工具上传
+* 通过本工具`status`面板可查看连接状态以及已连接设备的信息，可用于辨别连接的是哪台设备
