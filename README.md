@@ -18,29 +18,20 @@
 ## 安装
 本工具是采用Unity的[包](https://docs.unity3d.com/cn/2019.4/Manual/PackagesList.html)形式，可以通过*Unity Package Manager*直接安装
 
-![](Documentation~/Images/package_manager.png)
-
 这里介绍两种常用方式
 * 打开*Package Manager*窗口后，单击状态栏左侧的`+`按钮，选择`Add package from git URL`，然后在文本框中输入本工具的git地址`https://github.com/iwiniwin/unity-remote-file-explorer.git`，单击`Add`按钮后完成安装
-    ![](Documentation~/Images/add_from_git_url.png)
 * 或直接克隆本工具到项目的`Pacages`目录下
 
-更多将本工具作为包的安装方式可查看[Unity官方文档](https://docs.unity3d.com/cn/2019.4/Manual/upm-ui-actions.html)
+详细安装方式可以查看[使用文档](Documentation~/RemoteFileExplorer.md)，更多将本工具作为包的安装方式可查看[Unity官方文档](https://docs.unity3d.com/cn/2019.4/Manual/upm-ui-actions.html)
 
 ## 使用
-安装本工具后，给任意游戏对象添加`FileExplorerClient`组件
+安装本工具后，可通过`Window > Analysis > Remote File Explorer`打开本工具窗口，将自动启动服务器
+
+给项目的任意游戏对象添加`FileExplorerClient`组件
 
 ![](Documentation~/Images/file_explorer_client.png)
 * 如果是固定连接到某台机器上，可直接通过Inspector面板在`Host`域输入这台机器的IP地址，然后勾选`Connect Automatically`，则会在应用启动时自动连接
 * 如果希望应用启动后能主动选择连接到哪台机器，则可在Debug模式下封装一套简单的UI，使开发人员能够输入想要连接到的IP地址。例如在自己的菜单中添加一个条目或按钮，点击后弹出输入窗口。在成功获取到的IP地址后，将其赋值给`FileExplorerClient`组件的`Host`属性，然后调用`FileExplorerClient`组件的`StartConnect`方法开启连接
-
-通过本工具的`Status`面板可以查看到当前机器的IP地址
-
-![](Documentation~/Images/status_panel_small.png)
-
-当连接成功后，本工具标题栏的Icon会变成绿色，以表示连接状态是已连接
-
-![](Documentation~/Images/status_panel_small2.png)
 
 ## 功能
 详细的图文功能介绍请查看[使用文档](Documentation~/RemoteFileExplorer.md)
