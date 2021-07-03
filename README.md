@@ -5,6 +5,7 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-blue.svg)](https://github.com/iwiniwin/unity-remote-file-explorer/pulls)
 
 [Remote File Explorer](https://github.com/iwiniwin/unity-remote-file-explorer)是一个跨平台的远程文件浏览器，使用户通过*Unity Editor*就能操作应用所运行平台上的目录文件。比如当项目打包运行到设备上时，可通过[Remote File Explorer](https://github.com/iwiniwin/unity-remote-file-explorer)直接浏览设备上的目录文件，并进行下载，上传，删除等操作。
+
 ![](Documentation~/Images/main_ui.png)
 
 ## 用武之地
@@ -16,6 +17,7 @@
 
 ## 安装
 本工具是采用Unity的[包](https://docs.unity3d.com/cn/2019.4/Manual/PackagesList.html)形式，可以通过*Unity Package Manager*直接安装
+
 ![](Documentation~/Images/package_manager.png)
 
 这里介绍两种常用方式
@@ -27,13 +29,17 @@
 
 ## 使用
 安装本工具后，给任意游戏对象添加`FileExplorerClient`组件
+
 ![](Documentation~/Images/file_explorer_client.png)
 * 如果是固定连接到某台机器上，可直接通过Inspector面板在`Host`域输入这台机器的IP地址，然后勾选`Connect Automatically`，则会在应用启动时自动连接
 * 如果希望应用启动后能主动选择连接到哪台机器，则可在Debug模式下封装一套简单的UI，使开发人员能够输入想要连接到的IP地址。例如在自己的菜单中添加一个条目或按钮，点击后弹出输入窗口。在成功获取到的IP地址后，将其赋值给`FileExplorerClient`组件的`Host`属性，然后调用`FileExplorerClient`组件的`StartConnect`方法开启连接
 
 通过本工具的`Status`面板可以查看到当前机器的IP地址
+
 ![](Documentation~/Images/status_panel_small.png)
+
 当连接成功后，本工具标题栏的Icon会变成绿色，以表示连接状态是已连接
+
 ![](Documentation~/Images/status_panel_small2.png)
 
 ## 功能
