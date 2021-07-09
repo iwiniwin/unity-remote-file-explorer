@@ -6,7 +6,7 @@
 
     <engine:VisualElement name="objectView" style="align-items:center;flex:1;">
       <engine:Image name="objectIcon" class="iconButton historyButtonIcon" style="width:80%;height:80%;"/>
-      <engine:Label name="objectLabel" text="fill" style="width:95%;height:20%;-unity-text-align:middle-center;overflow:hidden"/>
+      <engine:Label name="objectLabel" text="fill" style="width:95%;height:20%;-unity-text-align:middle-center;"/>
     </engine:VisualElement>
     
 </engine:UXML>

@@ -18,8 +18,6 @@ namespace RemoteFileExplorer.Editor.UI
         public Image objectIcon { get; }
         public Label objectLabel { get; }
         private ObjectData m_Data;
-        private int m_NumCharacters;
-
         private Vector2 m_Size;
         public Vector2 Size
         {
@@ -57,7 +55,7 @@ namespace RemoteFileExplorer.Editor.UI
         public void UpdateView(ObjectData data)
         {
             m_Data = data;
-            objectLabel.text = GetText(data.path);
+            UpdateText(data.path);
             UpdateState(data.state);
         }
 
@@ -109,23 +107,42 @@ namespace RemoteFileExplorer.Editor.UI
             return TextureUtility.GetTexture(key);
         }
 
-        public string GetText(string path)
+        public void UpdateText(string path)
         {
             string name = Path.GetFileName(path);
-            if (m_NumCharacters > 2 && m_NumCharacters < name.Length)
+            string text = name;
+            if(!FitWithinWidth(text))
             {
-                name = name.Substring(0, m_NumCharacters - 2) + "\u2026";
+                string ellipsis = "\u2026";
+                text = "";
+                for(int i = 0; i < name.Length; i ++)
+                {
+                    if(!FitWithinWidth(text + ellipsis))
+                    {
+                        break;
+                    }
+                    text += name[i];
+                }
+                text += ellipsis;
             }
-            return name;
+            objectLabel.text = text;
+        }
+
+        public bool FitWithinWidth(string text)
+        {
+            var rect = objectLabel.contentRect;
+            if(float.NaN.Equals(rect.width))
+            {
+                return true;  // Label仍未初始化完成，将在OnGeometryChanged时重新计算
+            }
+            float width = objectLabel.MeasureTextSize(text, rect.width, MeasureMode.AtMost, rect.height, MeasureMode.AtMost).x;
+            Debug.Log(width + "       saa " + rect.width);
+            return width < rect.width;
         }
 
         public void OnGeometryChanged(GeometryChangedEvent e)
         {
-            if (m_NumCharacters == 0)
-            {
-                m_NumCharacters = GetNumCharactersThatFitWithinWidth();
-            }
-            objectLabel.text = GetText(m_Data.path);
+            UpdateText(m_Data.path);
         }
 
         public void OnMouseDown(MouseDownEvent e)
@@ -161,20 +178,6 @@ namespace RemoteFileExplorer.Editor.UI
                 }
             }
             e.StopImmediatePropagation();
-        }
-
-        public int GetNumCharactersThatFitWithinWidth()
-        {
-            var rect = objectLabel.contentRect;
-            char testChar = 'a';
-            string testStr = "";
-            float width = 0;
-            while (width < rect.width)
-            {
-                testStr += testChar;
-                width = objectLabel.MeasureTextSize(testStr, rect.width, MeasureMode.AtMost, rect.height, MeasureMode.AtMost).x;
-            }
-            return testStr.Length;
         }
     }
 
