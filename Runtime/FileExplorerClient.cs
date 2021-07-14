@@ -31,6 +31,7 @@ namespace RemoteFileExplorer
             {
                 m_Client.Update();
             }
+            Coroutines.Update();
         }
 
         public void OnReceiveCommand(Command command)
