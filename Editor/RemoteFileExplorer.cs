@@ -289,6 +289,10 @@ namespace RemoteFileExplorer.Editor
 
         private void OnDisable()
         {
+            if(m_Manipulator != null)
+            {
+                m_Manipulator.SaveLastGoTo();
+            }
             m_WindowInitialized = false;
             m_Server.Stop();
         }

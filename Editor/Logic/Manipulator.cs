@@ -12,6 +12,7 @@ namespace RemoteFileExplorer.Editor
     {
         public string m_CurPath;
 
+        private const string CacheKey = "RemoteFileExplorer_Cache_GoTo";
         private List<string> m_GoToHistory = new List<string>();
         private int m_GoToHistoryIndex = -1;
         private Coroutine m_GoToCoroutine;
@@ -42,7 +43,7 @@ namespace RemoteFileExplorer.Editor
         public void Refresh()
         {
             if(string.IsNullOrEmpty(curPath)) return;
-            GoTo(curPath, false, false);
+            GoTo(curPath, false, false, false);
         }
 
         public void GoTo(ObjectItem item)
@@ -55,21 +56,21 @@ namespace RemoteFileExplorer.Editor
 
         public void GoTo(string path)
         {
-            GoTo(path, false, true);
+            GoTo(path, false, true, false);
         }
 
         public void GoToByKey(string key)
         {
-            GoTo(key, true, true);
+            GoTo(key, true, true, false);
         }
 
-        public void GoTo(string path, bool isKey, bool record)
+        public void GoTo(string path, bool isKey, bool record, bool silent)
         {
             if(m_GoToCoroutine != null)
             {
                 Coroutines.Stop(m_GoToCoroutine);
             }
-            m_GoToCoroutine = Coroutines.Start(Internal_GoTo(path, isKey, record));
+            m_GoToCoroutine = Coroutines.Start(Internal_GoTo(path, isKey, record, silent));
         }
 
         public void RecordGoTo(string path)
@@ -91,7 +92,7 @@ namespace RemoteFileExplorer.Editor
         {
             if(m_GoToHistoryIndex > 0)
             {
-                GoTo(m_GoToHistory[-- m_GoToHistoryIndex], false, false);
+                GoTo(m_GoToHistory[-- m_GoToHistoryIndex], false, false, false);
                 m_Owner.m_NextButton.SetEnabled(true);
             }
             if(m_GoToHistoryIndex <= 0)
@@ -104,13 +105,33 @@ namespace RemoteFileExplorer.Editor
         {
             if(m_GoToHistoryIndex < m_GoToHistory.Count - 1)
             {
-                GoTo(m_GoToHistory[++ m_GoToHistoryIndex], false, false);
+                GoTo(m_GoToHistory[++ m_GoToHistoryIndex], false, false, false);
                 m_Owner.m_PrevButton.SetEnabled(true);
             }
             if(m_GoToHistoryIndex >= m_GoToHistory.Count - 1)
             {
                 m_Owner.m_NextButton.SetEnabled(false);
             }
+        }
+
+        /// <summary>
+        /// 记录上次的GOTO，下次启动后自动跳转
+        /// </summary>
+        public void SaveLastGoTo()
+        {
+            if(m_GoToHistoryIndex >= 0 && m_GoToHistory.Count > m_GoToHistoryIndex)
+            {
+                EditorUserSettings.SetConfigValue(CacheKey, m_GoToHistory[m_GoToHistoryIndex]);
+            }
+        }
+
+        public string ReadLastGoTo()
+        {
+            if(m_GoToHistoryIndex >= 0 && m_GoToHistory.Count > m_GoToHistoryIndex)  // 窗口未关闭时再次开启连接，直接使用内存记录
+            {
+                return m_GoToHistory[m_GoToHistoryIndex];
+            }
+            return EditorUserSettings.GetConfigValue(CacheKey);
         }
 
         public void Select(ObjectItem item)
@@ -212,9 +233,9 @@ namespace RemoteFileExplorer.Editor
         /// <summary>
         /// 跳转到指定路径
         /// </summary>
-        private IEnumerator Internal_GoTo(string path, bool isKey, bool record)
+        private IEnumerator Internal_GoTo(string path, bool isKey, bool record, bool silent)
         {
-            if (!CheckConnectStatus()) yield break;
+            if (!CheckConnectStatus(!silent)) yield break;
             Command req;
             if (isKey)
             {
@@ -232,7 +253,7 @@ namespace RemoteFileExplorer.Editor
             }
             CommandHandle handle = m_Owner.m_Server.Send(req);
             yield return handle;
-            if (!CheckHandleError(handle) || !CheckCommandError(handle.Command))
+            if (!CheckHandleError(handle, "", !silent) || !CheckCommandError(handle.Command, "", !silent))
             {
                 yield break;
             }
@@ -245,7 +266,10 @@ namespace RemoteFileExplorer.Editor
                     msg = string.Format(Constants.PathKeyNotExistTip, path, (rsp as QueryPathKeyInfo.Rsp).Path);
                 }
                 Log.Debug(msg);
-                EditorUtility.DisplayDialog(Constants.WindowTitle, msg, Constants.OkText);
+                if(!silent)
+                {
+                    EditorUtility.DisplayDialog(Constants.WindowTitle, msg, Constants.OkText);
+                }
                 yield break;
             }
             List<ObjectData> list = new List<ObjectData>();
@@ -466,7 +490,7 @@ namespace RemoteFileExplorer.Editor
             }
             if(curGoToPath == curPath)
             {
-                GoTo(Directory.GetParent(curPath).ToString(), false, false);  // 刷新
+                GoTo(Directory.GetParent(curPath).ToString(), false, false, false);  // 刷新
             }
             EditorUtility.DisplayDialog(Constants.WindowTitle, string.Format(Constants.DeleteSuccessTip, path), Constants.OkText);
         }
@@ -512,6 +536,13 @@ namespace RemoteFileExplorer.Editor
                 m_Owner.titleContent.image = TextureUtility.GetTexture("project active");
                 m_Owner.m_ConnectStateLabel.text = "Established";
                 m_Owner.m_ConnectStateLabel.style.color = Color.green;
+
+                // 自动跳转到上次路径
+                string path = ReadLastGoTo();
+                if(!string.IsNullOrEmpty(path))
+                {
+                    GoTo(path, false, true, true);
+                }
             }
         }
 
@@ -547,22 +578,28 @@ namespace RemoteFileExplorer.Editor
             return false;
         }
 
-        public bool CheckHandleError(CommandHandle handle, string tip = "")
+        public bool CheckHandleError(CommandHandle handle, string tip, bool displayDialog = true)
         {
             if (handle.Error != null)
             {
-                EditorUtility.DisplayDialog(Constants.WindowTitle, tip + "handle.Error", Constants.OkText);
+                if(displayDialog)
+                {
+                    EditorUtility.DisplayDialog(Constants.WindowTitle, tip + "handle.Error", Constants.OkText);
+                }
                 return false;
             }
             return true;
         }
 
-        public bool CheckCommandError(Command command, string tip = "")
+        public bool CheckCommandError(Command command, string tip, bool displayDialog = true)
         {
             if (!string.IsNullOrEmpty(command.Error))
             {
                 Log.Error(tip + command.Error);
-                EditorUtility.DisplayDialog(Constants.WindowTitle, tip + command.Error, Constants.OkText);
+                if(displayDialog)
+                {
+                    EditorUtility.DisplayDialog(Constants.WindowTitle, tip + command.Error, Constants.OkText);
+                }
                 return false;
             }
             return true;
