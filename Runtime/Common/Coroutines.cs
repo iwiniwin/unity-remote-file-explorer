@@ -14,7 +14,8 @@ namespace RemoteFileExplorer
     public sealed class Coroutines
     {
         private static Coroutines instance = null;
-        private static int lastFrameCount = 0;
+        public const int TickToSecond = 10000000;
+        private long previousTicks = 0;
 
         private Coroutines() { }
 
@@ -56,12 +57,18 @@ namespace RemoteFileExplorer
 
         private static Coroutine InternalStart(Coroutine coroutine)
         {
+            CreateInstanceIfRequired();
+            instance.StartCoroutine(coroutine);
+            return coroutine;
+        }
+
+        private static void CreateInstanceIfRequired()
+        {
             if (instance == null)
             {
                 instance = new Coroutines();
+                instance.previousTicks = DateTime.Now.Ticks;
             }
-            instance.StartCoroutine(coroutine);
-            return coroutine;
         }
 
         public static void Stop(IEnumerator routine, object target)
@@ -127,9 +134,13 @@ namespace RemoteFileExplorer
 
         public static void Update()
         {
-            if (instance == null) return;
-            lastFrameCount = Time.frameCount;
-            instance.OnUpdate(Time.deltaTime);
+            CreateInstanceIfRequired();
+            float deltaTime = (float)(DateTime.Now.Ticks - instance.previousTicks) / TickToSecond;
+            if(deltaTime > 0)  // 避免一帧内触发多次
+            {
+                instance.OnUpdate(deltaTime);
+                instance.previousTicks = DateTime.Now.Ticks;
+            }
         }
 
         private void StartCoroutine(Coroutine coroutine)
