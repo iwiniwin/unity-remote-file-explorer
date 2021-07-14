@@ -239,7 +239,12 @@ namespace RemoteFileExplorer.Editor
             var rsp = handle.Command as QueryPathInfo.Rsp;
             if (!rsp.Exists)
             {
-                EditorUtility.DisplayDialog(Constants.WindowTitle, string.Format(Constants.PathNotExistTip, path), Constants.OkText);
+                string msg = string.Format(Constants.PathNotExistTip, path);
+                if(rsp is QueryPathKeyInfo.Rsp)
+                {
+                    msg = string.Format(Constants.PathKeyNotExistTip, path, (rsp as QueryPathKeyInfo.Rsp).Path);
+                }
+                EditorUtility.DisplayDialog(Constants.WindowTitle, msg, Constants.OkText);
                 yield break;
             }
             List<ObjectData> list = new List<ObjectData>();
