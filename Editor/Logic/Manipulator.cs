@@ -75,6 +75,13 @@ namespace RemoteFileExplorer.Editor
 
         public void RecordGoTo(string path)
         {
+            if(m_GoToHistoryIndex >= 0 && m_GoToHistory.Count > m_GoToHistoryIndex)
+            {
+                if(m_GoToHistory[m_GoToHistoryIndex].Equals(path)) 
+                {
+                    return;
+                }
+            }
             if(m_GoToHistoryIndex >= 0 && m_GoToHistoryIndex < m_GoToHistory.Count - 1)
             {
                 m_GoToHistory.RemoveRange(m_GoToHistoryIndex + 1, m_GoToHistory.Count - m_GoToHistoryIndex - 1);
