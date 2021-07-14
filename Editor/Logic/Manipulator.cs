@@ -244,6 +244,7 @@ namespace RemoteFileExplorer.Editor
                 {
                     msg = string.Format(Constants.PathKeyNotExistTip, path, (rsp as QueryPathKeyInfo.Rsp).Path);
                 }
+                Log.Debug(msg);
                 EditorUtility.DisplayDialog(Constants.WindowTitle, msg, Constants.OkText);
                 yield break;
             }
@@ -560,6 +561,7 @@ namespace RemoteFileExplorer.Editor
         {
             if (!string.IsNullOrEmpty(command.Error))
             {
+                Log.Error(tip + command.Error);
                 EditorUtility.DisplayDialog(Constants.WindowTitle, tip + command.Error, Constants.OkText);
                 return false;
             }

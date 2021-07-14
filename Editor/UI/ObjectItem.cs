@@ -136,7 +136,6 @@ namespace RemoteFileExplorer.Editor.UI
                 return true;  // Label仍未初始化完成，将在OnGeometryChanged时重新计算
             }
             float width = objectLabel.MeasureTextSize(text, rect.width, MeasureMode.AtMost, rect.height, MeasureMode.AtMost).x;
-            Debug.Log(width + "       saa " + rect.width);
             return width < rect.width;
         }
 

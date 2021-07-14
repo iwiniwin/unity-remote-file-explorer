@@ -173,7 +173,6 @@ namespace RemoteFileExplorer
                     }
                     return;
                 }
-                // Debug.Log(readLength + " read length");
                 if(readLength == 0)  // 主动断开
                 {
                     Close();

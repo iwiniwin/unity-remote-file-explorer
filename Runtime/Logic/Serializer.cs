@@ -76,7 +76,7 @@ namespace RemoteFileExplorer
             }
             else
             {
-                Debug.LogError("receive unknown command : " + package.Head.Type);
+                Log.Error("receive unknown command : " + package.Head.Type);
             }
             return command;
         }
