@@ -44,6 +44,7 @@ namespace RemoteFileExplorer.Editor.UI
             m_Grid.minHorizontalSpacing = 10;
             m_Grid.verticalSpacing = 10;
             m_Grid.topMargin = 10;
+            RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
             RegisterCallback<MouseDownEvent>(OnMouseDown);
             RegisterCallback<MouseUpEvent>(OnMouseUp);
 
@@ -55,6 +56,7 @@ namespace RemoteFileExplorer.Editor.UI
 
         public void UpdateView(List<ObjectData> list)
         {
+            if(list == null) return;
             m_CurSelectItem = null;
             m_Data = list;
 
@@ -108,6 +110,11 @@ namespace RemoteFileExplorer.Editor.UI
         public ObjectItem GetSelectItem()
         {
             return m_CurSelectItem;
+        }
+
+        private void OnGeometryChanged(GeometryChangedEvent e)
+        {
+            UpdateView(m_Data);
         }
 
         private void OnMouseDown(MouseDownEvent e)
