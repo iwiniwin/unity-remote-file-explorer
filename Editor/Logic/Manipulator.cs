@@ -436,6 +436,7 @@ namespace RemoteFileExplorer.Editor
             string curGoToPath = curPath;
             foreach (string path in paths)
             {
+                CallBeforeUploadMethods(path);
                 string error = null;
                 string[] directories = null;
                 string[] files = null;
@@ -511,6 +512,15 @@ namespace RemoteFileExplorer.Editor
                 {
                     EditorUtility.DisplayDialog(Constants.WindowTitle, string.Format(Constants.UploadFailedTip, path) + error, Constants.OkText);
                 }
+            }
+        }
+
+        private void CallBeforeUploadMethods(string path)
+        {
+            var methods = EditorReflection.GetBeforeUploadMethods();
+            foreach(var method in methods)
+            {
+                method.Invoke(null, new object[] { path });
             }
         }
 
