@@ -13,6 +13,8 @@ namespace RemoteFileExplorer.Editor
         public string m_CurPath;
 
         private const string CacheKey = "RemoteFileExplorer_Cache_GoTo";
+        private const string JarTag = "jar:file://";
+        private const string ApkTag = "base.apk!";
         private List<string> m_GoToHistory = new List<string>();
         private int m_GoToHistoryIndex = -1;
         private Coroutine m_GoToCoroutine;
@@ -182,7 +184,7 @@ namespace RemoteFileExplorer.Editor
                 if(string.IsNullOrEmpty(dest)) return;
                 dest = FileUtil.CombinePath(dest, Path.GetFileName(path));
             }
-            Coroutines.Start(Internal_Download(path, dest));
+            Coroutines.Start(Internal_Download(path, dest, false));
         }
 
         public void Delete(ObjectItem item)
@@ -267,15 +269,18 @@ namespace RemoteFileExplorer.Editor
             var rsp = handle.Command as QueryPathInfo.Rsp;
             if (!rsp.Exists)
             {
-                string msg = string.Format(Constants.PathNotExistTip, path);
+                string realPath = path;
                 if(rsp is QueryPathKeyInfo.Rsp)
                 {
-                    msg = string.Format(Constants.PathKeyNotExistTip, path, (rsp as QueryPathKeyInfo.Rsp).Path);
+                    realPath = (rsp as QueryPathKeyInfo.Rsp).Path;
                 }
-                Log.Debug(msg);
-                if(!silent)
+                if(realPath.StartsWith(JarTag) && realPath.Contains(ApkTag))
                 {
-                    EditorUtility.DisplayDialog(Constants.WindowTitle, msg, Constants.OkText);
+                    yield return Internal_GoToApkFile(path, realPath, isKey, record, silent);
+                }
+                else
+                {
+                    Internal_OnPathNotExist(path, realPath, isKey, silent);
                 }
                 yield break;
             }
@@ -305,11 +310,39 @@ namespace RemoteFileExplorer.Editor
         }
 
         /// <summary>
+        /// 专用于处理Android平台 Application.streamingAssetsPath 的读写问题
+        /// jar:file:///data/app/package_name/base.apk!/assets
+        /// </summary>
+        private IEnumerator Internal_GoToApkFile(string path, string realPath, bool isKey, bool record, bool silent)
+        {
+            // TODO
+            // string filePath = realPath.Substring(JarTag.Length, realPath.IndexOf(ApkTag) - JarTag.Length + ApkTag.Length - 1);
+            // 计算MD5 判断缓存是否有，有则使用缓存，无则下载
+            // yield return Internal_Download(filePath, dest, true);
+            Internal_OnPathNotExist(path, realPath, isKey, silent);
+            yield break;
+        }
+
+        private void Internal_OnPathNotExist(string path, string realPath, bool isKey, bool silent)
+        {
+            string msg = string.Format(Constants.PathNotExistTip, path);
+            if(isKey)
+            {
+                msg = string.Format(Constants.PathKeyNotExistTip, path, realPath);
+            }
+            Log.Debug(msg);
+            if(!silent)
+            {
+                EditorUtility.DisplayDialog(Constants.WindowTitle, msg, Constants.OkText);
+            }
+        }
+
+        /// <summary>
         /// 下载
         /// </summary>
-        private IEnumerator Internal_Download(string path, string dest)
+        private IEnumerator Internal_Download(string path, string dest, bool silent)
         {
-            if (!CheckConnectStatus()) yield break;
+            if (!CheckConnectStatus(!silent)) yield break;
             var req = new Pull.Req
             {
                 Path = path,
@@ -317,7 +350,7 @@ namespace RemoteFileExplorer.Editor
             CommandHandle handle = m_Owner.m_Server.Send(req);
             yield return handle;
             string downloadFailedTip = string.Format(Constants.DownloadFailedTip, path);
-            while (CheckHandleError(handle, downloadFailedTip) && CheckCommandError(handle.Command, downloadFailedTip))
+            while (CheckHandleError(handle, downloadFailedTip, !silent) && CheckCommandError(handle.Command, downloadFailedTip, !silent))
             {
                 if (handle.Command is CreateDirectory.Req)
                 {
@@ -342,7 +375,7 @@ namespace RemoteFileExplorer.Editor
                         rsp.Error = e.Message;
                     }
                     m_Owner.m_Server.Send(rsp);
-                    if (!CheckCommandError(rsp, downloadFailedTip))
+                    if (!CheckCommandError(rsp, downloadFailedTip, !silent))
                     {
                         yield break;
                     }
@@ -365,7 +398,7 @@ namespace RemoteFileExplorer.Editor
                         rsp.Error = e.Message;
                     }
                     m_Owner.m_Server.Send(rsp);
-                    if (!CheckCommandError(rsp, downloadFailedTip))
+                    if (!CheckCommandError(rsp, downloadFailedTip, !silent))
                     {
                         yield break;
                     }
@@ -374,12 +407,18 @@ namespace RemoteFileExplorer.Editor
                 }
                 else if (handle.Command is Pull.Rsp)
                 {
-                    EditorUtility.DisplayDialog(Constants.WindowTitle, string.Format(Constants.DownloadSuccessTip, path), Constants.OkText);
+                    if(!silent)
+                    {
+                        EditorUtility.DisplayDialog(Constants.WindowTitle, string.Format(Constants.DownloadSuccessTip, path), Constants.OkText);
+                    }
                     yield break;
                 }
                 else
                 {
-                    EditorUtility.DisplayDialog(Constants.WindowTitle, downloadFailedTip + Constants.UnknownError, Constants.OkText);
+                    if(!silent)
+                    {
+                        EditorUtility.DisplayDialog(Constants.WindowTitle, downloadFailedTip + Constants.UnknownError, Constants.OkText);
+                    }
                     yield break;
                 }
             }
