@@ -31,6 +31,7 @@ namespace RemoteFileExplorer.Editor
 
         public const string UnknownText = "Unknown";
         public const string OkText = "Ok";
+        public const string RevealInExplorerText = "Reveal In Finder";
         public const string CancelText = "Cancel";
     }
 }

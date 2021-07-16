@@ -409,7 +409,12 @@ namespace RemoteFileExplorer.Editor
                 {
                     if(!silent)
                     {
-                        EditorUtility.DisplayDialog(Constants.WindowTitle, string.Format(Constants.DownloadSuccessTip, path), Constants.OkText);
+                        string msg = string.Format(Constants.DownloadSuccessTip, path);
+                        bool revealInExplorer = EditorUtility.DisplayDialog(Constants.WindowTitle, msg, Constants.RevealInExplorerText, Constants.OkText);
+                        if(revealInExplorer)
+                        {
+                            EditorUtility.RevealInFinder(dest);
+                        }
                     }
                     yield break;
                 }
