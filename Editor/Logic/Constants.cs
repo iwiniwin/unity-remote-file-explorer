@@ -19,6 +19,7 @@ namespace RemoteFileExplorer.Editor
         public const string UploadConfirmTip = "Are you sure to upload the following directories or files:{0}{1}\nTo:{0}{2}?";
         public const string UploadFailedTip = "Upload \"{0}\" failed. ";
         public const string UploadSuccessTip = "Upload \"{0}\" successfully";
+        public const string BeforeUploadCallTip = "before upload call : \"{0}\"";
         public const string NoDestPathTip = "Please go to the destination first";
 
         public const string DeleteConfirmTip = "Are you sure you want to delete \"{0}\"?";

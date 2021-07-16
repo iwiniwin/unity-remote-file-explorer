@@ -35,11 +35,11 @@ namespace RemoteFileExplorer.Editor
         {
             List<MethodInfo> methods = GetMethods<BeforeUploadAttribute>(method =>
             {
-                var attribute = method.GetCustomAttribute<BeforeUploadAttribute>();
                 if (!(method.IsPublic && method.IsStatic))
                     return false;
                 var parameters = method.GetParameters();
-                if (!(parameters.Length == 1 && parameters[0].ParameterType == typeof(string)))
+                if (!(parameters.Length == 2 && parameters[0].ParameterType == typeof(string))
+                    && parameters[1].ParameterType == typeof(string))
                 {
                     return false;
                 }
@@ -47,6 +47,20 @@ namespace RemoteFileExplorer.Editor
             });
             methods.Sort(new ProcessMethodComparer());
             return methods;
+        }
+
+        public static void CallBeforeUploadMethods(string path, string dest)
+        {
+            var methods = EditorReflection.GetBeforeUploadMethods();
+            foreach(var method in methods)
+            {
+                var attribute = method.GetCustomAttribute<BeforeUploadAttribute>();
+                if(attribute.Validate(path, dest))
+                {
+                    Log.Debug(string.Format(Constants.BeforeUploadCallTip, attribute.description));
+                    method.Invoke(null, new object[] { path, dest });
+                }
+            }
         }
     }
 
