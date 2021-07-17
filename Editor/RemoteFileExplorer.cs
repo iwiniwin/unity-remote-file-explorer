@@ -266,9 +266,10 @@ namespace RemoteFileExplorer.Editor
 
         public void OnConnectStatusChanged(ConnectStatus status)
         {
+            Log.Debug("Server connect status changed : " + status);
             if(m_Manipulator != null)
             {
-                m_Manipulator.UpdateStatusInfo();
+                m_Manipulator.UpdateStatusInfo(status);
             }
         }
 

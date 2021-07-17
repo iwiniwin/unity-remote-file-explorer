@@ -34,7 +34,7 @@ namespace RemoteFileExplorer
 
         public void StartConnect(float delay)
         {
-            Coroutines.Start(Internal_StartConnect(delay));
+            Coroutines.Start(Internal_StartConnect(delay), this);
         }
 
         private IEnumerator Internal_StartConnect(float delay)
@@ -58,7 +58,7 @@ namespace RemoteFileExplorer
 
         public void OnConnectStatusChanged(ConnectStatus status)
         {
-            Log.Debug("On connect status changed : " + status);
+            Log.Debug("Clinet connect status changed : " + status);
             if(status == ConnectStatus.Disconnect)
             {
                 if(autoReconnect)
@@ -72,6 +72,9 @@ namespace RemoteFileExplorer
         {
             if (m_Client != null)
             {
+                Coroutines.StopAll(this);
+                m_Client.OnReceiveCommand -= OnReceiveCommand;
+                m_Client.OnConnectStatusChanged -= OnConnectStatusChanged;
                 m_Client.Close();
             }
         }

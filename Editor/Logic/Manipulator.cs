@@ -37,9 +37,9 @@ namespace RemoteFileExplorer.Editor
             m_Owner = owner;
         }
 
-        public void UpdateStatusInfo()
+        public void UpdateStatusInfo(ConnectStatus status)
         {
-            Coroutines.Start(Internal_UpdateStatusInfo());
+            Coroutines.Start(Internal_UpdateStatusInfo(status));
         }
 
         public void Refresh()
@@ -564,11 +564,15 @@ namespace RemoteFileExplorer.Editor
             EditorUtility.DisplayDialog(Constants.WindowTitle, string.Format(Constants.RenameSuccessTip, path), Constants.OkText);
         }
 
-        private IEnumerator Internal_UpdateStatusInfo()
+        private IEnumerator Internal_UpdateStatusInfo(ConnectStatus status)
         {
-            if (!CheckConnectStatus(false))
+            yield return null;  // 下一帧执行，保证在主线程更新UI
+            if(status != ConnectStatus.Connecting)
             {
-                yield return null;  // 下一帧执行，保证在主线程更新UI
+                m_Owner.Focus();
+            }
+            if (status != ConnectStatus.Connected)
+            {
                 m_Owner.m_DeviceNameLabel.text = Constants.UnknownText;
                 m_Owner.m_DeviceModelLabel.text = Constants.UnknownText;
                 m_Owner.m_DeviceSystemLabel.text = Constants.UnknownText;
