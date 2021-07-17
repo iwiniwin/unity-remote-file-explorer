@@ -163,7 +163,7 @@ namespace RemoteFileExplorer
                 for (int i = coroutines.Count - 1; i >= 0; i--)
                 {
                     Coroutine coroutine = coroutines[i];
-                    if(!coroutine.CurrentYield.IsDone())
+                    if(!coroutine.CurrentYield.IsDone(dt))
                     {
                         continue;
                     }
@@ -255,12 +255,12 @@ namespace RemoteFileExplorer
 
     public interface ICoroutineYield
     {
-        bool IsDone();
+        bool IsDone(float dt);
     }
 
     public class YieldDefault : ICoroutineYield
     {
-        public bool IsDone()
+        public bool IsDone(float dt)
         {
             return true;
         }
@@ -269,9 +269,23 @@ namespace RemoteFileExplorer
     public class YieldNestedCoroutine : ICoroutineYield
     {
         public Coroutine coroutine;
-        public bool IsDone()
+        public bool IsDone(float dt)
         {
             return coroutine.Finished;
+        }
+    }
+
+    public class YieldWaitForSeconds : ICoroutineYield
+    {
+        private float timeLeft = 0;
+        public YieldWaitForSeconds(float timeLeft)
+        {
+            this.timeLeft = timeLeft;
+        }
+        public bool IsDone(float dt)
+        {
+            timeLeft -= dt;
+            return timeLeft <= 0;
         }
     }
 }
