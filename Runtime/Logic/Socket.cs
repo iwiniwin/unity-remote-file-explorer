@@ -56,7 +56,7 @@ namespace RemoteFileExplorer
     public class CommandHandle : ICoroutineYield
     {
         public bool Finished = false;
-        public bool IsDone()
+        public bool IsDone(float dt)
         {
             return Finished;
         }
