@@ -35,7 +35,7 @@ namespace RemoteFileExplorer.Editor
         public Image m_PrevImage;
         public Image m_NextImage;
 
-        [MenuItem("Window/Analysis/Remote File Explorer", priority = 5)]
+        [MenuItem("Window/Remote File Explorer", priority = 5)]
         public static void ShowWindow()
         {
             GetWindow<RemoteFileExplorerWindow>();

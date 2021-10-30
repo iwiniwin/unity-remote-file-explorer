@@ -1,17 +1,36 @@
 using UnityEngine;
 using System.Collections;
+using System.Net;
 
 namespace RemoteFileExplorer
 {
     public class FileExplorerClient : MonoBehaviour
     {
+        private static FileExplorerClient instance = null;
+        public static FileExplorerClient Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = GameObject.FindObjectOfType<FileExplorerClient>();
+                    if (instance == null)
+                    {
+                        GameObject go = new GameObject(typeof(FileExplorerClient).Name);
+                        instance = go.AddComponent<FileExplorerClient>();
+                    }
+                }
+                return instance;
+            }
+        }
+
         private Client m_Client;
         private Robot m_Robot;
         public string host;
         public readonly int port = 8243;
         public bool connectOnStart;
         [Tooltip("Whether to automatically reconnect after disconnection")]
-        public bool autoReconnect = true;
+        public bool autoReconnect = false;
         public float reconnectInterval = 1;
 
         private void Start()
@@ -77,6 +96,64 @@ namespace RemoteFileExplorer
                 m_Client.OnConnectStatusChanged -= OnConnectStatusChanged;
                 m_Client.Close();
             }
+        }
+
+        private bool showWindow = false;
+        public void OpenConnectWindow()
+        {
+            showWindow = true;
+        }
+        
+        private static int windowWidth = Screen.width / 3;
+        private static int windowHeight = windowWidth / 2;
+        Rect windowRect = new Rect (Screen.width/2 - windowWidth / 2, Screen.height/2 - windowHeight / 2, windowWidth, windowHeight);
+        void OnGUI()
+        {
+            if(showWindow)
+            {
+                windowRect = GUILayout.Window(0, windowRect, DoMyWindow, "");
+            }
+        }
+
+        private string hostText;
+        private IPAddress address;
+        void DoMyWindow(int windowID)
+        {
+            int fontSize = 20;
+            var labelStyle = new GUIStyle(GUI.skin.label){
+                fontSize = fontSize,
+            };
+            labelStyle.normal.textColor = Color.white;
+            var textFieldStyle = new GUIStyle(GUI.skin.textField){
+                fontSize = fontSize,
+            };
+            var buttonStyle = new GUIStyle(GUI.skin.button){
+                fontSize = fontSize,
+            };
+
+            int groupHeight = windowHeight / 5;
+            GUILayout.Label("Enter Host to Connect: ", labelStyle);
+            hostText = GUILayout.TextField(hostText ?? host, textFieldStyle);
+
+            GUILayout.FlexibleSpace();
+
+            GUILayout.BeginHorizontal();
+            if(GUILayout.Button("Cancel", buttonStyle)){
+                showWindow = false;
+            }
+            if(GUILayout.Button("Connect", buttonStyle)){
+                if(IPAddress.TryParse(hostText, out address))
+                {
+                    host = hostText;
+                    showWindow = false;
+                    this.StartConnect();
+                }
+                else
+                {
+                    hostText = "";
+                }
+            }
+            GUILayout.EndHorizontal();
         }
     }
 }
