@@ -56,13 +56,12 @@ namespace RemoteFileExplorer.Editor.UI
         {
             m_Data = data;
             UpdateText(data.path);
-            UpdateState(data.state);
+            UpdateState();
         }
 
-        public void UpdateState(ObjectState state)
+        public void UpdateState()
         {
-            m_Data.state = state;
-            switch (state)
+            switch (m_Data.state)
             {
                 case ObjectState.Normal:
                     if(EditorGUIUtility.isProSkin)

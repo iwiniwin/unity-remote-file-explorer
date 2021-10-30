@@ -17,7 +17,7 @@ namespace RemoteFileExplorer.Editor.UI
         private VisualElement m_Content;
         private Label m_EmptyLabel;
 
-        private ObjectItem m_CurSelectItem;
+        private ObjectData m_CurSelectData;
 
         public Action<ObjectItem> clickItemCallback;
         public Action<ObjectItem> doubleClickItemCallback;
@@ -44,6 +44,7 @@ namespace RemoteFileExplorer.Editor.UI
             m_Grid.minHorizontalSpacing = 10;
             m_Grid.verticalSpacing = 10;
             m_Grid.topMargin = 10;
+            this.verticalScroller.valueChanged += OnScrollValueChanged;
             RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
             RegisterCallback<MouseDownEvent>(OnMouseDown);
             RegisterCallback<MouseUpEvent>(OnMouseUp);
@@ -57,7 +58,7 @@ namespace RemoteFileExplorer.Editor.UI
         public void UpdateView(List<ObjectData> list)
         {
             if(list == null) return;
-            m_CurSelectItem = null;
+            m_CurSelectData = null;
             m_Data = list;
 
             if (list.Count == 0)
@@ -69,14 +70,27 @@ namespace RemoteFileExplorer.Editor.UI
             m_EmptyLabel.style.display = DisplayStyle.None;
             m_Content.style.display = DisplayStyle.Flex;
 
-            m_Content.Clear();
             m_Grid.fixedWidth = this.contentRect.width;
+            m_Grid.fixedHeight = this.contentRect.height;
             m_Grid.InitNumRowsAndColumns(list.Count);
             m_Content.style.width = m_Grid.fixedWidth;
             m_Content.style.height = m_Grid.height;
 
+            DrawContent(0);
+        }
 
-            for (int i = 0; i < list.Count; i++)
+        public void OnScrollValueChanged(float value)
+        {
+            DrawContent(value);
+        }
+
+        public void DrawContent(float offset)
+        {
+            m_Content.Clear();
+            m_Items.Clear();
+            int startIdx, endIdx;
+            m_Grid.CalcVisibleItemIdx(offset, out startIdx, out endIdx);
+            for(int i = startIdx; i <= endIdx; i ++)
             {
                 Rect rect = m_Grid.CalcRect(i);
                 var item = new ObjectItem(m_Grid.itemSize);
@@ -96,20 +110,28 @@ namespace RemoteFileExplorer.Editor.UI
 
         public void SetSelectItem(ObjectItem item)
         {
-            if (m_CurSelectItem != null && m_CurSelectItem != item)
+            if (m_CurSelectData != null && (item == null || m_CurSelectData != item.Data))
             {
-                m_CurSelectItem.UpdateState(ObjectState.Normal);
+                m_CurSelectData.state = ObjectState.Normal;
+                foreach(var lastItem in m_Items)
+                {
+                    if(lastItem.Data == m_CurSelectData)
+                    {
+                        lastItem.UpdateState();
+                    }
+                }
             }
-            m_CurSelectItem = item;
-            if (m_CurSelectItem != null)
+            m_CurSelectData = item?.Data;
+            if (m_CurSelectData != null)
             {
-                m_CurSelectItem.UpdateState(ObjectState.Selected);
+                m_CurSelectData.state = ObjectState.Selected;
+                item.UpdateState();
             }
         }
 
-        public ObjectItem GetSelectItem()
+        public ObjectData GetSelectData()
         {
-            return m_CurSelectItem;
+            return m_CurSelectData;
         }
 
         private void OnGeometryChanged(GeometryChangedEvent e)
@@ -173,10 +195,11 @@ namespace RemoteFileExplorer.Editor.UI
 
         public int columns { get { return m_Columns; } }
         public int rows { get { return m_Rows; } }
-        public float height { get { return m_Height; } }
+        public float height { get { return m_Height; } }  // 内容实际高度
         public float horizontalSpacing { get { return m_HorizontalSpacing; } }
 
-        public float fixedWidth { get; set; }
+        public float fixedWidth { get; set; }  // 视图宽度
+        public float fixedHeight { get; set; }  // 视图高度
         public Vector2 itemSize { get; set; }
         public float verticalSpacing { get; set; }
         public float minHorizontalSpacing { get; set; }
@@ -186,11 +209,13 @@ namespace RemoteFileExplorer.Editor.UI
         public float leftMargin { get; set; }
         public float fixedHorizontalSpacing { get; set; }
         public bool useFixedHorizontalSpacing { get; set; }
+        private int itemCount;
 
         public void InitNumRowsAndColumns(int itemCount)
         {
+            this.itemCount = itemCount;
             m_Columns = CalcColumns();
-            m_Rows = CalcRows(itemCount);
+            m_Rows = CalcRows();
             if (useFixedHorizontalSpacing)
             {
                 m_HorizontalSpacing = fixedHorizontalSpacing;
@@ -214,9 +239,9 @@ namespace RemoteFileExplorer.Editor.UI
             return cols;
         }
 
-        public int CalcRows(int itemCount)
+        public int CalcRows()
         {
-            return (int)Mathf.Ceil(itemCount / (float)CalcColumns());
+            return (int)Mathf.Ceil(this.itemCount / (float)CalcColumns());
         }
 
         public Rect CalcRect(int itemIdx)
@@ -237,6 +262,26 @@ namespace RemoteFileExplorer.Editor.UI
                     itemSize.x,
                     itemSize.y);
             }
+        }
+
+        public void CalcVisibleItemIdx(float offset, out int startIdx, out int endIdx)
+        {
+            startIdx = 0;
+            endIdx = 0;
+            if(offset > topMargin)
+            {
+                float overflowHeight = offset - topMargin;
+                int overflowRow = (int)Mathf.Ceil(overflowHeight / (itemSize.y + verticalSpacing));
+                if(overflowRow < m_Rows && (overflowRow * (itemSize.y + verticalSpacing) - verticalSpacing) < overflowHeight)
+                {
+                    overflowRow ++;
+                }
+                startIdx = (overflowRow - 1) * m_Columns;
+            }
+            float containHeight = offset + fixedHeight - topMargin;
+            int containRow = (int)Mathf.Ceil(containHeight / (itemSize.y + verticalSpacing));
+            endIdx = containRow * m_Columns - 1;
+            endIdx = endIdx < itemCount ? endIdx : itemCount - 1;
         }
     }
 }

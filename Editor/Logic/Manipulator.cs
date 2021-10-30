@@ -155,10 +155,10 @@ namespace RemoteFileExplorer.Editor
         /// </summary>
         public void Select()
         {
-            ObjectItem item = m_Owner.m_ObjectListArea.GetSelectItem();
-            if (item != null)
+            var data = m_Owner.m_ObjectListArea.GetSelectData();
+            if (data != null)
             {
-                curPath = Path.GetDirectoryName(item.Data.path);
+                curPath = Path.GetDirectoryName(data.path);
             }
             m_Owner.m_ObjectListArea.SetSelectItem(null);
         }
@@ -218,10 +218,10 @@ namespace RemoteFileExplorer.Editor
         public void Upload(string[] paths)
         {
             string dest = curPath;
-            ObjectItem item = m_Owner.m_ObjectListArea.GetSelectItem();
-            if (item != null)
+            var data = m_Owner.m_ObjectListArea.GetSelectData();
+            if (data != null)
             {
-                dest = Path.GetDirectoryName(item.Data.path);
+                dest = Path.GetDirectoryName(data.path);
             }
             if (string.IsNullOrEmpty(dest))
             {
