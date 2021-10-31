@@ -76,6 +76,7 @@ namespace RemoteFileExplorer.Editor.UI
             m_Content.style.width = m_Grid.fixedWidth;
             m_Content.style.height = m_Grid.height;
 
+            this.scrollOffset = Vector2.zero;
             DrawContent(0);
         }
 
