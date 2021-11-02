@@ -147,7 +147,7 @@ namespace RemoteFileExplorer.Editor
         {
             var data = item.Data;
             curPath = data.path;
-            m_Owner.m_ObjectListArea.SetSelectItem(item);
+            m_Owner.m_ObjectListArea.SetSelectData(data);
         }
 
         /// <summary>
@@ -160,7 +160,7 @@ namespace RemoteFileExplorer.Editor
             {
                 curPath = Path.GetDirectoryName(data.path);
             }
-            m_Owner.m_ObjectListArea.SetSelectItem(null);
+            m_Owner.m_ObjectListArea.SetSelectData(null);
         }
 
         public void Download(ObjectItem item)
@@ -195,6 +195,42 @@ namespace RemoteFileExplorer.Editor
         public void Rename(ObjectItem item)
         {
             // Coroutines.Start(Internal_Rename(item.Data.path));
+        }
+
+        private static string DefaultNewFolderName = "NewFolder";
+        private Comparison<ObjectData> compareFunc = (x, y) => {
+            if((x.type <= ObjectType.TempFile) != (y.type <= ObjectType.TempFile))
+            {
+                return x.type <= ObjectType.TempFile ? 1 : -1;
+            }
+            return x.path.CompareTo(y.path);
+        };
+        public void StartNewFolder()
+        {
+            if(string.IsNullOrEmpty(curPath)) return;
+            if (!CheckConnectStatus()) return;
+            var list = m_Owner.m_ObjectListArea.GetAllData();
+            var data = new ObjectData(ObjectType.TempFolder, FileUtil.CombinePath(curPath, DefaultNewFolderName), ObjectState.Editing);
+            list.Add(data);
+            list.Sort(compareFunc);
+            m_Owner.m_ObjectListArea.UpdateView(list);
+        }
+
+        public void EndNewFolder(ObjectItem item, string value)
+        {
+            if(item.Data.state != ObjectState.Editing)
+            {
+                return;
+            }
+            if(string.IsNullOrEmpty(value))
+            {
+                value = DefaultNewFolderName;
+            }
+            string path = FileUtil.CombinePath(curPath, value);
+            var list = m_Owner.m_ObjectListArea.GetAllData();
+            list.Remove(item.Data);  // 移除临时文件夹视图
+            m_Owner.m_ObjectListArea.UpdateView(list);
+            Coroutines.Start(Internal_NewFolder(path));
         }
 
         public void UploadFile()
@@ -545,6 +581,24 @@ namespace RemoteFileExplorer.Editor
                 GoTo(Directory.GetParent(curPath).ToString(), false, false, false);  // 刷新
             }
             EditorUtility.DisplayDialog(Constants.WindowTitle, string.Format(Constants.DeleteSuccessTip, path), Constants.OkText);
+        }
+
+        private IEnumerator Internal_NewFolder(string path)
+        {
+            if (!CheckConnectStatus()) yield break;
+            var req = new NewFolder.Req(){
+                Path = path,
+            };
+            CommandHandle handle = m_Owner.m_Server.Send(req);
+            yield return handle;
+            string newFolderFailedTip = string.Format(Constants.NewFolderFailedTip, path);
+            UnityEngine.Debug.Log("[Lei] curpath" + " " + curPath);
+            if (!CheckHandleError(handle, newFolderFailedTip) || !CheckCommandError(handle.Command, newFolderFailedTip))
+            {
+                GoTo(curPath, false, false, false);  // 新建文件夹失败，刷新界面，移除预创建的文件夹视图
+                yield break;
+            }
+            GoTo(curPath, false, false, false);  // 新建文件夹成功，不做提醒
         }
 
         private IEnumerator Internal_Rename(string path, string newPath)

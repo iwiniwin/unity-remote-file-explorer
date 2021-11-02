@@ -104,6 +104,10 @@ namespace RemoteFileExplorer
             {
                 Coroutines.Start(ProcessDownloadReq(command as Pull.Req));
             }
+            else if(command is NewFolder.Req)
+            {
+                ProcessNewFolderReq(command as NewFolder.Req);
+            }
         }
 
         private void ProcessTransferFileReq(TransferFile.Req req)
@@ -189,6 +193,24 @@ namespace RemoteFileExplorer
                 {
                     Directory.Move(path, newPath);
                 }
+            }
+            catch (Exception e)
+            {
+                rsp.Error = e.Message;
+            }
+            m_Socket.Send(rsp);
+        }
+
+        private void ProcessNewFolderReq(NewFolder.Req req)
+        {
+            string path = req.Path;
+            NewFolder.Rsp rsp = new NewFolder.Rsp()
+            {
+                Ack = req.Seq,
+            };
+            try
+            {
+                Directory.CreateDirectory(path);
             }
             catch (Exception e)
             {

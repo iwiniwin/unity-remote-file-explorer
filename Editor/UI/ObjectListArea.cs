@@ -22,6 +22,7 @@ namespace RemoteFileExplorer.Editor.UI
         public Action<ObjectItem> clickItemCallback;
         public Action<ObjectItem> doubleClickItemCallback;
         public Action<ObjectItem> rightClickItemCallback;
+        public Action<ObjectItem, string> completeInputCallback;
         public Action clickEmptyAreaCallback;
         public Action rightClickEmptyAreaCallback;
         public Action<string[]> receiveDragPerformCallback;
@@ -102,6 +103,7 @@ namespace RemoteFileExplorer.Editor.UI
                 item.clickItemCallback += clickItemCallback;
                 item.doubleClickItemCallback += doubleClickItemCallback;
                 item.rightClickItemCallback += rightClickItemCallback;
+                item.completeInputCallback += completeInputCallback;
 
                 item.UpdateView(m_Data[i]);
                 m_Items.Add(item);
@@ -109,30 +111,49 @@ namespace RemoteFileExplorer.Editor.UI
             }
         }
 
-        public void SetSelectItem(ObjectItem item)
+        public void SetSelectData(ObjectData data)
         {
-            if (m_CurSelectData != null && (item == null || m_CurSelectData != item.Data))
+            if (m_CurSelectData != null && m_CurSelectData != data)
             {
                 m_CurSelectData.state = ObjectState.Normal;
-                foreach(var lastItem in m_Items)
+                var lastItem = GetItemByData(m_CurSelectData);
+                if(lastItem != null)
                 {
-                    if(lastItem.Data == m_CurSelectData)
-                    {
-                        lastItem.UpdateState();
-                    }
+                    lastItem.UpdateState();
                 }
             }
-            m_CurSelectData = item?.Data;
+            m_CurSelectData = data;
             if (m_CurSelectData != null)
             {
                 m_CurSelectData.state = ObjectState.Selected;
-                item.UpdateState();
+                var item = GetItemByData(m_CurSelectData);
+                if(item != null)
+                {
+                    item.UpdateState();
+                }
             }
         }
 
         public ObjectData GetSelectData()
         {
             return m_CurSelectData;
+        }
+
+        public List<ObjectData> GetAllData()
+        {
+            return m_Data;
+        }
+
+        public ObjectItem GetItemByData(ObjectData data)
+        {
+            foreach(var item in m_Items)
+            {
+                if(item.Data == data)
+                {
+                    return item;
+                }
+            }
+            return null;
         }
 
         private void OnGeometryChanged(GeometryChangedEvent e)

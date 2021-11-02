@@ -90,6 +90,7 @@ namespace RemoteFileExplorer.Editor
             m_ObjectListArea.rightClickItemCallback += OpenRightClickMenu;
             m_ObjectListArea.rightClickEmptyAreaCallback += OpenRightClickEmptyAreaMenu;
             m_ObjectListArea.receiveDragPerformCallback += m_Manipulator.Upload;
+            m_ObjectListArea.completeInputCallback += OnEndInput;
             objectListPlaceHolder.Add(m_ObjectListArea);
 
             m_StatsToggle = root.Q<ToolbarToggle>("statsToggle");
@@ -200,6 +201,14 @@ namespace RemoteFileExplorer.Editor
             menu.ShowAsContext();
         }
 
+        void OnEndInput(ObjectItem item, string value)
+        {
+            if(item.Data?.type == ObjectType.TempFolder)
+            {
+                m_Manipulator.EndNewFolder(item, value);
+            }
+        }
+
         void OpenRightClickEmptyAreaMenu()
         {
             if(string.IsNullOrEmpty(m_Manipulator.curPath)) return;
@@ -209,6 +218,10 @@ namespace RemoteFileExplorer.Editor
                 m_Manipulator.Refresh();
             });
             menu.AddSeparator("");
+            menu.AddItem(new GUIContent("New Folder"), false, () =>
+            {
+                m_Manipulator.StartNewFolder();
+            });
             menu.AddItem(new GUIContent("Upload File"), false, () =>
             {
                 m_Manipulator.UploadFile();

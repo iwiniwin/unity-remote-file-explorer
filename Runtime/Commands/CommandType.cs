@@ -18,6 +18,8 @@ namespace RemoteFileExplorer
         RenameRsp,
         QueryDeviceInfoReq,
         QueryDeviceInfoRsp,
+        NewFolderReq,
+        NewFolderRsp,
     }
 
     public static class CommandTypeExtend

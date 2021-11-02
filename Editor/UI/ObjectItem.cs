@@ -12,11 +12,13 @@ namespace RemoteFileExplorer.Editor.UI
         public Action<ObjectItem> clickItemCallback;
         public Action<ObjectItem> doubleClickItemCallback;
         public Action<ObjectItem> rightClickItemCallback;
+        public Action<ObjectItem, string> completeInputCallback;
         const string k_UxmlFilesPath = "Packages/com.iwin.remotefileexplorer/Resources/UXML/ObjectItem.uxml";
 
         public VisualElement objectView { get; }
         public Image objectIcon { get; }
         public Label objectLabel { get; }
+        public TextField objectTextField { get; }
         private ObjectData m_Data;
         private Vector2 m_Size;
         public Vector2 Size
@@ -45,18 +47,54 @@ namespace RemoteFileExplorer.Editor.UI
 
             objectView = this.Q<VisualElement>("objectView");
             objectIcon = this.Q<Image>("objectIcon");
-
+            objectTextField = this.Q<TextField>("objectTextField");
             objectLabel = this.Q<Label>("objectLabel");
-            this.RegisterCallback<GeometryChangedEvent>(this.OnGeometryChanged);
+
             this.RegisterCallback<MouseDownEvent>(this.OnMouseDown);
             this.RegisterCallback<MouseUpEvent>(this.OnMouseUp);
+
+            objectLabel.RegisterCallback<GeometryChangedEvent>(this.OnLabelGeometryChanged);
+            objectTextField.RegisterCallback<GeometryChangedEvent>(this.OnTextFieldGeometryChanged);
+
+            objectTextField.RegisterCallback<FocusOutEvent>((FocusOutEvent e) =>
+            {
+                if(completeInputCallback != null)
+                {
+                    completeInputCallback(this, objectTextField.value);
+                }
+            });
+            objectTextField.RegisterCallback<KeyDownEvent>(e =>
+            {
+                if (e.keyCode == KeyCode.Return || e.keyCode == KeyCode.KeypadEnter)
+                {
+                    if(completeInputCallback != null)
+                    {
+                        completeInputCallback(this, objectTextField.value);
+                    }
+                }
+            });
         }
 
         public void UpdateView(ObjectData data)
         {
             m_Data = data;
+            SwitchToEdit(data.state == ObjectState.Editing);
             UpdateText(data.path);
             UpdateState();
+        }
+
+        public void SwitchToEdit(bool edit)
+        {
+            if(edit)
+            {
+                objectLabel.style.display = DisplayStyle.None;
+                objectTextField.style.display = DisplayStyle.Flex;
+            }
+            else
+            {
+                objectLabel.style.display = DisplayStyle.Flex;
+                objectTextField.style.display = DisplayStyle.None;
+            }
         }
 
         public void UpdateState()
@@ -87,7 +125,7 @@ namespace RemoteFileExplorer.Editor.UI
         public Texture2D GetTexture()
         {
             string key = null;
-            if(m_Data.type == ObjectType.Folder)
+            if(m_Data.type == ObjectType.Folder || m_Data.type == ObjectType.TempFolder)
             {
                 key = "folder";
             }
@@ -138,9 +176,23 @@ namespace RemoteFileExplorer.Editor.UI
             return width < rect.width;
         }
 
-        public void OnGeometryChanged(GeometryChangedEvent e)
+        public void OnLabelGeometryChanged(GeometryChangedEvent e)
         {
-            UpdateText(m_Data.path);
+            if(m_Data.state != ObjectState.Editing)
+            {
+                UpdateText(m_Data.path);
+            }
+        }
+
+        public void OnTextFieldGeometryChanged(GeometryChangedEvent e)
+        {
+            if(m_Data.state == ObjectState.Editing)
+            {
+                objectTextField.value = Path.GetFileName(m_Data.path);
+                var l = objectTextField.Q<VisualElement>("unity-text-input");
+                l.Focus();
+                objectTextField.SelectAll();
+            }
         }
 
         public void OnMouseDown(MouseDownEvent e)
@@ -182,17 +234,16 @@ namespace RemoteFileExplorer.Editor.UI
     public enum ObjectType
     {
         File,
+        TempFile,
         Folder,
+        TempFolder,
     }
 
     public enum ObjectState
     {
         Normal,
         Selected,
-        Renaming,
-        Deleting,
-        Downloading,
-        Uploading,
+        Editing,
     }
 
     public class ObjectData
