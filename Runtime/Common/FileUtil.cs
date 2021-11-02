@@ -4,7 +4,7 @@ namespace RemoteFileExplorer
 {
     public class FileUtil
     {
-        public const string Separator = "/";
+        private static string Separator = Path.DirectorySeparatorChar.ToString();
 
         /// <summary>
         /// 获取所有子目录，包括自身
@@ -31,7 +31,10 @@ namespace RemoteFileExplorer
 
         public static string FixedPath(string path)
         {
-            return path.Replace("\\", Separator);
+            path = path.Replace("\\", Separator);
+            path = path.Replace("/", Separator);
+            if(path.EndsWith(Separator)) path = path.Substring(0, path.Length - 1);
+            return path;
         }
 
         public static string CombinePath(string path1, string path2)

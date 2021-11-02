@@ -592,7 +592,6 @@ namespace RemoteFileExplorer.Editor
             CommandHandle handle = m_Owner.m_Server.Send(req);
             yield return handle;
             string newFolderFailedTip = string.Format(Constants.NewFolderFailedTip, path);
-            UnityEngine.Debug.Log("[Lei] curpath" + " " + curPath);
             if (!CheckHandleError(handle, newFolderFailedTip) || !CheckCommandError(handle.Command, newFolderFailedTip))
             {
                 GoTo(curPath, false, false, false);  // 新建文件夹失败，刷新界面，移除预创建的文件夹视图
@@ -669,10 +668,9 @@ namespace RemoteFileExplorer.Editor
         public string ConvertPath(string src, string dest, string cur)
         {
             src = FileUtil.FixedPath(src);
-            if(src.EndsWith("/")) src = src.Substring(0, src.Length - 1);
             dest = FileUtil.FixedPath(dest);
             cur = FileUtil.FixedPath(cur);
-            return dest + cur.Replace(src, "");
+            return FileUtil.CombinePath(dest, cur.Replace(src, ""));
         }
 
         public bool CheckConnectStatus(bool displayDialog = true)
