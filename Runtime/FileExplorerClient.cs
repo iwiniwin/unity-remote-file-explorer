@@ -18,6 +18,7 @@ namespace RemoteFileExplorer
                     {
                         GameObject go = new GameObject(typeof(FileExplorerClient).Name);
                         instance = go.AddComponent<FileExplorerClient>();
+                        DontDestroyOnLoad(instance);
                     }
                 }
                 return instance;

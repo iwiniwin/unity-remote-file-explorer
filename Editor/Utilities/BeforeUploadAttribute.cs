@@ -22,14 +22,16 @@ namespace RemoteFileExplorer.Editor
         {
             if (!string.IsNullOrEmpty(this.IncludeSrc))
             {
-                if (!src.Contains(this.IncludeSrc))
+                src = FileUtil.FixedPath(src);
+                if (!src.Contains(FileUtil.FixedPath(this.IncludeSrc)))
                 {
                     return false;
                 }
             }
             if (!string.IsNullOrEmpty(this.IncludeDest))
             {
-                if (!dest.Contains(this.IncludeDest))
+                dest = FileUtil.FixedPath(dest);
+                if (!dest.Contains(FileUtil.FixedPath(this.IncludeDest)))
                 {
                     return false;
                 }
