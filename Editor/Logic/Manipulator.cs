@@ -504,8 +504,9 @@ namespace RemoteFileExplorer.Editor
                 yield break;
             }
             string curGoToPath = curPath;
-            foreach (string path in paths)
+            foreach (string p in paths)
             {
+                string path = FileUtil.FixedPath(p);
                 string error = null;
                 string[] directories = null;
                 string[] files = null;

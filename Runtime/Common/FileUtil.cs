@@ -39,7 +39,15 @@ namespace RemoteFileExplorer
 
         public static string CombinePath(string path1, string path2)
         {
-            return path1 + Separator + path2;
+            if(string.IsNullOrEmpty(path2)) return path1;
+            if(path2.StartsWith(Separator))
+            {
+                return path1 + path2;
+            }
+            else
+            {
+                return path1 + Separator + path2;
+            }
         }
     }
 }
