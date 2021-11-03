@@ -1,6 +1,5 @@
 
 ### TODO
-* 右键选中Rename
 * 处理.jar只读问题
 * 上传下载时Icon变化以显示状态
 * 当前任务显示
@@ -14,3 +13,5 @@
 * 上传文件前配置回调Android, IOS测试
 * 客户端组件断线重连Android, IOS测试
 * 未立即响应到网络连接断开状态Android, IOS测试
+* Android，IOS 测试新建文件夹
+* Android，IOS 测试rename

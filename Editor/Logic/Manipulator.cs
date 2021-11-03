@@ -158,6 +158,10 @@ namespace RemoteFileExplorer.Editor
             var data = m_Owner.m_ObjectListArea.GetSelectData();
             if (data != null)
             {
+                if(data.state == ObjectState.Editing)
+                {
+                    return;  // 处于编辑模式，不默认选择空
+                }
                 curPath = Path.GetDirectoryName(data.path);
             }
             m_Owner.m_ObjectListArea.SetSelectData(null);
@@ -192,9 +196,34 @@ namespace RemoteFileExplorer.Editor
             Coroutines.Start(Internal_Delete(item.Data.path));
         }
 
-        public void Rename(ObjectItem item)
+        public void StartRename(ObjectItem item)
         {
-            // Coroutines.Start(Internal_Rename(item.Data.path));
+            if(item.Data.state != ObjectState.Editing)
+            {
+                item.Data.state = ObjectState.Editing;
+                item.SwitchToEdit(true);
+            }
+        }
+
+        public void EndRename(ObjectItem item, string value)
+        {
+            if(item.Data.state != ObjectState.Editing)
+            {
+                return;
+            }
+            item.Data.state = ObjectState.Selected;
+            item.SwitchToEdit(false);
+            if(string.IsNullOrEmpty(value))
+            {
+                return;
+            }
+            var directory = Path.GetDirectoryName(item.Data.path);
+            var dest = FileUtil.CombinePath(directory, value);
+            if(dest.Equals(value))
+            {
+                return;
+            }
+            Coroutines.Start(Internal_Rename(item.Data.path, dest));
         }
 
         private static string DefaultNewFolderName = "NewFolder";
@@ -612,9 +641,11 @@ namespace RemoteFileExplorer.Editor
             string renameFailedTip = string.Format(Constants.RenameFailedTip, path);
             if (!CheckHandleError(handle, renameFailedTip) || !CheckCommandError(handle.Command, renameFailedTip))
             {
+                // 失败了，不用刷新界面
                 yield break;
             }
-            EditorUtility.DisplayDialog(Constants.WindowTitle, string.Format(Constants.RenameSuccessTip, path), Constants.OkText);
+            GoTo(Directory.GetParent(curPath).ToString(), false, false, false);  // 重命名成功仅刷新界面，不做提醒
+            // EditorUtility.DisplayDialog(Constants.WindowTitle, string.Format(Constants.RenameSuccessTip, path), Constants.OkText);
         }
 
         private IEnumerator Internal_UpdateStatusInfo(ConnectStatus status)
