@@ -33,6 +33,8 @@ namespace RemoteFileExplorer
         [Tooltip("Whether to automatically reconnect after disconnection")]
         public bool autoReconnect = false;
         public float reconnectInterval = 1;
+        public bool showConnectWindowOnStart;
+        private string cacheKey = "FileExplorerClient_Host";
 
         private void Start()
         {
@@ -43,6 +45,10 @@ namespace RemoteFileExplorer
             if (connectOnStart)
             {
                 StartConnect();
+            }
+            if(showConnectWindowOnStart)
+            {
+                OpenConnectWindow();
             }
         }
 
@@ -134,6 +140,12 @@ namespace RemoteFileExplorer
 
             int groupHeight = windowHeight / 5;
             GUILayout.Label("Enter Host to Connect: ", labelStyle);
+            
+            if(hostText == null && PlayerPrefs.HasKey(cacheKey))
+            {
+                hostText = PlayerPrefs.GetString(cacheKey);
+            }
+
             hostText = GUILayout.TextField(hostText ?? host, textFieldStyle);
 
             GUILayout.FlexibleSpace();
@@ -147,6 +159,8 @@ namespace RemoteFileExplorer
                 {
                     host = hostText;
                     showWindow = false;
+                    PlayerPrefs.SetString(cacheKey, host);
+                    PlayerPrefs.Save();  // 缓存上次输入
                     this.StartConnect();
                 }
                 else
