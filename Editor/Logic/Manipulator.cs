@@ -608,7 +608,7 @@ namespace RemoteFileExplorer.Editor
             }
             if(curGoToPath == curPath)
             {
-                GoTo(Directory.GetParent(curPath).ToString(), false, false, false);  // 刷新
+                GoTo(FileUtil.GetPathParent(curPath), false, false, false);  // 刷新
             }
             EditorUtility.DisplayDialog(Constants.WindowTitle, string.Format(Constants.DeleteSuccessTip, path), Constants.OkText);
         }
@@ -645,7 +645,7 @@ namespace RemoteFileExplorer.Editor
                 // 失败了，不用刷新界面
                 yield break;
             }
-            GoTo(Directory.GetParent(curPath).ToString(), false, false, false);  // 重命名成功仅刷新界面，不做提醒
+            GoTo(FileUtil.GetPathParent(curPath), false, false, false);  // 重命名成功仅刷新界面，不做提醒
             // EditorUtility.DisplayDialog(Constants.WindowTitle, string.Format(Constants.RenameSuccessTip, path), Constants.OkText);
         }
 

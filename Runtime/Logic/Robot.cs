@@ -45,7 +45,7 @@ namespace RemoteFileExplorer
                 bool exists = Directory.Exists(path);
                 if (exists)  // 文件夹
                 {
-                    path += Path.DirectorySeparatorChar;
+                    path += FileUtil.Separator;
                 }
                 else if (File.Exists(path))  // 文件
                 {
