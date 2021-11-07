@@ -54,5 +54,10 @@ namespace RemoteFileExplorer
         {
             return Directory.GetParent(path).ToString().Replace("\\", Separator);
         }
+
+        public static string GetDirectoryName(string path)
+        {
+            return Path.GetDirectoryName(path).Replace("\\", Separator);
+        }
     }
 }

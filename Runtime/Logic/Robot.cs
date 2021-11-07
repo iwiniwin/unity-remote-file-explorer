@@ -50,7 +50,7 @@ namespace RemoteFileExplorer
                 else if (File.Exists(path))  // 文件
                 {
                     exists = true;
-                    path = Path.GetDirectoryName(path); // 如果是文件，返回文件所在目录的子文件夹与子文件
+                    path = FileUtil.GetDirectoryName(path); // 如果是文件，返回文件所在目录的子文件夹与子文件
                 }
                 QueryPathInfo.Rsp rsp;
                 if (command is QueryPathKeyInfo.Req)

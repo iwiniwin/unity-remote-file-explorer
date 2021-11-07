@@ -162,7 +162,7 @@ namespace RemoteFileExplorer.Editor
                 {
                     return;  // 处于编辑模式，不默认选择空
                 }
-                curPath = Path.GetDirectoryName(data.path);
+                curPath = FileUtil.GetDirectoryName(data.path);
             }
             m_Owner.m_ObjectListArea.SetSelectData(null);
         }
@@ -217,7 +217,7 @@ namespace RemoteFileExplorer.Editor
             {
                 return;
             }
-            var directory = Path.GetDirectoryName(item.Data.path);
+            var directory = FileUtil.GetDirectoryName(item.Data.path);
             var dest = FileUtil.CombinePath(directory, value);
             if(dest.Equals(value))
             {
@@ -286,7 +286,7 @@ namespace RemoteFileExplorer.Editor
             var data = m_Owner.m_ObjectListArea.GetSelectData();
             if (data != null)
             {
-                dest = Path.GetDirectoryName(data.path);
+                dest = FileUtil.GetDirectoryName(data.path);
             }
             if (string.IsNullOrEmpty(dest))
             {
