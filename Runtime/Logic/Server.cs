@@ -40,6 +40,8 @@ namespace RemoteFileExplorer
             Status = ConnectStatus.Connecting;
             m_Server.BeginAcceptTcpClient((asyncResult) => {
                 m_CurrentClient = m_Server.EndAcceptTcpClient(asyncResult);
+                m_CurrentClient.SendBufferSize = defaultBufferSize;
+                m_CurrentClient.ReceiveBufferSize = defaultBufferSize;
                 StartTransferThreads();
             }, this);
         }
