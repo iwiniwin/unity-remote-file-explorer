@@ -43,7 +43,6 @@ namespace RemoteFileExplorer
         }
 
         private Octets m_SendOctets;
-        private byte[] m_SendBuffer;
         private Thread m_SendThread;
         private AutoResetEvent m_SendResetEvent;
 
@@ -76,7 +75,6 @@ namespace RemoteFileExplorer
         public void StartSendThread()
         {
             m_SendOctets = OctetsCache.Instance.Get(1024 * 1024);
-            m_SendBuffer = new byte[CurrentClient.SendBufferSize];
             m_SendResetEvent = new AutoResetEvent(false);
             m_SendThread = new Thread(SendThreadFunction);
             m_SendThread.Start();
@@ -97,7 +95,7 @@ namespace RemoteFileExplorer
                     Octets sendOctets;
                     lock (m_SendOctets)
                     {
-                        int length = Math.Min(m_SendOctets.Length, m_SendBuffer.Length);
+                        int length = Math.Min(m_SendOctets.Length, CurrentClient.SendBufferSize);
                         sendOctets = OctetsCache.Instance.Get(length);
                         m_SendOctets.Erase(0, length, sendOctets);
                     }

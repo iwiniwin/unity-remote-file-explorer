@@ -19,6 +19,8 @@ namespace RemoteFileExplorer
         {
             Status = ConnectStatus.Connecting;
             m_Client = new TcpClient(AddressFamily.InterNetwork);
+            m_Client.SendBufferSize = defaultBufferSize;
+            m_Client.ReceiveBufferSize = defaultBufferSize;
             m_Client.BeginConnect(host, prot, (asyncResult) =>
             {
                 if (m_Client.Connected)
