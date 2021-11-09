@@ -240,7 +240,7 @@ namespace RemoteFileExplorer.Editor
         void BreadCrumbBar()
         {
             if (m_Manipulator.curPath == null || m_Manipulator.curPath.Length == 0) return;
-            char separator = System.IO.Path.DirectorySeparatorChar;
+            char separator = RemoteFileExplorer.FileUtil.SeparatorChar;
             string[] names = m_Manipulator.curPath.Split(new char[] { separator }, StringSplitOptions.RemoveEmptyEntries);
             Rect rect = new Rect(m_BreadCrumbsContainer.contentRect);
             bool startWithSeparator = m_Manipulator.curPath[0] == separator;

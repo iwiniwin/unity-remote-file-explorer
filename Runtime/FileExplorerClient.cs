@@ -111,14 +111,14 @@ namespace RemoteFileExplorer
             showWindow = true;
         }
         
-        private static int windowWidth = Screen.width / 3;
-        private static int windowHeight = windowWidth / 2;
-        Rect windowRect = new Rect (Screen.width/2 - windowWidth / 2, Screen.height/2 - windowHeight / 2, windowWidth, windowHeight);
         void OnGUI()
         {
             if(showWindow)
             {
-                windowRect = GUILayout.Window(0, windowRect, DoMyWindow, "");
+                int windowWidth = Screen.width / 3;
+                int windowHeight = windowWidth / 2;
+                Rect windowRect = new Rect (Screen.width/2 - windowWidth / 2, Screen.height/2 - windowHeight / 2, windowWidth, windowHeight);
+                GUILayout.Window(0, windowRect, DoMyWindow, "");
             }
         }
 
@@ -138,7 +138,6 @@ namespace RemoteFileExplorer
                 fontSize = fontSize,
             };
 
-            int groupHeight = windowHeight / 5;
             GUILayout.Label("Enter Host to Connect: ", labelStyle);
             
             if(hostText == null && PlayerPrefs.HasKey(cacheKey))

@@ -10,7 +10,7 @@ namespace RemoteFileExplorer
     {
         private bool m_KeepAlive = true;
         private bool m_IsAlive = false;
-        public TcpListener m_Server;
+        public Listener m_Server;
         private TcpClient m_CurrentClient;
 
         
@@ -29,20 +29,24 @@ namespace RemoteFileExplorer
             {
                 return;
             }
-            m_Server = new TcpListener(IPAddress.Parse(host), port);
+            m_Server = new Listener(IPAddress.Parse(host), port);
             m_Server.ExclusiveAddressUse = true;
-            m_Server.Start(1);
             StartListen();
         }
 
         public void StartListen()
         {
+            if(!m_Server.IsListening)
+            {
+                m_Server.Start(1);
+            }
             Status = ConnectStatus.Connecting;
             m_Server.BeginAcceptTcpClient((asyncResult) => {
                 m_CurrentClient = m_Server.EndAcceptTcpClient(asyncResult);
                 m_CurrentClient.SendBufferSize = defaultBufferSize;
                 m_CurrentClient.ReceiveBufferSize = defaultBufferSize;
                 StartTransferThreads();
+                m_Server.Stop();
             }, this);
         }
         
@@ -68,6 +72,19 @@ namespace RemoteFileExplorer
             }
             m_Server = null;
             Close();
+        }
+    }
+
+    public class Listener : TcpListener
+    {
+        public Listener(IPAddress localaddr, int port) : base(localaddr, port) {}
+
+        public bool IsListening
+        {
+            get 
+            {
+                return this.Active;
+            }
         }
     }
     

@@ -162,7 +162,7 @@ namespace RemoteFileExplorer.Editor
                 {
                     return;  // 处于编辑模式，不默认选择空
                 }
-                curPath = Path.GetDirectoryName(data.path);
+                curPath = FileUtil.GetDirectoryName(data.path);
             }
             m_Owner.m_ObjectListArea.SetSelectData(null);
         }
@@ -217,7 +217,7 @@ namespace RemoteFileExplorer.Editor
             {
                 return;
             }
-            var directory = Path.GetDirectoryName(item.Data.path);
+            var directory = FileUtil.GetDirectoryName(item.Data.path);
             var dest = FileUtil.CombinePath(directory, value);
             if(dest.Equals(value))
             {
@@ -286,7 +286,7 @@ namespace RemoteFileExplorer.Editor
             var data = m_Owner.m_ObjectListArea.GetSelectData();
             if (data != null)
             {
-                dest = Path.GetDirectoryName(data.path);
+                dest = FileUtil.GetDirectoryName(data.path);
             }
             if (string.IsNullOrEmpty(dest))
             {
@@ -608,7 +608,7 @@ namespace RemoteFileExplorer.Editor
             }
             if(curGoToPath == curPath)
             {
-                GoTo(Directory.GetParent(curPath).ToString(), false, false, false);  // 刷新
+                GoTo(FileUtil.GetPathParent(curPath), false, false, false);  // 刷新
             }
             EditorUtility.DisplayDialog(Constants.WindowTitle, string.Format(Constants.DeleteSuccessTip, path), Constants.OkText);
         }
@@ -645,7 +645,7 @@ namespace RemoteFileExplorer.Editor
                 // 失败了，不用刷新界面
                 yield break;
             }
-            GoTo(Directory.GetParent(curPath).ToString(), false, false, false);  // 重命名成功仅刷新界面，不做提醒
+            GoTo(FileUtil.GetPathParent(curPath), false, false, false);  // 重命名成功仅刷新界面，不做提醒
             // EditorUtility.DisplayDialog(Constants.WindowTitle, string.Format(Constants.RenameSuccessTip, path), Constants.OkText);
         }
 
