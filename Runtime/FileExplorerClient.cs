@@ -33,7 +33,7 @@ namespace RemoteFileExplorer
         [Tooltip("Whether to automatically reconnect after disconnection")]
         public bool autoReconnect = false;
         public float reconnectInterval = 1;
-        public bool showConnectWindowOnStart;
+        public ConnectWindowConfig connectWindow;
         private string cacheKey = "FileExplorerClient_Host";
 
         private void Start()
@@ -46,10 +46,11 @@ namespace RemoteFileExplorer
             {
                 StartConnect();
             }
-            if(showConnectWindowOnStart)
+            if(connectWindow.showOnStart)
             {
                 OpenConnectWindow();
             }
+            DontDestroyOnLoad(this);
         }
 
         public void StartConnect()
@@ -111,13 +112,24 @@ namespace RemoteFileExplorer
             showWindow = true;
         }
         
+        private Vector2 designResolution = new Vector2(1334, 750);
+        private Vector2 designLandscapeSize = new Vector2(480, 240);
+        private Vector2 designPortraitSize = new Vector2(540, 300);
+        private int fontSize = 20;
         void OnGUI()
         {
             if(showWindow)
             {
-                int windowWidth = Screen.width / 3;
-                int windowHeight = windowWidth / 2;
-                Rect windowRect = new Rect (Screen.width/2 - windowWidth / 2, Screen.height/2 - windowHeight / 2, windowWidth, windowHeight);
+                bool protrait = connectWindow.orientation == ConnectWindowOrientation.Portrait;
+                if(connectWindow.orientation == ConnectWindowOrientation.UseProjectSettings)
+                {
+                    protrait = Screen.orientation == ScreenOrientation.Portrait || Screen.orientation == ScreenOrientation.Portrait;
+                }
+                fontSize = protrait ? 30 : 20;
+                var size = protrait ? designPortraitSize : designLandscapeSize;
+                var scale = Mathf.Min(Screen.width / (protrait ? designResolution.y : designResolution.x), Screen.height / (protrait ? designResolution.x : designResolution.y));
+                size *= scale;
+                Rect windowRect = new Rect (Screen.width/2 - size.x / 2, Screen.height/2 - size.y / 2, size.x, size.y);
                 GUILayout.Window(0, windowRect, DoMyWindow, "");
             }
         }
@@ -126,7 +138,6 @@ namespace RemoteFileExplorer
         private IPAddress address;
         void DoMyWindow(int windowID)
         {
-            int fontSize = 20;
             var labelStyle = new GUIStyle(GUI.skin.label){
                 fontSize = fontSize,
             };
@@ -169,5 +180,19 @@ namespace RemoteFileExplorer
             }
             GUILayout.EndHorizontal();
         }
+    }
+
+    [System.Serializable]
+    public class ConnectWindowConfig
+    {
+        public bool showOnStart;
+        public ConnectWindowOrientation orientation = ConnectWindowOrientation.UseProjectSettings;
+    }
+
+    public enum ConnectWindowOrientation
+    {
+        UseProjectSettings,
+        Landscape,
+        Portrait
     }
 }
