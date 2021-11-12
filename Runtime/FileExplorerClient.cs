@@ -129,6 +129,7 @@ namespace RemoteFileExplorer
                 var size = protrait ? designPortraitSize : designLandscapeSize;
                 var scale = Mathf.Min(Screen.width / (protrait ? designResolution.y : designResolution.x), Screen.height / (protrait ? designResolution.x : designResolution.y));
                 size *= scale;
+                fontSize = (int)(fontSize * scale);
                 Rect windowRect = new Rect (Screen.width/2 - size.x / 2, Screen.height/2 - size.y / 2, size.x, size.y);
                 GUILayout.Window(0, windowRect, DoMyWindow, "");
             }
