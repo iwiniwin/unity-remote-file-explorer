@@ -45,7 +45,7 @@ namespace RemoteFileExplorer.Editor
                 }
                 return true;
             });
-            methods.Sort(new ProcessMethodComparer());
+            methods.Sort(new BeforeUploadMethodComparer());
             return methods;
         }
 
@@ -62,14 +62,41 @@ namespace RemoteFileExplorer.Editor
                 }
             }
         }
+
+        public static List<MethodInfo> GetCustomMenuMethods()
+        {
+            List<MethodInfo> methods = GetMethods<CustomMenuAttribute>(method =>
+            {
+                if (!(method.IsPublic && method.IsStatic))
+                    return false;
+                var parameters = method.GetParameters();
+                if (!(parameters.Length == 1 && parameters[0].ParameterType == typeof(ManipulatorWrapper)))
+                {
+                    return false;
+                }
+                return true;
+            });
+            methods.Sort(new CustomMenuMethodComparer());
+            return methods;
+        }
     }
 
-    public class ProcessMethodComparer : IComparer<MethodInfo>
+    public class BeforeUploadMethodComparer : IComparer<MethodInfo>
     {
         public int Compare(MethodInfo m1, MethodInfo m2)
         {
             var attribute1 = m1.GetCustomAttribute<BeforeUploadAttribute>();
             var attribute2 = m2.GetCustomAttribute<BeforeUploadAttribute>();
+            return attribute1.priority.CompareTo(attribute2.priority);
+        }
+    }
+
+    public class CustomMenuMethodComparer : IComparer<MethodInfo>
+    {
+        public int Compare(MethodInfo m1, MethodInfo m2)
+        {
+            var attribute1 = m1.GetCustomAttribute<CustomMenuAttribute>();
+            var attribute2 = m2.GetCustomAttribute<CustomMenuAttribute>();
             return attribute1.priority.CompareTo(attribute2.priority);
         }
     }

@@ -7,6 +7,7 @@
     <editor:Toolbar name="firstToolbar">
       <editor:ToolbarToggle name="statsToggle" text="Stats"/>
       <editor:ToolbarMenu name="goToMenu" text="Go To " style="border-left-width:0;"/>
+      <editor:ToolbarMenu name="customMenu" text="Custom "/>
       <editor:ToolbarSpacer class="toolbarFlexSpacer"/>
       <editor:ToolbarSearchField name="searchField" />
     </editor:Toolbar>

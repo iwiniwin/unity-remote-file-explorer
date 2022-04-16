@@ -405,7 +405,7 @@ namespace RemoteFileExplorer.Editor
         /// <summary>
         /// 下载
         /// </summary>
-        private IEnumerator Internal_Download(string path, string dest, bool silent)
+        internal IEnumerator Internal_Download(string path, string dest, bool silent)
         {
             if (!CheckConnectStatus(!silent)) yield break;
             var req = new Pull.Req
@@ -494,7 +494,7 @@ namespace RemoteFileExplorer.Editor
             }
         }
 
-        private IEnumerator Internal_Upload(string[] paths, string dest)
+        internal IEnumerator Internal_Upload(string[] paths, string dest)
         {
             if (!CheckConnectStatus()) yield break;
             string uploadConfirmTip = string.Format(Constants.UploadConfirmTip, "\n", string.Join("\n", paths), dest);
@@ -586,7 +586,7 @@ namespace RemoteFileExplorer.Editor
             }
         }
 
-        private IEnumerator Internal_Delete(string path)
+        internal IEnumerator Internal_Delete(string path)
         {
             if (!CheckConnectStatus()) yield break;
             string curGoToPath = curPath;
@@ -613,7 +613,7 @@ namespace RemoteFileExplorer.Editor
             EditorUtility.DisplayDialog(Constants.WindowTitle, string.Format(Constants.DeleteSuccessTip, path), Constants.OkText);
         }
 
-        private IEnumerator Internal_NewFolder(string path)
+        internal IEnumerator Internal_NewFolder(string path)
         {
             if (!CheckConnectStatus()) yield break;
             var req = new NewFolder.Req(){
@@ -630,7 +630,7 @@ namespace RemoteFileExplorer.Editor
             GoTo(curPath, false, false, false);  // 新建文件夹成功，不做提醒
         }
 
-        private IEnumerator Internal_Rename(string path, string newPath)
+        internal IEnumerator Internal_Rename(string path, string newPath)
         {
             if (!CheckConnectStatus()) yield break;
             var req = new Rename.Req(){
@@ -743,6 +743,90 @@ namespace RemoteFileExplorer.Editor
                 return false;
             }
             return true;
+        }
+    }
+
+    public class ManipulatorWrapper 
+    {
+        private Manipulator m_Manipulator;
+
+        public ManipulatorWrapper(Manipulator manipulator)
+        {
+            m_Manipulator = manipulator;
+        }
+
+        /// <summary>
+        /// 跳转到指定目录
+        /// </summary>
+        /// <param name="path">指定目录</param>
+        public void GoTo(string path)
+        {
+            path = FileUtil.FixedPath(path);
+            m_Manipulator.GoTo(path);
+        }
+
+        /// <summary>
+        /// 刷新当前视图
+        /// </summary>
+        public void Refresh()
+        {
+            m_Manipulator.Refresh();
+        }
+
+        /// <summary>
+        /// 下载指定文件/文件夹到目标路径
+        /// </summary>
+        /// <param name="path">文件/文件夹路径</param>
+        /// <param name="dest">目标路径</param>
+        public void Download(string path, string dest)
+        {
+            path = FileUtil.FixedPath(path);
+            dest = FileUtil.FixedPath(dest);
+            Coroutines.Start(m_Manipulator.Internal_Download(path, dest, false));
+        }
+
+        /// <summary>
+        /// 上传指定文件/文件夹到目标文件夹下
+        /// </summary>
+        /// <param name="path">文件/文件夹路径</param>
+        /// <param name="dest">目标文件夹</param>
+        public void Upload(string path, string dest)
+        {
+            path = FileUtil.FixedPath(path);
+            dest = FileUtil.FixedPath(dest);
+            Coroutines.Start(m_Manipulator.Internal_Upload(new string[]{path}, dest));
+        }
+
+        /// <summary>
+        /// 删除指定文件/文件夹
+        /// </summary>
+        /// <param name="path">文件/文件夹路径</param>
+        public void Delete(string path)
+        {
+            path = FileUtil.FixedPath(path);
+            Coroutines.Start(m_Manipulator.Internal_Delete(path));
+        }
+
+        /// <summary>
+        /// 重命名文件/文件夹
+        /// </summary>
+        /// <param name="path">文件/文件夹路径</param>
+        /// <param name="dest">目标路径</param>
+        public void Rename(string path, string dest)
+        {
+            path = FileUtil.FixedPath(path);
+            dest = FileUtil.FixedPath(dest);
+            Coroutines.Start(m_Manipulator.Internal_Rename(path, dest));
+        }
+
+        /// <summary>
+        /// 新建文件夹
+        /// </summary>
+        /// <param name="path">目标文件夹路径</param>
+        public void NewFolder(string path)
+        {
+            path = FileUtil.FixedPath(path);
+            Coroutines.Start(m_Manipulator.Internal_NewFolder(path));
         }
     }
 }

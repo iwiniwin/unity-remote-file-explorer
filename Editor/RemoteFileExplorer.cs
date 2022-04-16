@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using UnityEngine;
 using UnityEditor;
 using UnityEngine.UIElements;
@@ -24,6 +25,7 @@ namespace RemoteFileExplorer.Editor
         private static Texture2D m_EstablishedTexture;
 
         private Manipulator m_Manipulator;
+        private ManipulatorWrapper m_ManipulatorWrapper;
         public Label m_ConnectStateLabel;
         public Label m_ConnectHostLabel;
         public Label m_ConnectPortLabel;
@@ -69,6 +71,7 @@ namespace RemoteFileExplorer.Editor
         private void InitContent()
         {
             m_Manipulator = new Manipulator(this);
+            m_ManipulatorWrapper = new ManipulatorWrapper(m_Manipulator);
             var root = this.rootVisualElement;
             root.styleSheets.Add(AssetDatabase.LoadAssetAtPath<StyleSheet>(k_WindowCommonStyleSheetPath));
             if (EditorGUIUtility.isProSkin)
@@ -120,6 +123,30 @@ namespace RemoteFileExplorer.Editor
                 }
                 menu.DropDown(GetRect(goToMenu));
             });
+
+            var customMenu = root.Q<ToolbarMenu>("customMenu");
+            var methods = EditorReflection.GetCustomMenuMethods();
+            if(methods.Count > 0)
+            {
+                customMenu.style.display = DisplayStyle.Flex;
+                customMenu.RegisterCallback<MouseUpEvent>((MouseUpEvent e) =>
+                {
+                    var menu = new GenericMenu();
+                    foreach (var method in methods)
+                    {
+                        var attribute = method.GetCustomAttribute<CustomMenuAttribute>();
+                        menu.AddItem(new GUIContent(attribute.title), false, () =>
+                        {
+                            method.Invoke(null, new object[]{m_ManipulatorWrapper});
+                        });
+                    }
+                    menu.DropDown(GetRect(customMenu));
+                });
+            }
+            else
+            {
+                customMenu.style.display = DisplayStyle.None;
+            }
 
             m_ConnectStateLabel = root.Q<Label>("connectState");
             m_ConnectHostLabel = root.Q<Label>("connectHost");

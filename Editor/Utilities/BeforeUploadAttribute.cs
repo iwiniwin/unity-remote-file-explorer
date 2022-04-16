@@ -40,3 +40,16 @@ namespace RemoteFileExplorer.Editor
         }
     }
 }
+
+/*  BeforeUploadAttribute使用样例
+using RemoteFileExplorer.Editor;
+
+public class TestBeforeUpload
+{
+    [BeforeUpload("before upload luascripts", IncludeSrc = "luascripts")]
+    public static void Test(string src, string dest)
+    {
+        
+    }
+}
+*/
