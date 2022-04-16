@@ -104,7 +104,7 @@ namespace RemoteFileExplorer
                         CurrentClient.GetStream().Write(sendOctets.Buffer, 0, sendOctets.Length);
                         OctetsCache.Instance.Release(sendOctets);
                     }
-                    catch (Exception e)
+                    catch
                     {
                         if (Status != ConnectStatus.Disconnect)
                         {
@@ -163,7 +163,7 @@ namespace RemoteFileExplorer
                 {
                     readLength = CurrentClient.GetStream().Read(m_ReceiveBuffer, 0, m_ReceiveBuffer.Length);
                 }
-                catch (Exception e)
+                catch
                 {
                     if (Status != ConnectStatus.Disconnect)
                     {

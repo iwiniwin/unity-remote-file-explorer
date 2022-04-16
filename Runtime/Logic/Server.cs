@@ -8,8 +8,6 @@ namespace RemoteFileExplorer
 {
     public class Server : Socket
     {
-        private bool m_KeepAlive = true;
-        private bool m_IsAlive = false;
         public Listener m_Server;
         private TcpClient m_CurrentClient;
 

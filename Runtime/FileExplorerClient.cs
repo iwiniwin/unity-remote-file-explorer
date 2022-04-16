@@ -50,7 +50,6 @@ namespace RemoteFileExplorer
             {
                 OpenConnectWindow();
             }
-            DontDestroyOnLoad(this);
         }
 
         public void StartConnect()
@@ -115,7 +114,7 @@ namespace RemoteFileExplorer
         private Vector2 designResolution = new Vector2(1334, 750);
         private Vector2 designLandscapeSize = new Vector2(480, 240);
         private Vector2 designPortraitSize = new Vector2(540, 300);
-        private int fontSize = 20;
+        private int fontSize = 24;
         void OnGUI()
         {
             if(showWindow)
@@ -125,7 +124,7 @@ namespace RemoteFileExplorer
                 {
                     protrait = Screen.orientation == ScreenOrientation.Portrait || Screen.orientation == ScreenOrientation.Portrait;
                 }
-                fontSize = protrait ? 30 : 20;
+                fontSize = protrait ? 30 : 24;
                 var size = protrait ? designPortraitSize : designLandscapeSize;
                 var scale = Mathf.Min(Screen.width / (protrait ? designResolution.y : designResolution.x), Screen.height / (protrait ? designResolution.x : designResolution.y));
                 size *= scale;
