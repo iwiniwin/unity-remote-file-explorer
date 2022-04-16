@@ -33,22 +33,20 @@ namespace RemoteFileExplorer
         [Tooltip("Whether to automatically reconnect after disconnection")]
         public bool autoReconnect = false;
         public float reconnectInterval = 1;
-        public ConnectWindowConfig connectWindow;
-        private string cacheKey = "FileExplorerClient_Host";
 
-        private void Start()
+        private void Awake()
         {
             m_Client = new Client();
             m_Robot = new Robot(m_Client);
             m_Client.OnReceiveCommand += OnReceiveCommand;
             m_Client.OnConnectStatusChanged += OnConnectStatusChanged;
+        }
+
+        private void Start()
+        {
             if (connectOnStart)
             {
                 StartConnect();
-            }
-            if(connectWindow.showOnStart)
-            {
-                OpenConnectWindow();
             }
         }
 
@@ -104,95 +102,5 @@ namespace RemoteFileExplorer
                 m_Client.Close();
             }
         }
-
-        private bool showWindow = false;
-        public void OpenConnectWindow()
-        {
-            showWindow = true;
-        }
-        
-        private Vector2 designResolution = new Vector2(1334, 750);
-        private Vector2 designLandscapeSize = new Vector2(480, 240);
-        private Vector2 designPortraitSize = new Vector2(540, 300);
-        private int fontSize = 24;
-        void OnGUI()
-        {
-            if(showWindow)
-            {
-                bool protrait = connectWindow.orientation == ConnectWindowOrientation.Portrait;
-                if(connectWindow.orientation == ConnectWindowOrientation.UseProjectSettings)
-                {
-                    protrait = Screen.orientation == ScreenOrientation.Portrait || Screen.orientation == ScreenOrientation.Portrait;
-                }
-                fontSize = protrait ? 30 : 24;
-                var size = protrait ? designPortraitSize : designLandscapeSize;
-                var scale = Mathf.Min(Screen.width / (protrait ? designResolution.y : designResolution.x), Screen.height / (protrait ? designResolution.x : designResolution.y));
-                size *= scale;
-                fontSize = (int)(fontSize * scale);
-                Rect windowRect = new Rect (Screen.width/2 - size.x / 2, Screen.height/2 - size.y / 2, size.x, size.y);
-                GUILayout.Window(0, windowRect, DoMyWindow, "");
-            }
-        }
-
-        private string hostText;
-        private IPAddress address;
-        void DoMyWindow(int windowID)
-        {
-            var labelStyle = new GUIStyle(GUI.skin.label){
-                fontSize = fontSize,
-            };
-            labelStyle.normal.textColor = Color.white;
-            var textFieldStyle = new GUIStyle(GUI.skin.textField){
-                fontSize = fontSize,
-            };
-            var buttonStyle = new GUIStyle(GUI.skin.button){
-                fontSize = fontSize,
-            };
-
-            GUILayout.Label("Enter Host to Connect: ", labelStyle);
-            
-            if(hostText == null && PlayerPrefs.HasKey(cacheKey))
-            {
-                hostText = PlayerPrefs.GetString(cacheKey);
-            }
-
-            hostText = GUILayout.TextField(hostText ?? host, textFieldStyle);
-
-            GUILayout.FlexibleSpace();
-
-            GUILayout.BeginHorizontal();
-            if(GUILayout.Button("Cancel", buttonStyle)){
-                showWindow = false;
-            }
-            if(GUILayout.Button("Connect", buttonStyle)){
-                if(IPAddress.TryParse(hostText, out address))
-                {
-                    host = hostText;
-                    showWindow = false;
-                    PlayerPrefs.SetString(cacheKey, host);
-                    PlayerPrefs.Save();  // 缓存上次输入
-                    this.StartConnect();
-                }
-                else
-                {
-                    hostText = "";
-                }
-            }
-            GUILayout.EndHorizontal();
-        }
-    }
-
-    [System.Serializable]
-    public class ConnectWindowConfig
-    {
-        public bool showOnStart;
-        public ConnectWindowOrientation orientation = ConnectWindowOrientation.UseProjectSettings;
-    }
-
-    public enum ConnectWindowOrientation
-    {
-        UseProjectSettings,
-        Landscape,
-        Portrait
     }
 }
