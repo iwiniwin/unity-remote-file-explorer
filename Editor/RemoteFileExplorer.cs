@@ -114,7 +114,7 @@ namespace RemoteFileExplorer.Editor
             goToMenu.RegisterCallback<MouseUpEvent>((MouseUpEvent e) =>
             {
                 var menu = new GenericMenu();
-                foreach (var key in Robot.PathKeyMap.Keys)
+                foreach (var key in Robot.PathKeys)
                 {
                     menu.AddItem(new GUIContent(key), false, () =>
                     {

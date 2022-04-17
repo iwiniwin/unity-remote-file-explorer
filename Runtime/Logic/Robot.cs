@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
+using System.Linq;
 
 namespace RemoteFileExplorer
 {
@@ -11,12 +12,22 @@ namespace RemoteFileExplorer
         private static string[] emptyStringArray = new string[] { };
         private static string emptyString = "";
 
-        public static Dictionary<string, string> PathKeyMap = new Dictionary<string, string>(){
-            {"Application.dataPath", Application.dataPath},
-            {"Application.persistentDataPath", Application.persistentDataPath},
-            {"Application.streamingAssetsPath", Application.streamingAssetsPath},
-            {"Application.consoleLogPath", Application.consoleLogPath},
-            {"Application.temporaryCachePath", Application.temporaryCachePath}
+        public static string[] PathKeys = new string[]
+        {
+            "Application.dataPath",
+            "Application.persistentDataPath",
+            "Application.streamingAssetsPath",
+            "Application.consoleLogPath",
+            "Application.temporaryCachePath",
+        };
+
+        public static string[] PathValues = new string[]
+        {
+            Application.dataPath,
+            Application.persistentDataPath,
+            Application.streamingAssetsPath,
+            Application.consoleLogPath,
+            Application.temporaryCachePath,
         };
 
         private Socket m_Socket;
@@ -30,28 +41,29 @@ namespace RemoteFileExplorer
         {
             if (command is QueryPathInfo.Req || command is QueryPathKeyInfo.Req)
             {
-
                 string path;
                 if (command is QueryPathKeyInfo.Req)
                 {
                     var req = command as QueryPathKeyInfo.Req;
-                    path = Robot.PathKeyMap[req.PathKey];
+                    path = PathValues[Array.IndexOf(PathKeys, req.PathKey)];
                 }
                 else
                 {
                     var req = command as QueryPathInfo.Req;
                     path = req.Path;
                 }
+
                 bool exists = Directory.Exists(path);
-                if (exists)  // 文件夹
+                if (exists) // 文件夹
                 {
                     path += FileUtil.Separator;
                 }
-                else if (File.Exists(path))  // 文件
+                else if (File.Exists(path)) // 文件
                 {
                     exists = true;
                     path = FileUtil.GetDirectoryName(path); // 如果是文件，返回文件所在目录的子文件夹与子文件
                 }
+
                 QueryPathInfo.Rsp rsp;
                 if (command is QueryPathKeyInfo.Req)
                 {
@@ -64,6 +76,7 @@ namespace RemoteFileExplorer
                 {
                     rsp = new QueryPathInfo.Rsp();
                 }
+
                 rsp.Exists = exists;
                 try
                 {
@@ -77,6 +90,7 @@ namespace RemoteFileExplorer
                     rsp.Files = emptyStringArray;
                     rsp.Error = e.Message;
                 }
+
                 rsp.Ack = command.Seq;
                 m_Socket.Send(rsp);
             }
@@ -104,7 +118,7 @@ namespace RemoteFileExplorer
             {
                 Coroutines.Start(ProcessDownloadReq(command as Pull.Req));
             }
-            else if(command is NewFolder.Req)
+            else if (command is NewFolder.Req)
             {
                 ProcessNewFolderReq(command as NewFolder.Req);
             }
@@ -124,6 +138,7 @@ namespace RemoteFileExplorer
             {
                 rsp.Error = e.Message;
             }
+
             m_Socket.Send(rsp);
         }
 
@@ -147,6 +162,7 @@ namespace RemoteFileExplorer
             {
                 rsp.Error = e.Message;
             }
+
             m_Socket.Send(rsp);
         }
 
@@ -172,6 +188,7 @@ namespace RemoteFileExplorer
             {
                 rsp.Error = e.Message;
             }
+
             m_Socket.Send(rsp);
         }
 
@@ -198,6 +215,7 @@ namespace RemoteFileExplorer
             {
                 rsp.Error = e.Message;
             }
+
             m_Socket.Send(rsp);
         }
 
@@ -216,6 +234,7 @@ namespace RemoteFileExplorer
             {
                 rsp.Error = e.Message;
             }
+
             m_Socket.Send(rsp);
         }
 
@@ -227,6 +246,7 @@ namespace RemoteFileExplorer
                 Name = SystemInfo.deviceName,
                 Model = SystemInfo.deviceModel,
                 System = SystemInfo.operatingSystem,
+                Paths = string.Join(";", PathValues),
             };
             m_Socket.Send(rsp);
         }
@@ -242,9 +262,9 @@ namespace RemoteFileExplorer
             string[] files = null;
             try
             {
-                if (File.Exists(path))  // 单文件下载
+                if (File.Exists(path)) // 单文件下载
                 {
-                    files = new string[] { path };
+                    files = new string[] {path};
                 }
                 else
                 {
@@ -258,6 +278,7 @@ namespace RemoteFileExplorer
                 m_Socket.Send(rsp);
                 yield break;
             }
+
             if (directories != null)
             {
                 CreateDirectory.Req req = new CreateDirectory.Req()
@@ -273,6 +294,7 @@ namespace RemoteFileExplorer
                     yield break;
                 }
             }
+
             foreach (string file in files)
             {
                 byte[] content;
@@ -286,6 +308,7 @@ namespace RemoteFileExplorer
                     m_Socket.Send(rsp);
                     yield break;
                 }
+
                 TransferFile.Req transferFileReq = new TransferFile.Req()
                 {
                     Ack = downloadReq.Seq,
@@ -300,6 +323,7 @@ namespace RemoteFileExplorer
                     yield break;
                 }
             }
+
             m_Socket.Send(rsp);
         }
     }

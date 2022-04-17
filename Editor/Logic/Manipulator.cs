@@ -11,6 +11,7 @@ namespace RemoteFileExplorer.Editor
     public class Manipulator
     {
         public string m_CurPath;
+        private Dictionary<string, string> m_Paths = new Dictionary<string, string>();
 
         private const string CacheKey = "RemoteFileExplorer_Cache_GoTo";
         private const string JarTag = "jar:file://";
@@ -661,6 +662,7 @@ namespace RemoteFileExplorer.Editor
                 m_Owner.m_DeviceNameLabel.text = Constants.UnknownText;
                 m_Owner.m_DeviceModelLabel.text = Constants.UnknownText;
                 m_Owner.m_DeviceSystemLabel.text = Constants.UnknownText;
+                m_Paths.Clear();
                 m_Owner.titleContent.image = TextureUtility.GetTexture("project");
                 m_Owner.m_ConnectStateLabel.text = "Unconnected";
                 m_Owner.m_ConnectStateLabel.style.color = Color.red;
@@ -674,6 +676,12 @@ namespace RemoteFileExplorer.Editor
                 m_Owner.m_DeviceNameLabel.text = rsp.Name;
                 m_Owner.m_DeviceModelLabel.text = rsp.Model;
                 m_Owner.m_DeviceSystemLabel.text = rsp.System;
+                m_Paths.Clear();
+                string[] paths = rsp.Paths.Split(';');
+                for (int i = 0; i < paths.Length; i++)
+                {
+                    m_Paths.Add(Robot.PathKeys[i], paths[i]);   
+                }
                 m_Owner.titleContent.image = TextureUtility.GetTexture("project active");
                 m_Owner.m_ConnectStateLabel.text = "Established";
                 m_Owner.m_ConnectStateLabel.style.color = Color.green;
@@ -743,6 +751,20 @@ namespace RemoteFileExplorer.Editor
                 return false;
             }
             return true;
+        }
+
+        public string GetPath(string pathKey)
+        {
+            if (m_Paths.ContainsKey(pathKey))
+            {
+                return m_Paths[pathKey];
+            }
+
+            if (Array.IndexOf(Robot.PathKeys, pathKey) == -1)
+            {
+                Debug.LogWarning("Attempt to get path by invalid key : " + pathKey);
+            }
+            return "";
         }
     }
 
@@ -827,6 +849,16 @@ namespace RemoteFileExplorer.Editor
         {
             path = FileUtil.FixedPath(path);
             Coroutines.Start(m_Manipulator.Internal_NewFolder(path));
+        }
+        
+        /// <summary>
+        /// 通过路径关键字获取远端路径
+        /// </summary>
+        /// <param name="pathKey">路径关键字</param>
+        /// <returns>远端路径</returns>
+        public string GetRemotePath(string pathKey)
+        {
+            return m_Manipulator.GetPath(pathKey);
         }
     }
 }

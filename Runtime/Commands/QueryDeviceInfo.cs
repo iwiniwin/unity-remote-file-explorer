@@ -14,6 +14,7 @@ namespace RemoteFileExplorer
             public string Name;
             public string Model;
             public string System;
+            public string Paths;
             public override CommandType Type { get { return CommandType.QueryDeviceInfoRsp; } }
 
             public override Octets Serialize()
@@ -23,6 +24,7 @@ namespace RemoteFileExplorer
                 Packer.WriteString(Name);
                 Packer.WriteString(Model);
                 Packer.WriteString(System);
+                Packer.WriteString(Paths);
                 Packer.Unbind();
                 return octets;
             }
@@ -33,6 +35,7 @@ namespace RemoteFileExplorer
                 this.Name = Unpacker.ReadString();
                 this.Model = Unpacker.ReadString();
                 this.System = Unpacker.ReadString();
+                this.Paths = Unpacker.ReadString();
                 return Unpacker.Unbind();
             }
         }
