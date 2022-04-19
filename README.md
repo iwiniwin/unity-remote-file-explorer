@@ -14,6 +14,7 @@
 * 通过本工具直接拉取手机上的日志文件或内存分析文件等各类文件，从此告别数据线
 * **如果项目采用了XLua或SLua开发，在真机开发调试时，可通过本工具直接上传修改后的Lua代码，重启应用即可生效。从而避免每修改一次代码就重新构建一次应用的繁琐过程，大大提高调试效率**
 
+更详细的用例演示可以查看[这篇博文](https://www.cnblogs.com/iwiniwin/p/15595243.html)，演示Demo工程可以查看[这里](https://github.com/iwiniwin/RemoteFileExplorerDemo)
 
 ## 安装
 本工具是采用Unity的[包](https://docs.unity3d.com/cn/2019.4/Manual/PackagesList.html)形式，可以通过*Unity Package Manager*直接安装
